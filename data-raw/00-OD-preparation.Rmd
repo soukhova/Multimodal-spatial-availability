@@ -1,0 +1,112 @@
+---
+title: "00-OD-preparation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries
+
+Here we load the libraries we will be using in this .Rmd file:
+```{r}
+library(tidyverse) 
+library(readxl) #imports excel files
+library(geojsonio) #converts geoJSON files to R classes and vice versa
+library(sf) # sf= simple features! These are spatial objects in R, read here: https://r-spatial.github.io/sf/index.html
+library(lubridate) #for time formating
+```
+
+## Import data
+
+```{r}
+OD_v <- read_excel("EDM2018VIAJES.xlsx") #here we import the trips file, by default this function imports the first sheet in an excel file. This .Rmd file is saved in the same place as the .xlsx file so we just need to write the name of the file we want to read. run ' help(read_excel) ` to see the documentation of this function. 
+
+summary(OD_v) #descriptive stats of each row
+```
+
+You can also view a few rows of the 'OD' table like this:
+```{r}
+head(OD_v, 12) #the first 12 rows
+```
+
+Or view it in RStudio:
+```{r}
+view(OD_v)
+```
+
+I'm interested in making the table spatial! It currently does not have coordinates but we can add from the shapefile which can be downloaded from the [Open Data Portal Madrid Regional Transport Consortium](https://datos.crtm.es/datasets/zonificacionzt1259/explore?location=40.420959%2C-3.695073%2C12.93):
+```{r}
+# here we download the madrid zona shapefile using the API GeoJSON resource! neat
+zn <- geojson_read("https://opendata.arcgis.com/datasets/97f83bab03664d4e9853acf0e431d893_0.geojson",  what = "sp")
+zn<- st_as_sf(zn) %>% st_transform(crs = 4326) #transform it into a 'sf' class object and transform coordinates to WGS84
+
+#let's save it to data-raw just in case this link/resource doesn't work in the future
+st_write(zn, "zn.shp")
+```
+
+## Filtering OD trips, home to work
+
+```{r}
+OD_v_Oc_Dt <- OD_v %>% filter(VORI == "1" & VDES == "2") #only filter in origin casa trips and destination trabajo
+
+count(OD_v_Oc_Dt) # from the 222744 trips we now have 27,796 trips
+```
+
+What can we say about these work trips?
+
+Well, the majority of trip frequency is "A diario, de lunes a viernes" (Daily, from Monday to Friday - 1)
+```{r}
+hist(OD_v_Oc_Dt$VFRECUENCIA)
+```
+The average destination arrival time (Destino. Hora llegada) is:
+```{r}
+
+timeD <- as.POSIXct(OD_v_Oc_Dt$VDESHORAFIN, format="%H%M") #formating the column
+timeD <- format(timeD, "%H:%M") # removing date so we just how time
+
+seconds_to_period(mean(period_to_seconds(hm(timeD)), na.rm=T)) # finding mean
+
+```
+9:48am arrival.. not very helpful.
+
+Let's see the distribution:
+```{r}
+hist(OD_v_Oc_Dt$VDESHORAFIN %>% as.numeric(), breaks = 24)
+```
+So we see that 8AM, and 9AM arrival times are most frequent.
+
+We also know that the majority do make this trip by personal car "¿Dispone de vehículo particular para hacer este viaje?" (1):
+```{r}
+hist(OD_v_Oc_Dt$VVEHICULO)
+```
+Try exploring the rest of the variables!
+
+## Making OD home to work trips spatial
+
+Here we add # of origin trips to the zona sf object, so we see where trips are coming from. 
+
+First, we count the number of trips coming from each origin:
+```{r}
+Otrips_zona <- OD_v_Oc_Dt %>% group_by(VORIZT1259)  %>% summarise(Otrips = (n())) # we group by the origin ZT1259 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Otrips' column.
+
+head(Otrips_zona,12)
+```
+
+Now, we add this new column to the zonas sf object:
+```{r}
+zn <- zn %>% merge(Otrips_zona, by.x = "ZT1259", by.y="VORIZT1259")
+
+head(zn %>% st_drop_geometry(), 12) # notice the new 'Otrips' column
+```
+
+a simple plot:
+```{r}
+ggplot() +
+  geom_sf(data = zn,
+          aes(fill = Otrips),
+          color  = NA) +
+  scale_fill_distiller(palette = "Spectral")
+```
+
