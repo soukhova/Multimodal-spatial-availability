@@ -89,14 +89,14 @@ Here we add # of origin trips to the zona sf object, so we see where trips are c
 
 First, we count the number of trips coming from each origin:
 ```{r}
-Otrips_zona <- OD_v_Oc_Dt %>% group_by(VORIZT1259)  %>% summarise(Otrips = (n())) # we group by the origin ZT1259 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Otrips' column.
+Dtrips_zona <- OD_v_Oc_Dt %>% group_by(VDESZT1259)  %>% summarise(Dtrips = (n())) # we group by the origin ZT1259 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Otrips' column.
 
-head(Otrips_zona,12)
+head(Dtrips_zona,12)
 ```
 
 Now, we add this new column to the zonas sf object:
 ```{r}
-zn <- zn %>% merge(Otrips_zona, by.x = "ZT1259", by.y="VORIZT1259")
+zn <- zn %>% merge(Dtrips_zona, by.x = "ZT1259", by.y="VDESZT1259")
 
 head(zn %>% st_drop_geometry(), 12) # notice the new 'Otrips' column
 ```
@@ -105,7 +105,7 @@ a simple plot:
 ```{r}
 ggplot() +
   geom_sf(data = zn,
-          aes(fill = Otrips),
+          aes(fill = Dtrips),
           color  = NA) +
   scale_fill_distiller(palette = "Spectral")
 ```
