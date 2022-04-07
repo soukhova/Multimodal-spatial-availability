@@ -1,0 +1,151 @@
+---
+title: "01-Travel-time-calculation"
+output: html_document
+---
+In this notebook, we take the centroids of all zones in Madrid and calculate travel time using car, transit, walk, and cycle. 
+
+Travel modes:
+1) Car
+2) Walk
+3) Bike
+4) Transit bus
+
+# --- Libraries and input data
+```{r setup, include=FALSE}
+library(disk.frame)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+library(httr)
+library(knitr)
+#install.packages("kableExtra", dependencies = TRUE) #installing kableExtra and dependencies as I was recieving errors
+library(kableExtra)
+#install.packages("devtools")
+#install.packages("Rtools")
+#devtools::install_github("https://github.com/hrbrmstr/lodes.git", dependencies = TRUE) # if you need to download
+library(lodes)
+library(progress)
+library(purrr)
+library(r5r)
+library(sf)
+library(stplanr)
+library(tidycensus)
+library(tidyr)
+library(tmap)
+library(zoo) # for rollapplyr
+
+# setup for disk.frame
+setup_disk.frame()
+options(scipen = 999)
+options(java.parameters = "-Xmx6G")
+options(future.globals.maxSize = Inf)
+tmap_mode("view")
+```
+
+
+```{r setup, include=FALSE}
+load(file = "data/zn.RData")
+```
+
+# --- Formating the data
+```{r}
+
+```
+
+
+Format the origin and destination points (ID, Long, Lat). In this case, all origins and all destinations are the same (i.e., 1259 zones so 1259 origins and 1259 destinations, so 1,585,081 OD travel times from each origin to destination):
+```{r}
+# # I was having an error running st_centroid, this line fixes it.
+# sf::sf_use_s2(FALSE)
+
+#convert zn polygons into centroids
+OD_all <- zn %>% st_transform(crs = 2062) %>% st_centroid()
+
+#plot to double check that centroids are on zones
+ggplot() +
+  geom_sf(data = zn) +
+  geom_sf(data = OD_all)
+```
+```{r}
+#transfer coordinates located in geometry into X and Y columns, transform coordinate into crs 4326i.e. WSG 1984 (the input for r5r)
+OD_all <- cbind(as.data.frame(OD_all), 
+                st_coordinates(st_transform(OD_all, crs = 4326))) %>%
+  rename(lon = "X", lat = "Y", id = "FID") %>%
+  select(id, lon, lat)
+```
+
+#--- Download Spain OSM Network and Madrid GTFS Data
+
+```{r set up r5 path, include=FALSE}
+# the r5r package requires Java Development Kit version 11, which can be downloaded from https://www.oracle.com/java/technologies/javase-jdk11-downloads.html
+dir.create("data-raw/intermed/r5_graph")
+r5_path <- file.path("data-raw/intermed/r5_graph")
+```
+
+```{r download data, include=FALSE, eval=FALSE}
+# downloading spain osm in the correct format
+download.file(url = paste0("http://download.geofabrik.de/europe/spain/madrid-latest.osm.pbf"),
+              destfile = file.path(r5_path, "osm.pbf"),
+              mode = "wb")
+
+```
+
+```{r}
+#download and import GTFS (Madrid transit data)
+# download.file(url = "https://transitfeeds.com/p/emt-madrid/212/latest/download", destfile = file.path(r5_path, "MAD_transit.zip"), mode = "wb")
+
+```
+
+# Set Up R5 Routing
+
+```{r build graph, include = FALSE}
+r5_MAD <- setup_r5(data_path = r5_path, verbose = FALSE)
+```
+```{r}
+# stop_r5(r5_HAM)
+# rJava::.jgc(R.gc = TRUE)
+```
+
+# Calculate OD Matrices
+
+## Car travel time
+```{r}
+# set up batching according to how many origin rows to process at one time
+chunksize = 50 
+num_chunks = ceiling(nrow(OD_all)/chunksize)
+
+# create origin-destination pairs
+origins_chunks <- as.disk.frame(OD_all,
+                          outdir = "data-raw/intermed/df/Orig",
+                          nchunks = num_chunks,
+                          overwrite = TRUE)
+
+start.time <- Sys.time()
+pb <- txtProgressBar(0, num_chunks, style = 3)
+
+for (i in 1:num_chunks){
+  Orig_chunk <- get_chunk(origins_chunks, i)
+  ttm_chunk <- travel_time_matrix(r5r_core = r5_MAD,
+                          origins = Orig_chunk,
+                          destinations = OD_all,
+                          mode = c("CAR"), 
+                          departure_datetime = as.POSIXct(strptime("2022-03-30 08:00:00", "%Y-%m-%d %H:%M:%S", tz = "UTC+2")),
+                          max_trip_duration = 120)
+  
+  # export output as disk.frame
+  ifelse(i == 1, output_df <- as.disk.frame(ttm_chunk,
+                                            nchunks = 1,
+                                            outdir = "data-raw/intermed/df/output_ttm",
+                                            compress = 50,
+                                            overwrite = TRUE),
+         add_chunk(output_df, ttm_chunk, chunk_id = i))
+  setTxtProgressBar(pb, i)
+}
+end.time <- Sys.time()
+print(paste0("OD matrix calculation took ", round(difftime(end.time, start.time, units = "mins"), digits = 2), " minutes..."))
+
+output_OD_car <- as.data.frame(output_df)
+
+save("output_OD_car", file = "data-raw/intermed/ttresults/output_OD_car.Rdata")
+#I only made the cut off 60 minutes, so if some parcels do not have a travel time, rerun this for a 120 min cut off. The following are 120mins cutoff
+```
