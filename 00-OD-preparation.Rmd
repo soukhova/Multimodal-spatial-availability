@@ -47,8 +47,24 @@ I'm interested in making the table spatial! It currently does not have coordinat
 
 zn <- st_read("data-raw/zn.shp")
 ```
+Importing the spatial object which corresponds to the low-emission-zones
+```{r}
+#XXX
+```
 
-## Filtering OD trips, home to work
+## Organizing the trip level data
+
+```{r}
+#adding travel time... we don't even need r5r! we just need to decide how to remove A polluting cars
+OD_v <- OD_v %>% mutate(
+  TIEMPO_VIAJES = 
+                  as.numeric((as.POSIXct(OD_v$VDESHORAFIN, format="%H%M") -
+                  as.POSIXct(OD_v$VORIHORAINI, format="%H%M"))/60))
+
+```
+
+
+## Exploring the data - filtering OD trips, home to work
 
 ```{r}
 OD_v_Oc_Dt <- OD_v %>% filter(VORI == "1" & VDES == "2") #only filter in origin casa trips and destination trabajo
@@ -64,18 +80,14 @@ hist(OD_v_Oc_Dt$VFRECUENCIA)
 ```
 The average destination arrival time (Destino. Hora llegada) is:
 ```{r}
-
-timeD <- as.POSIXct(OD_v_Oc_Dt$VDESHORAFIN, format="%H%M") #formating the column
-timeD <- format(timeD, "%H:%M") # removing date so we just how time
-
-seconds_to_period(mean(period_to_seconds(hm(timeD)), na.rm=T)) # finding mean
-
+Dtrips <- as.POSIXct(OD_v$VDESHORAFIN, format="%H%M") %>% format("%H:%M") # formatting and removing date so we just how time
+seconds_to_period(mean(period_to_seconds(hm(Dtrips)), na.rm=T)) # finding mean
 ```
 9:48am arrival.. not very helpful.
 
 Let's see the distribution:
 ```{r}
-hist(OD_v_Oc_Dt$VDESHORAFIN %>% as.numeric(), breaks = 24)
+hist(OD_v_Oc_Dt$VDESHORAFIN%>% as.numeric(), breaks = 24)
 ```
 So we see that 8AM, and 9AM arrival times are most frequent.
 
@@ -86,11 +98,26 @@ hist(OD_v_Oc_Dt$VVEHICULO)
 OD_v_Oc_Dt$VVEHICULO %>% typeof()
 ```
 
-Let's see how long trips are (by distance):
+Let's see how long are short-trips are (by distance, assuming in km units):
 ```{r}
 t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE <= 60) %>% select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric() 
 hist(t)
 ```
+
+As you can see though there are some long distance trip (greater than 60km). There are 101 trips which are between 60km to 600km and 1 trip greater than 600km. For perspective though, these trips make up onl 0.3% of total trips taken ( ~100 trips out of ~28,000 trips).
+```{r}
+t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE >= 60 & DISTANCIA_VIAJE <= 600) %>% select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric() 
+hist(t, breaks = 50)
+
+t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE >= 600) %>% select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric() 
+hist(t, breaks = 50)
+```
+
+Let's check the primary mode: 
+```{r}
+hist(OD_v_Oc_Dt$MODO_PRIORITARIO)
+```
+
 
 ## Making OD home to work trips spatial
 
@@ -138,5 +165,6 @@ Let's compare these two patterns if we only include trips in which the destinati
 ## Saving data
 ```{r}
 save(zn, file = "data/zn.RData")
+save(OD_v, file = "data/OD_v.RData")
 ```
 

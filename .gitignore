@@ -2,3 +2,14 @@
 .Rhistory
 .RData
 .Ruserdata
+*.fst
+*.fst
+*.fst
+*.fst
+data-raw/intermed/df/Orig/.metadata/meta.json
+data-raw/intermed/df/output_ttm/.metadata/meta.json
+data-raw/intermed/r5_graph/MAD_transit.zip
+data-raw/intermed/r5_graph/network.dat
+data-raw/intermed/r5_graph/osm.pbf
+data-raw/intermed/r5_graph/osm.pbf.mapdb
+data-raw/intermed/r5_graph/osm.pbf.mapdb.p
