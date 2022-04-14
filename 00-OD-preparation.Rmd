@@ -49,7 +49,26 @@ zn <- st_read("data-raw/zn.shp")
 ```
 Importing the spatial object which corresponds to the low-emission-zones
 ```{r}
-#XXX
+zn_LEZ <- st_read("data-raw/LEZ.shp") %>% transmute(ZT1259, 
+                                                                       LEZ = 1)
+```
+
+Add a column which indicates if a zn is within the center of madrid:
+```{r}
+zn <- zn %>% merge(zn_city %>% st_drop_geometry(), by = c("ZT1259"), all.x=TRUE)
+```
+
+plot and color in madrid city:
+```{r}
+#plot to double check that centroids are on zones
+ggplot() +
+  geom_sf(data = zn, aes(fill = as.factor(city)), col = NA) +
+  scale_fill_manual(values = c("red", "grey"), name= "Cluster Group")
+```
+```{r}
+#plot to double check that centroids are on zones
+ggplot() +
+  geom_sf(data = zn_city,) 
 ```
 
 ## Organizing the trip level data
