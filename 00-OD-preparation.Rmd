@@ -3,6 +3,12 @@ title: "00-OD-preparation"
 output: html_document
 ---
 
+fsdsjhdskjds
+```{r}
+
+```
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -55,20 +61,20 @@ zn_LEZ <- st_read("data-raw/LEZ.shp") %>% transmute(ZT1259,
 
 Add a column which indicates if a zn is within the center of madrid:
 ```{r}
-zn <- zn %>% merge(zn_city %>% st_drop_geometry(), by = c("ZT1259"), all.x=TRUE)
+zn <- zn %>% merge(zn_LEZ %>% st_drop_geometry(), by = c("ZT1259"), all.x=TRUE)
 ```
 
 plot and color in madrid city:
 ```{r}
 #plot to double check that centroids are on zones
 ggplot() +
-  geom_sf(data = zn, aes(fill = as.factor(city)), col = NA) +
+  geom_sf(data = zn, aes(fill = as.factor(LEZ)), col = NA) +
   scale_fill_manual(values = c("red", "grey"), name= "Cluster Group")
 ```
 ```{r}
 #plot to double check that centroids are on zones
 ggplot() +
-  geom_sf(data = zn_city,) 
+  geom_sf(data = zn_LEZ) 
 ```
 
 ## Organizing the trip level data
@@ -79,6 +85,9 @@ OD_v <- OD_v %>% mutate(
   TIEMPO_VIAJES = 
                   as.numeric((as.POSIXct(OD_v$VDESHORAFIN, format="%H%M") -
                   as.POSIXct(OD_v$VORIHORAINI, format="%H%M"))/60))
+
+summary(OD_v$TIEMPO_VIAJES)
+
 
 ```
 
