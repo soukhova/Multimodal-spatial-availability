@@ -3,12 +3,6 @@ title: "00-OD-preparation"
 output: html_document
 ---
 
-fsdsjhdskjds
-```{r}
-
-```
-
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -22,6 +16,7 @@ library(readxl) #imports excel files
 library(geojsonio) #converts geoJSON files to R classes and vice versa
 library(sf) # sf= simple features! These are spatial objects in R, read here: https://r-spatial.github.io/sf/index.html
 library(lubridate) #for time formating
+library(ggspatial)
 ```
 
 ## Import data
@@ -42,7 +37,7 @@ Or view it in RStudio:
 #view(OD_v)
 ```
 
-I'm interested in making the table spatial! It currently does not have coordinates but we can add from the shapefile which can be downloaded from the [Open Data Portal Madrid Regional Transport Consortium](https://datos.crtm.es/datasets/zonificacionzt1259/explore?location=40.420959%2C-3.695073%2C12.93):
+I'm interested in making the table spatial! It currently does not have coordinates but we can add from the Madrid Region shapefile which can be downloaded from the [Open Data Portal Madrid Regional Transport Consortium](https://datos.crtm.es/datasets/zonificacionzt1259/explore?location=40.420959%2C-3.695073%2C12.93):
 ```{r}
 # # here we download the madrid zona shapefile using the API GeoJSON resource! neat
 # zn <- geojson_read("https://opendata.arcgis.com/datasets/97f83bab03664d4e9853acf0e431d893_0.geojson",  what = "sp")
@@ -53,28 +48,82 @@ I'm interested in making the table spatial! It currently does not have coordinat
 
 zn <- st_read("data-raw/zn.shp")
 ```
-Importing the spatial object which corresponds to the low-emission-zones
+
+Importing a list of all the municipalities within the Madrid region and adding them to the zone shape file:
 ```{r}
-zn_LEZ <- st_read("data-raw/LEZ.shp") %>% transmute(ZT1259, 
-                                                                       LEZ = 1)
+t <- read_excel("data-raw/ZonificacionZT1259 complete.xlsx") %>% select(ZT1259, Municipality)
+
+zn <- zn %>% merge(t, by = c("ZT1259"), all.x=TRUE)
 ```
 
-Add a column which indicates if a zn is within the center of madrid:
+Next, we will add a column which indicates if a zone is in a LEZ or is located within Madrid City Centre (this area contains the LEZ and is contained within the Municipality of Madrid):
 ```{r}
-zn <- zn %>% merge(zn_LEZ %>% st_drop_geometry(), by = c("ZT1259"), all.x=TRUE)
+#IDS that correspond to CC - city center and LEZ - low emission zone
+CC_IDS <- c("079-01", "079-02", "079-03", "079-04", "079-05", "079-06", "079-07")
+LEZ_IDS <- c("079-01-001", "079-01-002", "079-01-003", "079-01-004", "079-01-005", "079-01-006", "079-01-007", "079-01-008", "079-01-009", "079-01-010", "079-01-012", "079-01-013", "079-01-014", "079-01-015", "079-01-016", "079-01-017", "079-01-018", "079-01-019","079-01-020", "079-01-021", "079-01-022", "079-01-023")
+
+#manually added column to zn which identifies if an ID is in the city center (1) or not (0). This searches for any instance of "079-01-XXX", "079-02-XXX" etc.
+zn$CC <- ifelse(grepl(paste(CC_IDS, collapse = "|"), zn$ZT1259), 1,0)
+
+#more simple to use the mutate function here since the string of IDs is complete for LEZ
+zn <- zn %>% mutate(LEZ = ifelse(ZT1259 %in% LEZ_IDS, 1, 0))
+
 ```
 
-plot and color in madrid city:
+create a bounding box for the plot:
 ```{r}
-#plot to double check that centroids are on zones
-ggplot() +
-  geom_sf(data = zn, aes(fill = as.factor(LEZ)), col = NA) +
-  scale_fill_manual(values = c("red", "grey"), name= "Cluster Group")
+#create the bounding box for the Toronto region + a little extra
+bbox_new1 <- st_bbox(zn %>% filter(CC == 1)) # current bounding box
+
+xrange <- bbox_new1$xmax - bbox_new1$xmin # range of x values
+yrange <- bbox_new1$ymax - bbox_new1$ymin # range of y values
+
+bbox_new1[1] <- bbox_new1[1] - (0.2 * xrange) # xmin - left
+bbox_new1[3] <- bbox_new1[3] + (0.2 * xrange) # xmax - right
+bbox_new1[2] <- bbox_new1[2] - (0.05 * yrange) # ymin - bottom
+bbox_new1[4] <- bbox_new1[4] + (0.05 * yrange) # ymax - top
+
+bbox_CityCentre <- bbox_new1 %>%  # take the bounding box ...
+  st_as_sfc()
 ```
+
+plot:
 ```{r}
-#plot to double check that centroids are on zones
-ggplot() +
-  geom_sf(data = zn_LEZ) 
+plot_rmad <- ggplot() +
+  geom_sf(data = zn, fill = "light grey", col = "dark grey", size=0.5) + #all of madrid region
+  geom_sf(data = zn %>% filter(Municipality == "Madrid"), aes(fill = "Municipality of Madrid"), col = "yellow3", size=0.5, show.legend = "polygon") + # madrid municiality
+  geom_sf(data = zn %>% filter(CC == 1), aes(fill =  "City centre"), col = NA, show.legend = "polygon") + # madrid city centre
+  geom_sf(data = zn %>%  filter(LEZ == 1), aes(fill = "Low emission zone"), col = NA, show.legend = "polygon") + #madrid low emission zone
+  geom_sf(data = bbox_CityCentre, fill = NA, col = "black", size = 0.5)+
+  scale_fill_manual(labels = c("City centre", "Low emission zone", "Municipality of Madrid"),
+                      values = c("green", "red", "yellow")) + 
+  annotation_north_arrow(location = "tl", # north arrow for both the main plot and inset
+                         height = unit(0.8, "cm"), 
+                         width = unit(0.8, "cm"),
+                         style = north_arrow_orienteering(line_width = 0.25,
+                                                          line_col = "dimgrey", 
+                                                          fill = c("white","dimgrey"))) +
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm")) +
+  scale_y_continuous(breaks = c(40, 40.4, 40.8, 41.2)) + 
+  scale_x_continuous(breaks = c(-3.0, -3.8, -4.6)) +
+  guides(fill=guide_legend(title=NULL)) +
+  theme_minimal() + theme(legend.position = c(0.25, .16)) 
+
+#just the city center and LEZ
+plot_ccmad <- ggplot() +
+  geom_sf(data = zn %>% filter(CC == 1), aes(fill = "City centre"), col = "green3") + # madrid city centre
+  geom_sf(data = zn %>%  filter(LEZ == 1), aes(fill = "Low emission zone"), col = "red4") + #madrid low emission zone
+  geom_sf(data = bbox_CityCentre, fill = NA, col = "black", size = 0.5)+
+  scale_fill_manual(labels = c("City centre", "Low emission zone"),
+                    values = c("green", "red")) + 
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm"),
+                   pad_y = unit(0.05, "cm")) +
+  guides(fill=guide_legend(title=NULL)) +
+  theme_void() + theme(legend.position = "none") 
+
+cowplot::plot_grid(plot_rmad, plot_ccmad, ncol = 2, rel_widths = c(2.5,1)) 
 ```
 
 ## Organizing the trip level data
@@ -146,6 +195,14 @@ Let's check the primary mode:
 hist(OD_v_Oc_Dt$MODO_PRIORITARIO)
 ```
 
+MODO_PRIORITARIO -> 11, 12, 13, 14, 15, 16 correspond to:
+11 '11. Private car - driver
+12 '12. Company car - driver
+13 '13. Rental car without driver
+14 '14. Private car - passenger
+15 '15. Company car- passenger
+16 '16. Car rental with driver - passenger
+
 
 ## Making OD home to work trips spatial
 
@@ -173,7 +230,8 @@ ggplot() +
           color  = NA) +
   scale_fill_distiller(palette = "Spectral")
 ```
-For comparision... lets plot the number of ORIGIN home-based trips:
+
+For comparison... lets plot the number of ORIGIN home-based trips:
 ```{r}
 Otrips_zona <- OD_v_Oc_Dt %>% group_by(VORIZT1259)  %>% summarise(Otrips = (n())) # we group by the origin ZT1259 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Otrips' column.
 
@@ -185,10 +243,85 @@ ggplot() +
           color  = NA) +
   scale_fill_distiller(palette = "Spectral")
 ```
+How many trips come into the LEZ from outside of the LEZ and how many of those are car trips? Just curious. 
 
-Let's compare these two patterns if we only include trips in which the destination is within the LEZ. 
+First, let's add a column which correspond to if the trip is made by car or not my car.
+```{r}
+OD_v_Oc_Dt <- OD_v_Oc_Dt %>% mutate(bycar = ifelse(MODO_PRIORITARIO %in% c(11, 12, 13, 14, 15, 16),
+                                                                         1, 0),
+                                    nocar = ifelse(!(MODO_PRIORITARIO %in% c(11, 12, 13, 14, 15, 16)),
+                                                                         1, 0))
+```
 
-<!-- to do once Javier adds the LEZ file to data-raw or replicate how the 'zn' object was imported--> 
+
+Next, let's split the data - one subset of all trips that don't go into the LEZ, and another subset of trips that DO go into the LEZ
+```{r}
+OD_v_Oc_Dt_noDesLEZ <- OD_v_Oc_Dt %>% filter(!(VDESZT1259 %in% LEZ_IDS) | (VORIZT1259 %in% LEZ_IDS))
+OD_v_Oc_Dt_DesLEZ <- OD_v_Oc_Dt %>% filter((VDESZT1259 %in% LEZ_IDS) & !(VORIZT1259 %in% LEZ_IDS))
+
+
+count(OD_v_Oc_Dt_DesLEZ)/count(OD_v_Oc_Dt)*100
+count(OD_v_Oc_Dt_noDesLEZ) + count(OD_v_Oc_Dt_DesLEZ) ==  count(OD_v_Oc_Dt)
+```
+we can see that trips into LEZ are a small proportion - only 5.84% of total home-to-work trips in the madrid region have a destination in the LEZ (and do not originate in the LEZ). Now... how many of these are car trips?
+
+```{r}
+sum(OD_v_Oc_Dt_DesLEZ$bycar)/count(OD_v_Oc_Dt_DesLEZ)
+```
+only 19% of these LEZ trips are made by car! This may not have a huge GHG emission savings... but perhaps it has a big impact on equity? 
+
+Let's plot where these car LEZ trips are coming from:
+```{r}
+D2trips_zona <- OD_v_Oc_Dt_DesLEZ %>% group_by(VORIZT1259)  %>% summarise(Dtrips = (n()),
+                                                                              bycar = sum(bycar),
+                                                                              nocar = sum(nocar))
+
+zn_t <- zn %>% merge(D2trips_zona, by.x = "ZT1259", by.y="VORIZT1259")
+```
+
+plots:
+```{r}
+# % of trips made by car
+ggplot() +
+  geom_sf(data = zn_t,
+          aes(fill = (bycar/Dtrips * 100) ),
+          color  = NA) +
+  scale_fill_distiller(palette = "Spectral") +
+  labs(title = "% work trips by origin (excluding those that originate in LEZ) made by car ")
+
+# magnitude of trips made by car 
+ggplot() +
+  geom_sf(data = zn_t,
+          aes(fill = (bycar) ),
+          color  = NA) +
+  scale_fill_distiller(palette = "Spectral") +
+  labs(title = "number of work trips by origin (excluding those that originate in LEZ) made by car ")
+```
+
+% of car trips which go into the LEZ 
+```{r}
+# Mag
+ggplot() +
+  geom_sf(data = zn_t,
+          aes(fill = (bycar/Dtrips * 100) ),
+          color  = NA) +
+  scale_fill_distiller(palette = "Spectral") +
+  labs(title = "% work trips (excluding those that originate in LEZ) made by car ")
+```
+
+```{r}
+ggplot() +
+  geom_sf(data = zn %>% filter(CC == 1), aes(fill = "City centre"), col = "green3") + # madrid city centre
+  geom_sf(data = zn %>%  filter(LEZ == 1), aes(fill = "Low emission zone"), col = "red4") + #madrid low emission zone
+  geom_sf(data = bbox_CityCentre, fill = NA, col = "black", size = 0.5)+
+  scale_fill_manual(labels = c("City centre", "Low emission zone"),
+                    values = c("green", "red")) + 
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm"),
+                   pad_y = unit(0.05, "cm")) +
+  guides(fill=guide_legend(title=NULL)) +
+  theme_void() + theme(legend.position = "none"
+```
 
 ## Saving data
 ```{r}
