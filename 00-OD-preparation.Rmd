@@ -47,6 +47,7 @@ I'm interested in making the table spatial! It currently does not have coordinat
 # st_write(zn, "data-raw/zn.shp")
 
 zn <- st_read("data-raw/zn.shp")
+ALLLEZ <- st_read("data-raw/Zona_Bajas_Emisiones_MADRID.shp")
 ```
 
 Importing a list of all the municipalities within the Madrid region and adding them to the zone shape file:
@@ -124,6 +125,13 @@ plot_ccmad <- ggplot() +
   theme_void() + theme(legend.position = "none") 
 
 cowplot::plot_grid(plot_rmad, plot_ccmad, ncol = 2, rel_widths = c(2.5,1)) 
+```
+
+```{r}
+
+ggplot() +
+  geom_sf(data = zn) +
+  geom_sf(data = ALLLEZ, fill="red") 
 ```
 
 ## Organizing the trip level data
@@ -307,20 +315,6 @@ ggplot() +
           color  = NA) +
   scale_fill_distiller(palette = "Spectral") +
   labs(title = "% work trips (excluding those that originate in LEZ) made by car ")
-```
-
-```{r}
-ggplot() +
-  geom_sf(data = zn %>% filter(CC == 1), aes(fill = "City centre"), col = "green3") + # madrid city centre
-  geom_sf(data = zn %>%  filter(LEZ == 1), aes(fill = "Low emission zone"), col = "red4") + #madrid low emission zone
-  geom_sf(data = bbox_CityCentre, fill = NA, col = "black", size = 0.5)+
-  scale_fill_manual(labels = c("City centre", "Low emission zone"),
-                    values = c("green", "red")) + 
-  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
-                   height = unit(0.15, "cm"),
-                   pad_y = unit(0.05, "cm")) +
-  guides(fill=guide_legend(title=NULL)) +
-  theme_void() + theme(legend.position = "none"
 ```
 
 ## Saving data

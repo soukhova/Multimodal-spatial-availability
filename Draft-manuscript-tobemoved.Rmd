@@ -1,0 +1,338 @@
+---
+title: "Draft-manuscript-tobemoved"
+output: html_document
+---
+
+```{r knitr-setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  cache = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  comment = '', 
+  out.width = "1\\linewidth")
+```
+
+```{r install-data-package, eval = FALSE, include=FALSE}
+# if (!require("MadridZBE", character.only = TRUE)) {
+#       remotes::install_github("soukhova/MadridZBE",
+#                         build_vignettes = TRUE)
+#   }
+```
+
+```{r load-packages, include=FALSE, cache=FALSE}
+library(TTS2016R)
+library(dplyr)
+library(fitdistrplus)
+library(ggplot2)
+library(kableExtra)
+library(patchwork)
+library(sf)
+library(scales)
+library(ggpmisc)
+library(ggrepel)
+library(cowplot)
+library(ggspatial)
+library(spdep)
+library(RColorBrewer)
+library(tmap)
+library(shadowtext)
+library(grid)
+library(readxl) #imports excel files
+# library(extrafont)
+# font_import()
+# loadfonts(device = "win")
+
+options(scipen = 999)
+```
+
+```{r sp_avail-function,include=FALSE}
+#defining the spatial availability function
+sp_avail <- function(x, o_id, d_id, pop, opp, r, f, alpha = 1){
+
+  o_id <- rlang::enquo(o_id)
+  d_id <- rlang::enquo(d_id)
+  pop <- rlang::enquo(pop)
+  opp <- rlang::enquo(opp)
+  r <- rlang::enquo(r)
+  f <- rlang::enquo(f)
+
+  sum_pop <- x %>%
+    dplyr::distinct(!!o_id,
+                    .keep_all = TRUE) %>%
+    dplyr::mutate(sum_pop = !!r*(!!pop)^alpha) %>%
+    dplyr::pull(sum_pop) %>%
+    sum()
+
+  f_p <- dplyr::pull(x, !!r) * dplyr::pull(x, !!pop)^alpha / sum_pop
+
+  sum_impedance <- x %>%
+    dplyr::group_by(!!d_id) %>%
+    dplyr::summarize(sum_impedance = sum(!!f))
+
+  x <- x %>%
+    dplyr::left_join(sum_impedance,
+                     by = rlang::as_name(d_id))
+
+  f_c <- dplyr::pull(x, !!f) / x$sum_impedance
+
+  x$f_c <- f_c
+  x$f_p <- f_p
+
+  sum_pa <- x %>%
+    dplyr::group_by(!!d_id) %>%
+    dplyr::summarize(sum_pa= sum(f_p * f_c))
+
+  x <- x %>%
+    dplyr::left_join(sum_pa,
+                     by = rlang::as_name(d_id))
+  f_t <- (f_p * f_c) / dplyr::pull(x, sum_pa)
+
+  dplyr::pull(x, !!opp) * f_t
+}
+```
+
+\newpage
+
+# Introduction
+
+- Some information about LEZ generally
+
+- Information about accessibility issues regarding LEZ; the tradition of using accessibility to evaluate these differences. Mention of spatial availability. 
+
+- What we will be doing, the aim.
+
+\newpage
+
+# Using accessibility to evaluate inequity background
+
+- Information about inequity and LEZ may exasperate these issues 
+
+- lit has found that emissions reduciton should not result in inequalities.. 
+
+\newpage
+
+# Methods
+
+## Data 
+- -plots of madrid zone, description of the LEZ scheme, how effective it is now and will be in the future - change in modal shares and emissions but what about equity
+
+
+## Estimated data
+- prediction in change in travel mode
+- prediction in private vehicle fleet label A/B/C proportions
+
+## Spatial availability
+- spatial availability explanation 
+  - impedance function explanation
+
+
+\newpage
+
+# Results
+
+## Fleet characteristics today vs. 2025
+<!-- to do -->
+
+## Impedance function calibration
+
+```{r data-import-filter}
+OD_v <- read_excel("data-raw/EDM2018VIAJES.xlsx")
+
+OD_v_HW <- OD_v %>% filter(VORI == "1" & VDES == "2") #only filter in origin casa trips and destination trabajo
+
+OD_v_HW <- OD_v_HW %>% 
+  mutate(TIEMPO_VIAJES = 
+                  as.numeric((as.POSIXct(OD_v_HW$VDESHORAFIN, format="%H%M") -
+                  as.POSIXct(OD_v_HW$VORIHORAINI, format="%H%M"))/60)) %>%
+  mutate(TIEMPO_VIAJES = ifelse(VDESHORAFIN == "2410", 40, 
+                                         ifelse(VDESHORAFIN == "2440", 55, 
+                                                ifelse(VDESHORAFIN == "2800", 420, TIEMPO_VIAJES)))) %>% # some destination times are greater than 2400 and so yield an NA different, correct these 3 trips
+  mutate(TIEMPO_VIAJES = ifelse(TIEMPO_VIAJES == 0, 0.1, TIEMPO_VIAJES)) # set all 0min travel times to 0.1 min
+
+summary(OD_v_HW$TIEMPO_VIAJES)
+```
+
+```{r data-for-impedance}
+#here we separate all the "car" trips, "transit" trips, "bike" trips, and "walk" trips. We then will create 4 different imepedance function....
+bus_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO >= 9) %>%
+  dplyr::select(TIEMPO_VIAJES)
+  
+car_motor_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10) %>%
+  dplyr::select(TIEMPO_VIAJES) #includes both motorcycles and cars
+
+bike_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20) %>%
+  dplyr::select(TIEMPO_VIAJES)
+
+walk_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO == 24) %>%
+  dplyr::select(TIEMPO_VIAJES)
+
+```
+
+plotting histograms:
+```{r}
+hist(bus_HW_alltt%>% unlist() %>% as.numeric(), breaks=100)
+hist(car_motor_HW_alltt%>% unlist() %>% as.numeric(), breaks=100)
+hist(bike_HW_alltt%>% unlist() %>% as.numeric(), breaks=100)
+hist(walk_HW_alltt%>% unlist() %>% as.numeric(), breaks=100)
+```
+```{r}
+#cullen grey graph - BUS
+descdist(bus_HW_alltt%>% unlist() %>% as.numeric(), discrete=FALSE, boot=500)
+```
+
+
+```{r bus-itting-impedance-function}
+# using fitdist function to fit a distribution using the default maximum likelihood estimation method and Nelder-Mead method for direct optimization
+gamma_ <- fitdistrplus::fitdist(data=bus_HW_alltt%>% unlist() %>% as.numeric(), "gamma", method="mle", optim.method="Nelder-Mead") 
+lnorm_ <- fitdistrplus::fitdist(data=bus_HW_alltt%>% unlist() %>% as.numeric(), "lnorm", method="mle", optim.method="Nelder-Mead")
+norm_ <-fitdistrplus::fitdist(data=bus_HW_alltt%>% unlist() %>% as.numeric(), "norm", method="mle", optim.method="Nelder-Mead")
+exp_ <- fitdistrplus::fitdist(data=bus_HW_alltt%>% unlist() %>% as.numeric(), "exp", method="mle", optim.method="Nelder-Mead")
+# pois_ <- fitdistrplus::fitdist(data=bus_HW_alltt%>% unlist() %>% as.numeric(), "pois", method="mle", optim.method="Nelder-Mead")
+# nbinom_ <- fitdistrplus::fitdist(data=bus_HW_alltt%>% unlist() %>% as.numeric(), "nbinom", method="mle", optim.method="Nelder-Mead")
+# geom_ <- fitdistrplus::fitdist(data=bus_HW_alltt%>% unlist() %>% as.numeric(), "geom", method="mle", optim.method="Nelder-Mead")
+# beta_ <- fitdistrplus::fitdist(data=bus_HW_alltt%>% unlist() %>% as.numeric(), "beta", method="mle", optim.method="Nelder-Mead")
+logis_ <- fitdistrplus::fitdist(data=bus_HW_alltt%>% unlist() %>% as.numeric(), "logis", method="mle", optim.method="Nelder-Mead")
+
+plot(gamma_)
+plot(lnorm_)
+plot(norm_)
+plot(exp_)
+# plot(pois_)
+# plot(nbinom_)
+# plot(geom_)
+# plot(beta_)
+plot(logis_)
+```
+now let's compare these models AIC and BIC to see which fits the bus data best:
+```{r}
+broom::glance(MASS::fitdistr(bus_HW_alltt%>% unlist() %>% as.numeric(),"gamma"))
+broom::glance(MASS::fitdistr(bus_HW_alltt%>% unlist() %>% as.numeric(),"lognormal"))
+broom::glance(MASS::fitdistr(bus_HW_alltt%>% unlist() %>% as.numeric(),"normal"))
+broom::glance(MASS::fitdistr(bus_HW_alltt%>% unlist() %>% as.numeric(),"exponential"))
+# plot(pois_)
+# plot(nbinom_)
+# plot(geom_)
+# plot(beta_)
+broom::glance(MASS::fitdistr(bus_HW_alltt%>% unlist() %>% as.numeric(),"logistic"))
+```
+
+gamma has largest logLik and the smallest AIC and BIC. we will pick this gamma function for bus trips.
+```{r}
+HW_bus_gamma <- gamma_
+```
+
+Let's do car/motorcycles now:
+```{r car-motor-itting-impedance-function}
+# using fitdist function to fit a distribution using the default maximum likelihood estimation method and Nelder-Mead method for direct optimization
+gamma_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "gamma", method="mle", optim.method="Nelder-Mead") 
+lnorm_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "lnorm", method="mle", optim.method="Nelder-Mead")
+norm_ <-fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "norm", method="mle", optim.method="Nelder-Mead")
+exp_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "exp", method="mle", optim.method="Nelder-Mead")
+# pois_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "pois", method="mle", optim.method="Nelder-Mead")
+# nbinom_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "nbinom", method="mle", optim.method="Nelder-Mead")
+# geom_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "geom", method="mle", optim.method="Nelder-Mead")
+# beta_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "beta", method="mle", optim.method="Nelder-Mead")
+logis_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "logis", method="mle", optim.method="Nelder-Mead")
+
+plot(gamma_)
+plot(lnorm_)
+plot(norm_)
+plot(exp_)
+# plot(pois_)
+# plot(nbinom_)
+# plot(geom_)
+# plot(beta_)
+plot(logis_)
+```
+now let's compare these models AIC and BIC to see which fits the car data best:
+```{r}
+broom::glance(MASS::fitdistr(car_motor_HW_alltt%>% unlist() %>% as.numeric(),"gamma"))
+broom::glance(MASS::fitdistr(car_motor_HW_alltt%>% unlist() %>% as.numeric(),"lognormal"))
+broom::glance(MASS::fitdistr(car_motor_HW_alltt%>% unlist() %>% as.numeric(),"normal"))
+broom::glance(MASS::fitdistr(car_motor_HW_alltt%>% unlist() %>% as.numeric(),"exponential"))
+# plot(pois_)
+# plot(nbinom_)
+# plot(geom_)
+# plot(beta_)
+broom::glance(MASS::fitdistr(car_motor_HW_alltt%>% unlist() %>% as.numeric(),"logistic"))
+```
+gamma has largest logLik and the smallest AIC and BIC. we will also pick this gamma function for car trips.
+```{r}
+HW_car_motor_gamma <- gamma_
+```
+
+Let's do bike now:
+```{r bike-itting-impedance-function}
+# using fitdist function to fit a distribution using the default maximum likelihood estimation method and Nelder-Mead method for direct optimization
+gamma_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "gamma", method="mle", optim.method="Nelder-Mead") 
+lnorm_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "lnorm", method="mle", optim.method="Nelder-Mead")
+norm_ <-fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "norm", method="mle", optim.method="Nelder-Mead")
+exp_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "exp", method="mle", optim.method="Nelder-Mead")
+# pois_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "pois", method="mle", optim.method="Nelder-Mead")
+# nbinom_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "nbinom", method="mle", optim.method="Nelder-Mead")
+# geom_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "geom", method="mle", optim.method="Nelder-Mead")
+# beta_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "beta", method="mle", optim.method="Nelder-Mead")
+logis_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "logis", method="mle", optim.method="Nelder-Mead")
+
+plot(gamma_)
+plot(lnorm_)
+plot(norm_)
+plot(exp_)
+plot(logis_)
+```
+now let's compare these models AIC and BIC to see which fits the bike data best:
+```{r}
+broom::glance(MASS::fitdistr(bike_HW_alltt%>% unlist() %>% as.numeric(),"gamma"))
+broom::glance(MASS::fitdistr(bike_HW_alltt%>% unlist() %>% as.numeric(),"lognormal"))
+broom::glance(MASS::fitdistr(bike_HW_alltt%>% unlist() %>% as.numeric(),"normal"))
+broom::glance(MASS::fitdistr(bike_HW_alltt%>% unlist() %>% as.numeric(),"exponential"))
+broom::glance(MASS::fitdistr(bike_HW_alltt%>% unlist() %>% as.numeric(),"logistic"))
+```
+lognormal has largest logLik and the smallest AIC and BIC. we will pick lognormal function for bike trips! Interesting how this is different than the motorized modes.
+
+```{r}
+HW_bike_lnorm <- lnorm_
+```
+
+Let's do walk now:
+```{r walk-itting-impedance-function}
+# using fitdist function to fit a distribution using the default maximum likelihood estimation method and Nelder-Mead method for direct optimization
+gamma_ <- fitdistrplus::fitdist(data=walk_HW_alltt%>% unlist() %>% as.numeric(), "gamma", method="mle", optim.method="Nelder-Mead") 
+lnorm_ <- fitdistrplus::fitdist(data=walk_HW_alltt%>% unlist() %>% as.numeric(), "lnorm", method="mle", optim.method="Nelder-Mead")
+norm_ <-fitdistrplus::fitdist(data=walk_HW_alltt%>% unlist() %>% as.numeric(), "norm", method="mle", optim.method="Nelder-Mead")
+exp_ <- fitdistrplus::fitdist(data=walk_HW_alltt%>% unlist() %>% as.numeric(), "exp", method="mle", optim.method="Nelder-Mead")
+# pois_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "pois", method="mle", optim.method="Nelder-Mead")
+# nbinom_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "nbinom", method="mle", optim.method="Nelder-Mead")
+# geom_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "geom", method="mle", optim.method="Nelder-Mead")
+# beta_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "beta", method="mle", optim.method="Nelder-Mead")
+logis_ <- fitdistrplus::fitdist(data=walk_HW_alltt%>% unlist() %>% as.numeric(), "logis", method="mle", optim.method="Nelder-Mead")
+
+plot(gamma_)
+plot(lnorm_)
+plot(norm_)
+plot(exp_)
+plot(logis_)
+```
+now let's compare these models AIC and BIC to see which fits the bike data best:
+```{r}
+broom::glance(MASS::fitdistr(walk_HW_alltt%>% unlist() %>% as.numeric(),"gamma"))
+broom::glance(MASS::fitdistr(walk_HW_alltt%>% unlist() %>% as.numeric(),"lognormal"))
+broom::glance(MASS::fitdistr(walk_HW_alltt%>% unlist() %>% as.numeric(),"normal"))
+broom::glance(MASS::fitdistr(walk_HW_alltt%>% unlist() %>% as.numeric(),"exponential"))
+broom::glance(MASS::fitdistr(walk_HW_alltt%>% unlist() %>% as.numeric(),"logistic"))
+```
+lognormal has largest logLik and the smallest AIC and BIC. we will pick lognormal function for walk trips! Interesting how this is different than the motorized modes and takes the same form as the bike trips.
+
+```{r}
+HW_walk_lnorm <- lnorm_
+```
+
+## Spatial availability comparision
+
+## Inequality analysis
+<!-- to do -->
+
+# Discussion
+
+# Conclusions
