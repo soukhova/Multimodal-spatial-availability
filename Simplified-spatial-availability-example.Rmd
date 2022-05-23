@@ -1,24 +1,7 @@
 ---
-title: "Draft-manuscript-tobemoved"
+title: "Simplified-spatial-availability-example"
 output: html_document
 ---
-
-```{r knitr-setup, include=FALSE}
-knitr::opts_chunk$set(
-  echo = FALSE,
-  cache = TRUE,
-  warning = FALSE,
-  message = FALSE,
-  comment = '', 
-  out.width = "1\\linewidth")
-```
-
-```{r install-data-package, eval = FALSE, include=FALSE}
-# if (!require("MadridZBE", character.only = TRUE)) {
-#       remotes::install_github("soukhova/MadridZBE",
-#                         build_vignettes = TRUE)
-#   }
-```
 
 ```{r load-packages, include=FALSE, cache=FALSE}
 library(tidyverse)
@@ -77,67 +60,146 @@ sp_avail <- function(x, o_id, d_id, pop, opp, r, f, alpha = 1){
 }
 ```
 
-\newpage
-
-# Introduction
-
-- Some information about LEZ generally
-
-- Information about accessibility issues regarding LEZ; the tradition of using accessibility to evaluate these differences. Mention of spatial availability. 
-
-- What we will be doing, the aim.
-
-\newpage
-
-# Using accessibility to evaluate inequity background
-
-- Information about inequity and LEZ may exasperate these issues 
-
-- lit has found that emissions reduciton should not result in inequalities.. 
-
-\newpage
-
-# Methods
-
-## Data 
-- -plots of madrid zone, description of the LEZ scheme, how effective it is now and will be in the future - change in modal shares and emissions but what about equity
-
-
-## Estimated data
-- prediction in change in travel mode
-- prediction in private vehicle fleet label A/B/C proportions
-
-## Spatial availability
-- spatial availability explanation 
-  - impedance function explanation
-
-
-\newpage
-
-# Results
-
-## Fleet characteristics today vs. 2025
-<!-- to do -->
-
-## Impedance function calibration
-
+Import the trip data:
 ```{r data-import-filter}
 OD_v <- read_excel("data-raw/EDM2018VIAJES.xlsx")
-
-OD_v_HW <- OD_v %>% filter(VORI == "1" & VDES == "2") #only filter in origin casa trips and destination trabajo
-
-OD_v_HW <- OD_v_HW %>% 
-  mutate(TIEMPO_VIAJES = 
-                  as.numeric((as.POSIXct(OD_v_HW$VDESHORAFIN, format="%H%M") -
-                  as.POSIXct(OD_v_HW$VORIHORAINI, format="%H%M"))/60)) %>%
-  mutate(TIEMPO_VIAJES = ifelse(VDESHORAFIN == "2410", 40, 
-                                         ifelse(VDESHORAFIN == "2440", 55, 
-                                                ifelse(VDESHORAFIN == "2800", 420, TIEMPO_VIAJES)))) %>% # some destination times are greater than 2400 and so yield an NA different, correct these 3 trips
-  mutate(TIEMPO_VIAJES = ifelse(TIEMPO_VIAJES == 0, 0.1, TIEMPO_VIAJES)) # set all 0min travel times to 0.1 min
-
-summary(OD_v_HW$TIEMPO_VIAJES)
 ```
 
+# A) Exploring chained-trips... should we include them?
+
+Calculate the duration of each trip
+```{r}
+OD_v <- OD_v %>%
+  mutate(TIEMPO_VIAJES =
+           (as.numeric(OD_v$VDESHORAFIN) - 
+                    as.numeric(OD_v$VORIHORAINI))) %>%
+  mutate(TIEMPO_VIAJES = ifelse(TIEMPO_VIAJES == 0, 0.1, TIEMPO_VIAJES)) # set all 0min travel times to 0.1 min
+summary(OD_v$TIEMPO_VIAJES)
+```
+Checking the trip data - it appears each OD is a row, i.e., chained trips are multiple rows. We want to extract every home origin (VORI = 1) to every work destination (VDEST =2) trip as a single row... so let's do this in multiple steps.
+
+First, the direct home to work trips:
+```{r}
+# not chained home to work trips - direct
+OD_v_HW <- OD_v %>% filter(VORI == "1" & VDES == "2") #only filter in origin casa trips and destination trabajo
+```
+
+Next, let's identify the chained trips and then consolidate them. We only care about trip O/D, travel mode, travel time, and 
+```{r}
+t <- OD_v %>% group_by(ID_HOGAR,ID_IND) %>% 
+  filter((VORI == "1" & VDES != "2" & VDES != "1") | (VDES == "2" & VORI != "1"& VORI != "2")) %>% #here the origin NEEDS to be from home, the destination can be anywhere OR the origin can be from anywhere but the destination NEEDS to be work. 
+  mutate(chained = lag(VDES) - VORI)
+
+chained2 <- (ifelse(t$chained[-1]==0 |t$chained==0, 0, NA)) %>% as.data.frame()
+
+t <- cbind(t,chained2) %>% dplyr::rename("chained2" = ".")
+
+t<-t %>% filter(chained2==0) # these are all the CHAINED trips - only considering 1 location before work.  
+t
+```
+
+Now... let's only include chained trips with the same mode! 
+```{r}
+t <- t %>% group_by(ID_HOGAR, ID_IND) %>% mutate(trip = ifelse(((ID_VIAJE - lag(ID_VIAJE)) == 1)
+                                                          & ((MODO_PRIORITARIO - lag(MODO_PRIORITARIO))== 0), 
+                                                          MODO_PRIORITARIO, 0))
+
+t %>% filter(trip == 0) %>% nrow() / t %>% filter(chained == 0) %>% nrow()
+t %>% filter(trip != 0 & !is.na(trip)) %>% nrow() / t %>% filter(chained == 0) %>% nrow()
+```
+so ~27% of chained trips are not made using the same mode. THe rest of them are (`r t %>% filter(trip != 0 & !is.na(trip)) %>% nrow() ` trips are chained (1 intermediate destination) and use the same mode).
+
+So my question is... should we include these 1,371 extra chained trips (this is if we consolidate these 2 mini trips into 1 home to work trip (with an intermediate stop)). This only represent ~5% additional trips to the direct home to work 27K trips. If we include them... how do we count travel time? just sum both steps of the trip together..? Is that a good idea..? I don't think so.
+
+Let's see if this sample increases the number of ZTs spatially:
+```{r}
+#bind the t object (chained) to the workers object. 
+t <- t %>% filter(is.na(chained)) # only including origins
+t <- t[,1:20] 
+OD_v_HW_chained <- rbind(OD_v_HW, t)
+```
+
+```{r}
+#importing zones
+zn <- st_read("data-raw/zn.shp")
+ALLLEZ <- st_read("data-raw/Zona_Bajas_Emisiones_MADRID.shp")
+
+temp <- read_excel("data-raw/ZonificacionZT1259 complete.xlsx") %>% dplyr::select(ZT1259, Municipality)
+zn_t <- zn %>% merge(temp, by = c("ZT1259"), all.x=TRUE)
+```
+
+```{r}
+Otrips_zona_c <- OD_v_HW_chained %>% group_by(VORIZT1259)  %>% summarise(Otrips = (n())) # we group by the origin ZT1259 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Otrips' column.
+
+zn_c <- zn %>% merge(Otrips_zona_c, by.x = "ZT1259", by.y="VORIZT1259", all.x = TRUE)
+
+ggplot() +
+  geom_sf(data = zn_c,
+          aes(fill = Otrips),
+          color  = NA) +
+  scale_fill_distiller(palette = "Spectral")
+
+Otrips_zona <- OD_v_HW %>% group_by(VORIZT1259)  %>% summarise(Otrips = (n())) # we group by the origin ZT1259 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Otrips' column.
+
+zn_noc <- zn %>% merge(Otrips_zona, by.x = "ZT1259", by.y="VORIZT1259", all.x = TRUE)
+
+ggplot() +
+  geom_sf(data = zn_noc,
+          aes(fill = Otrips),
+          color  = NA) +
+  scale_fill_distiller(palette = "Spectral")
+```
+
+```{r}
+summary(zn_noc$Otrips)
+summary(zn_c$Otrips)
+```
+
+so as we can see... the number of origin ZNs with NO origin trips only goes down by 2.. (from 344 to 342). This is not a lot. 
+
+Next step... let's try to see what is happening in these NA zones. What sort of origin trips are being generated? 
+```{r}
+missing_workers <- zn_noc %>% filter(is.na(Otrips)) %>% dplyr::select(ZT1259) #344 zonas are missing home to work trips.
+
+missing_workers <- missing_workers %>% merge(OD_v, by.x = "ZT1259", by.y="VORIZT1259", all.x = TRUE)
+
+temp <- missing_workers %>% st_drop_geometry() %>% group_by(ZT1259) %>% summarise(trip_count = n(),
+                                                                          Owork_perc = sum(VORI == 2)/n(),
+                                                                          Ostudy_perc = sum(VORI == 4)/n(),
+                                                                          Osportwalk_perc = sum(VORI == 10)/n(),
+                                                                          Oshop_perc = sum(VORI == 5)/n(),
+                                                                          Ohome_perc = sum(VORI == 1)/n())
+temp
+```
+```{r}
+summary(temp)
+```
+```{r}
+# write.csv(missing_workers %>% st_drop_geometry(),"ZT_Trips_missingworkers.csv", row.names = FALSE)
+```
+
+‘trip count’ is how many trips there are in each ZT. ‘Owork_perc’ is an origin work purpose (of that trip) in each ZT, i.e. 39.47% of origin trips are work related averaged across all ZTs. ‘Ostudy_perc’ is for study origin trips.. etc. You can see that the majority of origin trip purposes are work. This means that these are predominately ‘work’ related areas and none of the households surveyed live in those ZTs. 
+
+And looking in excel. even if we consider all origin zones from work themed chained trips (i.e., home to somewhere to work) as 'residential locations' (this is incorrect) we STILL have ~170 zones with no work-to-home trips. 
+
+# B) Calculating spatial availability - an exploration of 3 approaches
+
+For simplicity. Let's assume we are only considering home to work direct trips. Let's now manually calculate spatial availability $V_{ij}$. (where i is each origin (home) and j is each destination (work))
+
+$$
+V_{ij} = O_j\frac{F^p_{ij} \cdot F^c_{ij}}{\sum_{i=1}^K F^p_{ij} \cdot F^c_{ij}}
+$$
+The population allocation factor is based on _worker population_ for each ij trip $F^p_{ij}$. No function is needed here, we are just going to work with the proportions. 
+
+Also simple - $O_{j}$ - represents the number of jobs at a destination $j$.
+
+The complexity we have for this case study is the travel cost allocation factor $F^c_{ij}$ due to the 4 modes.
+
+Think of $F^c_{ij}$ as the travel cost for each ij trip. This travel cost is based on the fitted impedance function which is calculated for each mode (for our sample, log-normal is selected for all modes other then car - car is gamma). These impedance functions are predicted using each travel time for each mode (i.e., 4 modes, so we have 4 impedance functions). The impedance functions will be used to predict the _mode relative_ cost of travel, specifically, the higher the value, the stronger the travel-time decay effect on spatial availability will be. 
+
+Ultimately, for each origin to destination, the product of $F^c_{ij}$ and $F^p_{ij}$ is divided by the SUM of all $F^c_{ij}$ and $F^p_{ij}$ in that region $K$ (all the origins $i$ that travel to a destination $j$).
+
+We must manipulate the data before we can fit the impedance function:
 ```{r data-for-impedance}
 #here we separate all the "car" trips, "transit" trips, "bike" trips, and "walk" trips. We then will create 4 different imepedance function....
 transit_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO <= 9) %>%
@@ -151,169 +213,25 @@ bike_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >
 
 walk_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO == 24) %>%
   dplyr::select(TIEMPO_VIAJES)
-
 ```
 
-plotting histograms:
-```{r}
-hist(transit_HW_alltt%>% unlist() %>% as.numeric(), breaks=100)
-hist(car_motor_HW_alltt%>% unlist() %>% as.numeric(), breaks=100)
-hist(bike_HW_alltt%>% unlist() %>% as.numeric(), breaks=100)
-hist(walk_HW_alltt%>% unlist() %>% as.numeric(), breaks=100)
-```
-```{r}
-#cullen grey graph - BUS
-descdist(transit_HW_alltt%>% unlist() %>% as.numeric(), discrete=FALSE, boot=500)
-```
-
-
-```{r bus-itting-impedance-function}
+Then create the impedance functions:
+```{r fitting-impedance-function}
 # using fitdist function to fit a distribution using the default maximum likelihood estimation method and Nelder-Mead method for direct optimization
-gamma_ <- fitdistrplus::fitdist(data=transit_HW_alltt%>% unlist() %>% as.numeric(), "gamma", method="mle", optim.method="Nelder-Mead") 
 lnorm_ <- fitdistrplus::fitdist(data=transit_HW_alltt%>% unlist() %>% as.numeric(), "lnorm", method="mle", optim.method="Nelder-Mead")
-norm_ <-fitdistrplus::fitdist(data=transit_HW_alltt%>% unlist() %>% as.numeric(), "norm", method="mle", optim.method="Nelder-Mead")
-exp_ <- fitdistrplus::fitdist(data=transit_HW_alltt%>% unlist() %>% as.numeric(), "exp", method="mle", optim.method="Nelder-Mead")
-# pois_ <- fitdistrplus::fitdist(data=transit_HW_alltt%>% unlist() %>% as.numeric(), "pois", method="mle", optim.method="Nelder-Mead")
-# nbinom_ <- fitdistrplus::fitdist(data=transit_HW_alltt%>% unlist() %>% as.numeric(), "nbinom", method="mle", optim.method="Nelder-Mead")
-# geom_ <- fitdistrplus::fitdist(data=transit_HW_alltt%>% unlist() %>% as.numeric(), "geom", method="mle", optim.method="Nelder-Mead")
-# beta_ <- fitdistrplus::fitdist(data=transit_HW_alltt%>% unlist() %>% as.numeric(), "beta", method="mle", optim.method="Nelder-Mead")
-logis_ <- fitdistrplus::fitdist(data=transit_HW_alltt%>% unlist() %>% as.numeric(), "logis", method="mle", optim.method="Nelder-Mead")
-
-plot(gamma_)
-plot(lnorm_)
-plot(norm_)
-plot(exp_)
-# plot(pois_)
-# plot(nbinom_)
-# plot(geom_)
-# plot(beta_)
-plot(logis_)
-```
-now let's compare these models AIC and BIC to see which fits the bus data best:
-```{r}
-broom::glance(MASS::fitdistr(transit_HW_alltt%>% unlist() %>% as.numeric(),"gamma"))
-broom::glance(MASS::fitdistr(transit_HW_alltt%>% unlist() %>% as.numeric(),"lognormal"))
-broom::glance(MASS::fitdistr(transit_HW_alltt%>% unlist() %>% as.numeric(),"normal"))
-broom::glance(MASS::fitdistr(transit_HW_alltt%>% unlist() %>% as.numeric(),"exponential"))
-# plot(pois_)
-# plot(nbinom_)
-# plot(geom_)
-# plot(beta_)
-broom::glance(MASS::fitdistr(transit_HW_alltt%>% unlist() %>% as.numeric(),"logistic"))
-```
-
-lognormal has largest logLik and the smallest AIC and BIC. we will pick this lognormal function for transit trips.
-```{r}
 HW_transit_lnorm <- lnorm_
-```
 
-Let's do car/motorcycles now:
-```{r car-motor-itting-impedance-function}
-# using fitdist function to fit a distribution using the default maximum likelihood estimation method and Nelder-Mead method for direct optimization
-gamma_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "gamma", method="mle", optim.method="Nelder-Mead") 
-lnorm_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "lnorm", method="mle", optim.method="Nelder-Mead")
-norm_ <-fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "norm", method="mle", optim.method="Nelder-Mead")
-exp_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "exp", method="mle", optim.method="Nelder-Mead")
-# pois_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "pois", method="mle", optim.method="Nelder-Mead")
-# nbinom_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "nbinom", method="mle", optim.method="Nelder-Mead")
-# geom_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "geom", method="mle", optim.method="Nelder-Mead")
-# beta_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "beta", method="mle", optim.method="Nelder-Mead")
-logis_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "logis", method="mle", optim.method="Nelder-Mead")
-
-plot(gamma_)
-plot(lnorm_)
-plot(norm_)
-plot(exp_)
-# plot(pois_)
-# plot(nbinom_)
-# plot(geom_)
-# plot(beta_)
-plot(logis_)
-```
-now let's compare these models AIC and BIC to see which fits the car data best:
-```{r}
-broom::glance(MASS::fitdistr(car_motor_HW_alltt%>% unlist() %>% as.numeric(),"gamma"))
-broom::glance(MASS::fitdistr(car_motor_HW_alltt%>% unlist() %>% as.numeric(),"lognormal"))
-broom::glance(MASS::fitdistr(car_motor_HW_alltt%>% unlist() %>% as.numeric(),"normal"))
-broom::glance(MASS::fitdistr(car_motor_HW_alltt%>% unlist() %>% as.numeric(),"exponential"))
-# plot(pois_)
-# plot(nbinom_)
-# plot(geom_)
-# plot(beta_)
-broom::glance(MASS::fitdistr(car_motor_HW_alltt%>% unlist() %>% as.numeric(),"logistic"))
-```
-gamma has largest logLik and the smallest AIC and BIC. we will pick this gamma function for car trips.
-```{r}
+gamma_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "gamma", method="mle", optim.method="Nelder-Mead")
 HW_car_motor_gamma <- gamma_
-```
 
-Let's do bike now:
-```{r bike-itting-impedance-function}
-# using fitdist function to fit a distribution using the default maximum likelihood estimation method and Nelder-Mead method for direct optimization
-gamma_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "gamma", method="mle", optim.method="Nelder-Mead") 
 lnorm_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "lnorm", method="mle", optim.method="Nelder-Mead")
-norm_ <-fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "norm", method="mle", optim.method="Nelder-Mead")
-exp_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "exp", method="mle", optim.method="Nelder-Mead")
-# pois_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "pois", method="mle", optim.method="Nelder-Mead")
-# nbinom_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "nbinom", method="mle", optim.method="Nelder-Mead")
-# geom_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "geom", method="mle", optim.method="Nelder-Mead")
-# beta_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "beta", method="mle", optim.method="Nelder-Mead")
-logis_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "logis", method="mle", optim.method="Nelder-Mead")
-
-plot(gamma_)
-plot(lnorm_)
-plot(norm_)
-plot(exp_)
-plot(logis_)
-```
-now let's compare these models AIC and BIC to see which fits the bike data best:
-```{r}
-broom::glance(MASS::fitdistr(bike_HW_alltt%>% unlist() %>% as.numeric(),"gamma"))
-broom::glance(MASS::fitdistr(bike_HW_alltt%>% unlist() %>% as.numeric(),"lognormal"))
-broom::glance(MASS::fitdistr(bike_HW_alltt%>% unlist() %>% as.numeric(),"normal"))
-broom::glance(MASS::fitdistr(bike_HW_alltt%>% unlist() %>% as.numeric(),"exponential"))
-broom::glance(MASS::fitdistr(bike_HW_alltt%>% unlist() %>% as.numeric(),"logistic"))
-```
-lognormal has largest logLik and the smallest AIC and BIC. we will pick lognormal function for bike trips! Interesting how car mode is different from all other modes.
-
-```{r}
 HW_bike_lnorm <- lnorm_
-```
 
-Let's do walk now:
-```{r walk-itting-impedance-function}
-# using fitdist function to fit a distribution using the default maximum likelihood estimation method and Nelder-Mead method for direct optimization
-gamma_ <- fitdistrplus::fitdist(data=walk_HW_alltt%>% unlist() %>% as.numeric(), "gamma", method="mle", optim.method="Nelder-Mead") 
 lnorm_ <- fitdistrplus::fitdist(data=walk_HW_alltt%>% unlist() %>% as.numeric(), "lnorm", method="mle", optim.method="Nelder-Mead")
-norm_ <-fitdistrplus::fitdist(data=walk_HW_alltt%>% unlist() %>% as.numeric(), "norm", method="mle", optim.method="Nelder-Mead")
-exp_ <- fitdistrplus::fitdist(data=walk_HW_alltt%>% unlist() %>% as.numeric(), "exp", method="mle", optim.method="Nelder-Mead")
-# pois_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "pois", method="mle", optim.method="Nelder-Mead")
-# nbinom_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "nbinom", method="mle", optim.method="Nelder-Mead")
-# geom_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "geom", method="mle", optim.method="Nelder-Mead")
-# beta_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "beta", method="mle", optim.method="Nelder-Mead")
-logis_ <- fitdistrplus::fitdist(data=walk_HW_alltt%>% unlist() %>% as.numeric(), "logis", method="mle", optim.method="Nelder-Mead")
-
-plot(gamma_)
-plot(lnorm_)
-plot(norm_)
-plot(exp_)
-plot(logis_)
-```
-now let's compare these models AIC and BIC to see which fits the walk data best:
-```{r}
-broom::glance(MASS::fitdistr(walk_HW_alltt%>% unlist() %>% as.numeric(),"gamma"))
-broom::glance(MASS::fitdistr(walk_HW_alltt%>% unlist() %>% as.numeric(),"lognormal"))
-broom::glance(MASS::fitdistr(walk_HW_alltt%>% unlist() %>% as.numeric(),"normal"))
-broom::glance(MASS::fitdistr(walk_HW_alltt%>% unlist() %>% as.numeric(),"exponential"))
-broom::glance(MASS::fitdistr(walk_HW_alltt%>% unlist() %>% as.numeric(),"logistic"))
-```
-lognormal has largest logLik and the smallest AIC and BIC. we will pick lognormal function for walk trips! 
-
-```{r}
 HW_walk_lnorm <- lnorm_
 ```
 
-Add the number of trips (by mode) and create objects which contain the number of workers (origin) and jobs (destinations) - by mode:
+Then we add the number of trips (by mode) and create objects which contain the number of workers (origin) and jobs (destinations) - by mode:
 ```{r}
 OD_v_HW <- OD_v_HW  %>% mutate(trips_transit = ifelse(MODO_PRIORITARIO <= 9, 1,0),
                     trips_car_motor = ifelse(MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10, 1, 0),
@@ -347,7 +265,7 @@ jobs <- OD_v_HW %>%
             jobs_walk)
 ```
 
-Join workers and jobs to the ZN simple features object:
+Next join workers and jobs to the ZN simple features object:
 ```{r}
 load("data/zn.RData")
 
@@ -372,7 +290,7 @@ zn <- zn %>%
 # sum(zn$jobs_transit) + sum(zn$jobs_bike) + sum(zn$jobs_car) + sum(zn$jobs_walk)
 ```
 
-add the number of workers and jobs from each zona to each trip:
+Then add the number of workers and jobs from each ZN to each trip:
 ```{r}
 #add the number of jobs and workers to the od_ft_tt matrix
 OD <- OD_v_HW %>% merge(zn %>% dplyr::select(ZT1259, workers_transit,workers_car,workers_bike,workers_walk) %>% st_drop_geometry(),
@@ -392,7 +310,7 @@ OD <- OD %>%
          jobs_walk = ifelse(is.na(jobs_walk), 0, jobs_walk))
 ```
 
-now reshape the data, each row will represent an any origin to to 1 destination (i.e., destination row is unique). We will average the travel times, by mode, and then use this average travel time to find the 'f' (impedance value for travel for each mode):
+Now reshape the data, each row will represent an any origin to to 1 destination (i.e., destination row is unique). We will average the travel times, by mode, and then use this average travel time to find the 'f' (impedance value for travel for each mode). Hint: this is why we needed to find the impedance function in the first place! The functions represent the cost of travel for each mode based on the travel time for a trip, since we are averaging together the travel time for each mode from 
 ```{r}
 #consolidate trips so each trip is unique. workers = jobs.
 OD_test <- OD %>%
@@ -401,47 +319,22 @@ OD_test <- OD %>%
             trips_car_motor = sum(trips_car_motor),
             trips_bike = sum(trips_bike),
             trips_walk = sum(trips_walk),
-            workers_transit = mean(workers_transit),
-            # workers_transit = ifelse(is.na(workers_transit), 0, workers_transit),
+            workers_transit = mean(workers_transit), #workers_ and jobs_ values are retained from the ZN object - so they are the same value for each OD pair thus we use mean() here. 
             workers_car = mean(workers_car),
-            # workers_car = ifelse(is.na(workers_car), 0, workers_car),
             workers_bike = mean(workers_bike),
-            # workers_bike = ifelse(is.na(workers_bike), 0, workers_bike),
             workers_walk = mean(workers_walk),
-            # workers_walk = ifelse(is.na(workers_walk), 0, workers_walk),
             jobs_transit = mean(jobs_transit),
             jobs_car = mean(jobs_car),
             jobs_bike = mean(jobs_bike),
             jobs_walk = mean(jobs_walk),
-            # jobs_car = ifelse(is.na(jobs_car), 0, jobs_car),
-            # jobs_transit = ifelse(is.na(jobs_transit), 0, jobs_transit),
-            # jobs_bike = ifelse(is.na(jobs_bike), 0, jobs_bike),
-            # jobs_walk = ifelse(is.na(jobs_walk), 0, jobs_walk),
-            tt_transit = ifelse(trips_transit != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
+            tt_transit = ifelse(trips_transit != 0, mean(TIEMPO_VIAJES, na.rm=T), NA), #time is averaged for trips from the same origin to destination + same mode - there likely is variation between trips as these come from the survey (e.g., trips taken at different time of day so they are of different length)
             tt_car = ifelse(trips_car_motor != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
             tt_bike = ifelse(trips_bike != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
             tt_walk = ifelse(trips_walk != 0, mean(TIEMPO_VIAJES, na.rm=T), NA)) %>% ungroup()
 
-# OD_test <- OD %>%
-#   mutate(workers_ = (workers_car+ workers_transit+ workers_bike+ workers_walk),
-#          workers_ = ifelse(is.na(workers_), 0, workers_),
-#          workers_car = ifelse(is.na(workers_car), 0, workers_car),
-#          workers_transit = ifelse(is.na(workers_transit), 0, workers_transit),
-#          workers_bike = ifelse(is.na(workers_bike), 0, workers_bike),
-#          workers_walk = ifelse(is.na(workers_walk), 0, workers_walk),
-#            jobs_ = (jobs_car+ jobs_transit+ jobs_bike+ jobs_walk),
-#          jobs_ = ifelse(is.na(jobs_), 0, jobs_),
-#          jobs_car = ifelse(is.na(jobs_car), 0, jobs_car),
-#          jobs_transit = ifelse(is.na(jobs_transit), 0, jobs_transit),
-#          jobs_bike = ifelse(is.na(jobs_bike), 0, jobs_bike),
-#          jobs_walk = ifelse(is.na(jobs_walk), 0, jobs_walk),
-#          tt_transit = ifelse(trips_transit != 0, TIEMPO_VIAJES, NA),
-#             tt_car = ifelse(trips_car_motor != 0, TIEMPO_VIAJES, NA),
-#             tt_bike = ifelse(trips_bike != 0, TIEMPO_VIAJES, NA),
-#             tt_walk = ifelse(trips_walk != 0, TIEMPO_VIAJES, NA)) %>% ungroup()
-
-#check, should add to the origin number of trips 27795 - perfect!
-# sum(OD$trips_transit) + sum(OD$trips_car_motor) + sum(OD$trips_bike) + sum(OD$trips_walk)
+#check, should add up to the origin number of trips 27795 - perfect!
+sum(OD$trips_transit) + sum(OD$trips_car_motor) + sum(OD$trips_bike) + sum(OD$trips_walk)
+sum(OD_test$trips_transit) + sum(OD_test$trips_car_motor) + sum(OD_test$trips_bike) + sum(OD_test$trips_walk)
 ```
 
 now estimate f value using these averaged travel times:
@@ -458,21 +351,12 @@ OD_test <- OD_test %>%
          f_walk = ifelse(is.na(f_walk), 0, f_walk))
 ```
 
-```{=tex}
-\begin{equation}
-\label{gamma-dist}
-\begin{array}{l}\ 
-f(x, \alpha, \beta) = \frac {x^{\alpha-1}e^{-\frac{x}{\beta}}}{ \beta^{\alpha}\Gamma(\alpha)} \quad \text{for } 0 \leq x \leq \infty\\
 
-\Gamma(\alpha) =  \int_{0}^{\infty} x^{\alpha-1}e^{-x} \,dx\\
-\end{array}
-\end{equation}
-```
-
-## Spatial availability comparision
+## Comparing 2 spatial availability calculations
 
 ```{r}
-#calculate spatial availability
+#calculate spatial availability using the 'sp_avail' function which is defined at the top of the .Rmd
+#this is the FIRST way of calculating SA. This calculates SA for each mode seperately (e.g., the competition of car trips only impacts workers who travel by car, etc.) - I believe this method is less realistic.
 OD_SA <- OD_test %>%
   mutate(catch = 1) %>%
   mutate(SA_ij_car = sp_avail(., 
@@ -521,20 +405,27 @@ sum(sum_jobs$jobs, na.rm = T)
 
 ```
 
-Let's try calculating SA from a different approch:
+Let's try calculating SA from a different approach:
 ```{r}
-# Also another question - this configuration assumes competition is contained within modes - i.e., transit workers compete for transit jobs, etc. This isn't the most realistic I think. So let's sum up all the mode specific workers and jobs and impedance values BEFORE calculating SA so we only have 1 SA
+# Here's SA calculation 2 - instead of separating each mode, I calculate the SA for all modes together so the competition is felt for all workers (not mode specific).  
 
-#add new summed columns
-OD_SA <- OD_SA %>%
+# here I sum up all the mode specific workers and jobs and impedance values BEFORE calculating SA so we only have 1 resulting SA value for the OD pairs and not 4 (one for each mode) like the other approach.
+OD_SA1 <- OD_SA %>%
   mutate(workers_ = (workers_car+ workers_transit+ workers_bike+ workers_walk),
          workers_ = ifelse(is.na(workers_), 0, workers_),
          jobs_ = (jobs_car + jobs_transit + jobs_bike + jobs_walk),
          jobs_ = ifelse(is.na(jobs_), 0, jobs_),
          f_ = f_car + f_transit + f_bike + f_walk)
 
+# as you can see, sometimes an OD row has multiple modes taking that trip - the f_ value sums all modes in that row. 
+head(OD_SA1 %>% dplyr::select(f_, f_car, f_transit, f_bike, f_walk), 25)
+#*note: summing these all together certainly distorts the travel cost proportional allocation but the correct number of workers (by mode) are multiplied in...so the SA adds up to the number of workers which is a good check. Still not sure what the impact of this is...
+```
+
+Now calculate SA using this second approach (all workers (not mode specific) competite with eachother) and preform some checks:
+```{r}
 #calculate spatial availability
-OD_SA2 <- OD_SA %>%
+OD_SA2 <- OD_SA1 %>%
   mutate(catch = 1) %>%
   mutate(SA_ij = sp_avail(., 
                          o_id = VORIZT1259,
@@ -556,7 +447,66 @@ sum(sum_jobs$jobs, na.rm = T)
 #Perfect it works! 
 ```
 
-Let's aggregate the spatial availability by origin zone for these 2 methods (calculating SA separately... and calculating 1 SA that combines all modes)
+Now let's try a third approach. A mix of both examples. imagine:
+if 1 origin destination pair has 2 transit trips and 2 car trips, I want to calculate the SA for each trip considering ALL 4 trips (not like in the first attempt when I considered only 2 trips transit, 2 trips car, and then added them together).  So it would look like:
+
+t1 / t1+t2+c1+c2
+t2 / t1+t2+c1+c2
+c1 / t1+t2+c1+c2
+c2 / t1+t2+c1+c2
+
+```{r}
+o_id3 <- rep(OD_SA2$VORIZT1259,4)  %>% as.data.frame()
+d_id3 <-rep(OD_SA2$VDESZT1259,4)   %>% as.data.frame()
+
+# catch3 <- rep(1, nrow(d_id3)) %>% data.frame() 
+catch3 <- stack(OD_SA2[,3:6]) %>% dplyr::select(values) #trips (transit, car, bike, walk)
+
+workers_3 <-  rep(OD_SA2$workers_,4)  %>% as.data.frame()
+jobs_3 <- rep(OD_SA2$jobs_,4)  %>% as.data.frame()
+# workers_3 <- stack(OD_SA2[,7:10]) %>% dplyr::select(values)
+# jobs_3 <- stack(OD_SA2[,11:14]) %>% dplyr::select(values)
+#f_3 <- rep(OD_SA2$f_,4)  %>% as.data.frame()
+f_3 <- stack(OD_SA2[,c(20,19,21:22)]) %>% dplyr::select(values)
+
+OD_SA3 <- cbind(o_id3, d_id3, catch3, workers_3, jobs_3, f_3) %>% data.frame()
+names(OD_SA3)[1:6] <- c("o_id3", "d_id3", "catch3","workers_3", "jobs_3", "f_3")
+
+OD_SA3 <- OD_SA3 %>% mutate(catch3 = ifelse(catch3 != 0, 1, 0)) 
+summary(OD_SA3)
+```
+
+```{r}
+#calculate spatial availability
+OD_SA3 <- OD_SA3 %>%
+  mutate(catch = 1) %>%
+  mutate(SA_ij_3 = sp_avail(.,
+                         o_id = o_id3,
+                         d_id = d_id3,
+                         pop = workers_3, 
+                         opp = jobs_3,
+                         r = catch,
+                         f = f_3))
+
+#verify that the sum of all jobs is consistent with the number of jobs
+sum(OD_SA3$SA_ij_3)
+
+```
+What's interesting is this third approach yields the same as the second approach. Meaning, when we use to total sum of workers and jobs (across all modes) for each OD pair. repeat the calculation for each mode specific 'f' (i.e., 4 times for each OD pair), and sum up the SA_ij_3 for each OD (each OD has 4 values due to for modes) the resulting value is the same as if the summation of 'f' was done BEFORE the SA calculation. 
+
+These 2 approaches are definitely different than the first approach which only considers the workers and jobs which are taken BY the mode. Effectively, this approach calculates the SA_ij occurring for each mode - independent of the workers / jobs / travel costs of other modes. This 4 SA_ij calculations can also be all summed together and equal back to 27434 (the number of total jobs)
+```{r}
+OD_SA3 %>% group_by(o_id3, d_id3) %>% summarize(f_3 = sum(f_3),
+                                                SA_ij_3 = sum(SA_ij_3))
+OD_SA2 %>% group_by(VORIZT1259, VDESZT1259) %>% summarize(f_2 = sum(f_),
+                                                          SA_ij2 = sum(SA_ij))
+OD_SA2 %>% group_by(VORIZT1259, VDESZT1259) %>% summarize(f_1 = sum(f_car, f_bike, f_walk, f_transit), 
+                                                          SA_ij1 = sum(SA_ij_car, SA_ij_bike, SA_ij_transit, SA_ij_walk))
+
+```
+
+# Visually comparing the 2 approaches
+Let's aggregate the spatial availability by origin zone for the first 2 methods (calculating SA separately... and calculating 1 SA that combines all modes) and visually compare 
 ```{r}
 #aggregating spatial availability  
 MAD_availability <- OD_SA2 %>%
@@ -657,8 +607,8 @@ plot_MAD_avail2 <- ggdraw(plot_MAD_avail2) +
     x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
     width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
 
-plot_MAD_avail1
-plot_MAD_avail2
+plot_MAD_avail1 # the mode specific SA calculation and then sum them together - approach 1
+plot_MAD_avail2 # the f_, worker_, job_, summed together BEFORE SA calculation - approach 2
 ```
 We can normalize it by the number of workers so the numeric value corresponds to available jobs per worker. First plot 1, then plot 2.
 ```{r}
@@ -730,11 +680,11 @@ plot_MAD_avail_perworker_2 <- ggdraw(plot_MAD_avail_perworker_2) +
     x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
     width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
 
-plot_MAD_avail_perworker_1
-plot_MAD_avail_perworker_2
+plot_MAD_avail_perworker_1 # the mode specific SA calculation and then sum them together - approach 1
+plot_MAD_avail_perworker_2 # the f_, worker_, job_, summed together BEFORE SA calculation - approach 2
 ```
 
-## An optimistic scenario - no cars going into madrid municipality 
+# C) Exploring mode shifting, first an optimistic scenario - no cars (all transit) going into madrid municipality 
 
 Let's test out a scenario - all car trips going into madrid municipality are now transit trips. How will this impact the SA profile? We will using the 2nd method (calculating SA within all modes). 
 
@@ -749,7 +699,7 @@ OD_v_HW_optimistic <- OD_v_HW  %>% merge(Madrid_muni, by.x=("VDESZT1259"), by.y=
 #reassigning car trips to transit
 OD_v_HW_optimistic1 <- OD_v_HW_optimistic  %>% filter(MM == 1) %>% rowwise() %>%
   mutate(trips_transit = sum(trips_transit,trips_car_motor, na.rm = T),
-         trips_car_motor = 0)
+         trips_car_motor = 0) #16627 ODs are making trips INTO muni, this is 59% of all OD pairs
 
 OD_v_HW_optimistic2 <- OD_v_HW_optimistic  %>% filter(is.na(MM)) 
 
@@ -782,7 +732,33 @@ jobs <- OD_v_HW_optimistic %>%
             jobs_walk)
 ```
 
-Now again, join the workers and jobs to the ZN simple features object:
+Let's quickly compare how many ODs which have car trips changed to transit had EXISTING transit trips. This may inform what travel time we use.
+```{r}
+madrid_trips_reassigned <- OD_v_HW_optimistic1 %>% 
+  group_by(VORIZT1259, VDESZT1259) %>%
+  summarise(NEWtrips_transit = sum(trips_transit),
+         NEWtrips_car_motor = sum(trips_car_motor))
+
+madrid_trips_original <-OD_v_HW %>%
+  group_by(VORIZT1259, VDESZT1259) %>%
+  summarise(trips_transit = sum(trips_transit),
+         trips_car_motor = sum(trips_car_motor))
+
+madrid_trips_reassigned <- madrid_trips_reassigned %>% merge(madrid_trips_original, by =c("VORIZT1259","VDESZT1259" ))
+#all the trip_.y, are the original trips as specified in the travel survey. the trips.x are the assigned trips (moved to transit).
+
+# percentage of transit trips that existed in the original OD pair
+
+countt <- madrid_trips_reassigned %>% mutate(transit_count = ifelse(trips_transit != 0, 1, 0))
+
+sum(countt$transit_count)/nrow(madrid_trips_reassigned)
+```
+
+We can see that only ~50% of the OD pairs had a transit trip originally - so we can only borrow transit trip times from thest ODs... we'd have to figure out how to subsitute the remaining 50%. Alternatively - we can figure out any other solution to apply to all mode-shifted trips.
+
+For simplicity, let's continue and  just take the travel time (for car) for these trips and put it on the transit impedance curve. 
+
+To continue this process, join the workers and jobs to the ZN simple features object:
 ```{r}
 load("data/zn.RData")
 
@@ -824,7 +800,7 @@ OD_optimistic <- OD_optimistic %>%
          jobs_walk = ifelse(is.na(jobs_walk), 0, jobs_walk))
 ```
 
-now reshape the data, each row will represent an any origin to to 1 destination (i.e., destination row is unique). We will average the travel times, by mode, and then use this average travel time to find the 'f' (impedance value for travel for each mode):
+now reshape the data, each row will represent an any origin to to 1 destination (i.e., destination row is unique). We will average the travel times, by mode, and then use this average travel time to find the 'f' (impedance value for travel for each mode). Note: this is a *KEY* assumption - I'm giving the new transit trips the SAME travel time as they had when traveling by car but I am predicting the travel cost using the impedance curve of TRANSIT instead of CAR - that's the only difference. This is certainly a strange assumption. A solution could be to use the r5r calculated transit travel times but as we saw they don't fit the original data travel times well... 
 ```{r}
 #consolidate trips so each trip is unique. workers = jobs.
 OD_optimistic <- OD_optimistic %>%

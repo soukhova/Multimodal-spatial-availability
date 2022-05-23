@@ -52,7 +52,7 @@ ALLLEZ <- st_read("data-raw/Zona_Bajas_Emisiones_MADRID.shp")
 
 Importing a list of all the municipalities within the Madrid region and adding them to the zone shape file:
 ```{r}
-t <- read_excel("data-raw/ZonificacionZT1259 complete.xlsx") %>% select(ZT1259, Municipality)
+t <- read_excel("data-raw/ZonificacionZT1259 complete.xlsx") %>% dplyr::select(ZT1259, Municipality)
 
 zn <- zn %>% merge(t, by = c("ZT1259"), all.x=TRUE)
 ```
@@ -185,16 +185,16 @@ OD_v_Oc_Dt$VVEHICULO %>% typeof()
 
 Let's see how long are short-trips are (by distance, assuming in km units):
 ```{r}
-t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE <= 60) %>% select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric() 
+t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE <= 60) %>% dplyr::select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric() 
 hist(t)
 ```
 
 As you can see though there are some long distance trip (greater than 60km). There are 101 trips which are between 60km to 600km and 1 trip greater than 600km. For perspective though, these trips make up onl 0.3% of total trips taken ( ~100 trips out of ~28,000 trips).
 ```{r}
-t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE >= 60 & DISTANCIA_VIAJE <= 600) %>% select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric() 
+t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE >= 60 & DISTANCIA_VIAJE <= 600) %>% dplyr::select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric() 
 hist(t, breaks = 50)
 
-t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE >= 600) %>% select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric() 
+t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE >= 600) %>% dplyr::select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric() 
 hist(t, breaks = 50)
 ```
 
