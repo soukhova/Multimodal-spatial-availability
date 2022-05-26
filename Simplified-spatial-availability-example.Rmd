@@ -17,45 +17,45 @@ library(ggspatial)
 ```{r sp_avail-function,include=FALSE}
 #defining the spatial availability function
 sp_avail <- function(x, o_id, d_id, pop, opp, r, f, alpha = 1){
-
+  
   o_id <- rlang::enquo(o_id)
   d_id <- rlang::enquo(d_id)
   pop <- rlang::enquo(pop)
   opp <- rlang::enquo(opp)
   r <- rlang::enquo(r)
   f <- rlang::enquo(f)
-
+  
   sum_pop <- x %>%
     dplyr::distinct(!!o_id,
                     .keep_all = TRUE) %>%
     dplyr::mutate(sum_pop = !!r*(!!pop)^alpha) %>%
     dplyr::pull(sum_pop) %>%
     sum()
-
+  
   f_p <- dplyr::pull(x, !!r) * dplyr::pull(x, !!pop)^alpha / sum_pop
-
+  
   sum_impedance <- x %>%
     dplyr::group_by(!!d_id) %>%
     dplyr::summarize(sum_impedance = sum(!!f))
-
+  
   x <- x %>%
     dplyr::left_join(sum_impedance,
                      by = rlang::as_name(d_id))
-
+  
   f_c <- dplyr::pull(x, !!f) / x$sum_impedance
-
+  
   x$f_c <- f_c
   x$f_p <- f_p
-
+  
   sum_pa <- x %>%
     dplyr::group_by(!!d_id) %>%
     dplyr::summarize(sum_pa= sum(f_p * f_c))
-
+  
   x <- x %>%
     dplyr::left_join(sum_pa,
                      by = rlang::as_name(d_id))
   f_t <- (f_p * f_c) / dplyr::pull(x, sum_pa)
-
+  
   dplyr::pull(x, !!opp) * f_t
 }
 ```
@@ -72,7 +72,7 @@ Calculate the duration of each trip
 OD_v <- OD_v %>%
   mutate(TIEMPO_VIAJES =
            (as.numeric(OD_v$VDESHORAFIN) - 
-                    as.numeric(OD_v$VORIHORAINI))) %>%
+              as.numeric(OD_v$VORIHORAINI))) %>%
   mutate(TIEMPO_VIAJES = ifelse(TIEMPO_VIAJES == 0, 0.1, TIEMPO_VIAJES)) # set all 0min travel times to 0.1 min
 summary(OD_v$TIEMPO_VIAJES)
 ```
@@ -101,8 +101,8 @@ t
 Now... let's only include chained trips with the same mode! 
 ```{r}
 t <- t %>% group_by(ID_HOGAR, ID_IND) %>% mutate(trip = ifelse(((ID_VIAJE - lag(ID_VIAJE)) == 1)
-                                                          & ((MODO_PRIORITARIO - lag(MODO_PRIORITARIO))== 0), 
-                                                          MODO_PRIORITARIO, 0))
+                                                               & ((MODO_PRIORITARIO - lag(MODO_PRIORITARIO))== 0), 
+                                                               MODO_PRIORITARIO, 0))
 
 t %>% filter(trip == 0) %>% nrow() / t %>% filter(chained == 0) %>% nrow()
 t %>% filter(trip != 0 & !is.na(trip)) %>% nrow() / t %>% filter(chained == 0) %>% nrow()
@@ -164,11 +164,11 @@ missing_workers <- zn_noc %>% filter(is.na(Otrips)) %>% dplyr::select(ZT1259) #3
 missing_workers <- missing_workers %>% merge(OD_v, by.x = "ZT1259", by.y="VORIZT1259", all.x = TRUE)
 
 temp <- missing_workers %>% st_drop_geometry() %>% group_by(ZT1259) %>% summarise(trip_count = n(),
-                                                                          Owork_perc = sum(VORI == 2)/n(),
-                                                                          Ostudy_perc = sum(VORI == 4)/n(),
-                                                                          Osportwalk_perc = sum(VORI == 10)/n(),
-                                                                          Oshop_perc = sum(VORI == 5)/n(),
-                                                                          Ohome_perc = sum(VORI == 1)/n())
+                                                                                  Owork_perc = sum(VORI == 2)/n(),
+                                                                                  Ostudy_perc = sum(VORI == 4)/n(),
+                                                                                  Osportwalk_perc = sum(VORI == 10)/n(),
+                                                                                  Oshop_perc = sum(VORI == 5)/n(),
+                                                                                  Ohome_perc = sum(VORI == 1)/n())
 temp
 ```
 ```{r}
@@ -202,89 +202,219 @@ Ultimately, for each origin to destination, the product of $F^c_{ij}$ and $F^p_{
 We must manipulate the data before we can fit the impedance function:
 ```{r data-for-impedance}
 #here we separate all the "car" trips, "transit" trips, "bike" trips, and "walk" trips. We then will create 4 different imepedance function....
-transit_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO <= 9) %>%
-  dplyr::select(TIEMPO_VIAJES)
-  
-car_motor_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10) %>%
-  dplyr::select(TIEMPO_VIAJES) #includes both motorcycles and cars
+transit_HW_alltt <- OD_v_HW  %>% 
+  filter(MODO_PRIORITARIO <= 9) %>%
+  #dplyr::select(TIEMPO_VIAJES, ELE_G_POND_ESC2)
+  transmute(TIEMPO_VIAJES, 
+            ELE_G_POND_ESC2,
+            mode = "transit")
 
-bike_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20) %>%
-  dplyr::select(TIEMPO_VIAJES)
+car_motor_HW_alltt <- OD_v_HW  %>% 
+  filter(MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10) %>%
+  #dplyr::select(TIEMPO_VIAJES, ELE_G_POND_ESC2) #includes both motorcycles and cars
+  transmute(TIEMPO_VIAJES, 
+            ELE_G_POND_ESC2,
+            mode = "car/motor")
+
+bike_HW_alltt <- OD_v_HW  %>% 
+  filter(MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20) %>%
+  #dplyr::select(TIEMPO_VIAJES, ELE_G_POND_ESC2)
+  transmute(TIEMPO_VIAJES, 
+            ELE_G_POND_ESC2,
+            mode = "bike")
 
 walk_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO == 24) %>%
-  dplyr::select(TIEMPO_VIAJES)
+  #dplyr::select(TIEMPO_VIAJES, ELE_G_POND_ESC2)
+  transmute(TIEMPO_VIAJES, 
+            ELE_G_POND_ESC2,
+            mode = "walk")
 ```
 
 Then create the impedance functions:
 ```{r fitting-impedance-function}
 # using fitdist function to fit a distribution using the default maximum likelihood estimation method and Nelder-Mead method for direct optimization
-lnorm_ <- fitdistrplus::fitdist(data=transit_HW_alltt%>% unlist() %>% as.numeric(), "lnorm", method="mle", optim.method="Nelder-Mead")
+lnorm_ <- fitdistrplus::fitdist(data=transit_HW_alltt$TIEMPO_VIAJES,#%>% unlist() %>% as.numeric(),
+                                "lnorm", 
+                                method="mle",
+                                #Notice the use of the weights,
+                                weights = round(transit_HW_alltt$ELE_G_POND_ESC2),
+                                optim.method="Nelder-Mead")
 HW_transit_lnorm <- lnorm_
 
-gamma_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt%>% unlist() %>% as.numeric(), "gamma", method="mle", optim.method="Nelder-Mead")
+gamma_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt$TIEMPO_VIAJES, #%>% unlist() %>% as.numeric(),
+                                "gamma", 
+                                method="mle",
+                                #Notice the use of the weights,
+                                weights = round(car_motor_HW_alltt$ELE_G_POND_ESC2), 
+                                optim.method="Nelder-Mead")
 HW_car_motor_gamma <- gamma_
 
-lnorm_ <- fitdistrplus::fitdist(data=bike_HW_alltt%>% unlist() %>% as.numeric(), "lnorm", method="mle", optim.method="Nelder-Mead")
+lnorm_ <- fitdistrplus::fitdist(data=bike_HW_alltt$TIEMPO_VIAJES, #%>% unlist() %>% as.numeric(),
+                                "lnorm", 
+                                method="mle",
+                                #Notice the use of the weights,
+                                weights = round(bike_HW_alltt$ELE_G_POND_ESC2),
+                                optim.method="Nelder-Mead")
 HW_bike_lnorm <- lnorm_
 
-lnorm_ <- fitdistrplus::fitdist(data=walk_HW_alltt%>% unlist() %>% as.numeric(), "lnorm", method="mle", optim.method="Nelder-Mead")
+lnorm_ <- fitdistrplus::fitdist(data=walk_HW_alltt$TIEMPO_VIAJES, #%>% unlist() %>% as.numeric(),
+                                "lnorm", 
+                                method="mle",
+                                #Notice the use of the weights,
+                                weights = round(walk_HW_alltt$ELE_G_POND_ESC2),
+                                optim.method="Nelder-Mead")
 HW_walk_lnorm <- lnorm_
+```
+
+To visualize the impedance functions we create a data frame and calculate the density of the distribution given the estimated parameters:
+```{r}
+x <- data.frame(t = seq(1, 300, 1))
+
+x_transit <- x %>%
+  mutate(f = dlnorm(t,
+                    HW_transit_lnorm$estimate[1],
+                    HW_transit_lnorm$estimate[2]),
+         mode = "transit")
+
+x_car_motor <- x %>%
+  mutate(f = dgamma(t,
+                    shape = HW_car_motor_gamma$estimate[1],
+                    rate = HW_car_motor_gamma$estimate[2]),
+         mode = "car/motor")
+
+x_bike <- x %>%
+  mutate(f = dlnorm(t,
+                    HW_bike_lnorm$estimate[1],
+                    HW_bike_lnorm$estimate[2]),
+         mode = "bike")
+
+x_walk <- x %>%
+  mutate(f = dlnorm(t,
+                    HW_walk_lnorm$estimate[1],
+                    HW_walk_lnorm$estimate[2]),
+         mode = "walk")
+```
+
+Plot:
+```{r}
+rbind(x_transit,
+      x_car_motor,
+      x_bike,
+      x_walk) %>%
+  mutate(mode = factor(mode,
+                       levels = c("bike", "walk", "car/motor", "transit"))) %>%
+  ggplot(aes(x = t, y = f)) + 
+  geom_line() + 
+  facet_wrap(~ mode, nrow = 2)
+```
+
+What do the impedance curves tell us about the travel behavior by different modes? Check the histograms:
+```{r}
+rbind(transit_HW_alltt,
+      car_motor_HW_alltt,
+      bike_HW_alltt,
+      walk_HW_alltt) %>%
+  mutate(mode = factor(mode,
+                       levels = c("bike", "walk", "car/motor", "transit"))) %>%
+  ggplot(aes(x = TIEMPO_VIAJES, weights = ELE_G_POND_ESC2, after_stat(density))) + 
+  geom_histogram(bins = 35) + 
+  facet_wrap(~ mode, nrow = 2)
 ```
 
 Then we add the number of trips (by mode) and create objects which contain the number of workers (origin) and jobs (destinations) - by mode:
 ```{r}
-OD_v_HW <- OD_v_HW  %>% mutate(trips_transit = ifelse(MODO_PRIORITARIO <= 9, 1,0),
-                    trips_car_motor = ifelse(MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10, 1, 0),
-                    trips_bike = ifelse(MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20, 1, 0),
-                    trips_walk = ifelse(MODO_PRIORITARIO == 24, 1, 0))
+# OD_v_HW <- OD_v_HW  %>% 
+#   mutate(trips_transit = ifelse(MODO_PRIORITARIO <= 9, 1,0),
+#          trips_car_motor = ifelse(MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10, 1, 0),
+#          trips_bike = ifelse(MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20, 1, 0),
+#          trips_walk = ifelse(MODO_PRIORITARIO == 24, 1, 0))
 
+# Instead of creating various columns like above, create a single column with the mode
+OD_v_HW <- OD_v_HW  %>% 
+  mutate(mode = case_when(MODO_PRIORITARIO <= 9 ~ "transit",
+                          MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10 ~ "car_motor",
+                          MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20 ~ "bike",
+                          MODO_PRIORITARIO == 24 ~ "walk"),
+         mode = factor(mode))
+
+# workers <- OD_v_HW %>%
+#   group_by(VORIZT1259) %>%
+#   summarize(workers_transit = sum(trips_transit),
+#             workers_car = sum(trips_car_motor),
+#             workers_bike = sum(trips_bike),
+#             workers_walk = sum(trips_walk),
+#             .groups = "drop") %>%
+#   transmute(ZT1259 = VORIZT1259,
+#             workers_transit,
+#             workers_car,
+#             workers_bike,
+#             workers_walk)
+
+# The workers are classified by mode
 workers <- OD_v_HW %>%
-  group_by(VORIZT1259) %>%
-  summarize(workers_transit = sum(trips_transit),
-            workers_car = sum(trips_car_motor),
-            workers_bike = sum(trips_bike),
-            workers_walk = sum(trips_walk),
+  group_by(VORIZT1259,
+           mode) %>%
+  # The sum is of the weighted workers
+  summarize(workers = sum(ELE_G_POND_ESC2),
             .groups = "drop") %>%
-  transmute(ZT1259 = VORIZT1259,
-            workers_transit,
-            workers_car,
-            workers_bike,
-            workers_walk)
+  rename(ZT1259 = VORIZT1259)
 
+# jobs <- OD_v_HW %>%
+#   group_by(VDESZT1259) %>%
+#   summarize(jobs_transit = sum(trips_transit),
+#             jobs_car = sum(trips_car_motor),
+#             jobs_bike = sum(trips_bike),
+#             jobs_walk = sum(trips_walk),
+#             .groups = "drop") %>%
+#   transmute(ZT1259 = VDESZT1259,
+#             jobs_transit,
+#             jobs_car,
+#             jobs_bike,
+#             jobs_walk)
+
+# Do we need to classify the jobs by mode?
 jobs <- OD_v_HW %>%
   group_by(VDESZT1259) %>%
-  summarize(jobs_transit = sum(trips_transit),
-            jobs_car = sum(trips_car_motor),
-            jobs_bike = sum(trips_bike),
-            jobs_walk = sum(trips_walk),
+  summarize(jobs = sum(ELE_G_POND_ESC2),
             .groups = "drop") %>%
-  transmute(ZT1259 = VDESZT1259,
-            jobs_transit,
-            jobs_car,
-            jobs_bike,
-            jobs_walk)
+  rename(ZT1259 = VDESZT1259)
 ```
 
+NOW WE NEED: the travel times from the routing algorithm between origin-destination pairs. Anastasia did not use the routing, it may not be needed; instead she used the average travel time by mode for all trips 
+
+<!--
 Next join workers and jobs to the ZN simple features object:
 ```{r}
 load("data/zn.RData")
 
-zn <- zn %>%
+# zn <- zn %>%
+#   # Join workers
+#   left_join(workers,
+#             by = "ZT1259") %>%
+#   # Join jobs
+#   left_join(jobs,
+#             by = "ZT1259") %>%
+#   # Replace NAs with zeros
+#   mutate(workers_transit = tidyr::replace_na(workers_transit, 0),
+#          workers_car = tidyr::replace_na(workers_car, 0),
+#          workers_bike = tidyr::replace_na(workers_bike, 0),
+#          workers_walk = tidyr::replace_na(workers_walk, 0),
+#          jobs_transit = tidyr::replace_na(jobs_transit, 0),
+#          jobs_car = tidyr::replace_na(jobs_car, 0),
+#          jobs_bike = tidyr::replace_na(jobs_bike, 0),
+#          jobs_walk = tidyr::replace_na(jobs_walk, 0))
+
+workers_sf <- workers %>%
   # Join workers
-  left_join(workers,
+  left_join(zn,
             by = "ZT1259") %>%
+  st_as_sf()
+
+jobs_sf <- jobs %>%
   # Join jobs
-  left_join(jobs,
+  left_join(zn,
             by = "ZT1259") %>%
-  # Replace NAs with zeros
-  mutate(workers_transit = tidyr::replace_na(workers_transit, 0),
-         workers_car = tidyr::replace_na(workers_car, 0),
-         workers_bike = tidyr::replace_na(workers_bike, 0),
-         workers_walk = tidyr::replace_na(workers_walk, 0),
-         jobs_transit = tidyr::replace_na(jobs_transit, 0),
-         jobs_car = tidyr::replace_na(jobs_car, 0),
-         jobs_bike = tidyr::replace_na(jobs_bike, 0),
-         jobs_walk = tidyr::replace_na(jobs_walk, 0))
+  st_as_sf()
 
 # sum(zn$workers_transit) + sum(zn$workers_bike) + sum(zn$workers_car) + sum(zn$workers_walk)
 # sum(zn$jobs_transit) + sum(zn$jobs_bike) + sum(zn$jobs_car) + sum(zn$jobs_walk)
@@ -296,7 +426,7 @@ Then add the number of workers and jobs from each ZN to each trip:
 ```{r}
 #add the number of jobs and workers to the od_ft_tt matrix
 OD <- OD_v_HW %>% merge(zn %>% dplyr::select(ZT1259, workers_transit,workers_car,workers_bike,workers_walk) %>% st_drop_geometry(),
-                   by.x = "VORIZT1259", by.y="ZT1259", all.x = TRUE)
+                        by.x = "VORIZT1259", by.y="ZT1259", all.x = TRUE)
 
 OD <- OD %>% merge(zn %>% dplyr::select(ZT1259, jobs_transit,jobs_car,jobs_bike,jobs_walk) %>% st_drop_geometry(),
                    by.x = "VDESZT1259", by.y="ZT1259", all.x = TRUE)
@@ -411,36 +541,36 @@ OD_test <- OD_test %>%
 OD_SA <- OD_test %>%
   mutate(catch = 1) %>%
   mutate(SA_ij_car = sp_avail(., 
-                         o_id = VORIZT1259,
-                         d_id = VDESZT1259,
-                         pop = workers_car,
-                         opp = jobs_car,
-                         r = catch,
-                         f = f_car),
+                              o_id = VORIZT1259,
+                              d_id = VDESZT1259,
+                              pop = workers_car,
+                              opp = jobs_car,
+                              r = catch,
+                              f = f_car),
          SA_ij_car = ifelse(is.nan(SA_ij_car), 0, SA_ij_car),
          SA_ij_transit = sp_avail(., 
-                         o_id = VORIZT1259,
-                         d_id = VDESZT1259,
-                         pop = workers_transit,
-                         opp = jobs_transit,
-                         r = catch,
-                         f = f_transit),
+                                  o_id = VORIZT1259,
+                                  d_id = VDESZT1259,
+                                  pop = workers_transit,
+                                  opp = jobs_transit,
+                                  r = catch,
+                                  f = f_transit),
          SA_ij_transit = ifelse(is.nan(SA_ij_transit), 0, SA_ij_transit),
          SA_ij_bike = sp_avail(., 
-                         o_id = VORIZT1259,
-                         d_id = VDESZT1259,
-                         pop = workers_bike,
-                         opp = jobs_bike,
-                         r = catch,
-                         f = f_bike),
+                               o_id = VORIZT1259,
+                               d_id = VDESZT1259,
+                               pop = workers_bike,
+                               opp = jobs_bike,
+                               r = catch,
+                               f = f_bike),
          SA_ij_bike = ifelse(is.nan(SA_ij_bike), 0, SA_ij_bike),
          SA_ij_walk = sp_avail(., 
-                         o_id = VORIZT1259,
-                         d_id = VDESZT1259,
-                         pop = workers_walk,
-                         opp = jobs_walk,
-                         r = catch,
-                         f = f_walk),
+                               o_id = VORIZT1259,
+                               d_id = VDESZT1259,
+                               pop = workers_walk,
+                               opp = jobs_walk,
+                               r = catch,
+                               f = f_walk),
          SA_ij_walk = ifelse(is.nan(SA_ij_walk), 0, SA_ij_walk))
 
 #verify that the sum of all jobs is consistent with the number of jobs
@@ -479,12 +609,12 @@ Now calculate SA using this second approach (all workers (not mode specific) com
 OD_SA2 <- OD_SA1 %>%
   mutate(catch = 1) %>%
   mutate(SA_ij = sp_avail(., 
-                         o_id = VORIZT1259,
-                         d_id = VDESZT1259,
-                         pop = workers_,
-                         opp = jobs_,
-                         r = catch,
-                         f = f_),
+                          o_id = VORIZT1259,
+                          d_id = VDESZT1259,
+                          pop = workers_,
+                          opp = jobs_,
+                          r = catch,
+                          f = f_),
          SA_ij = ifelse(is.nan(SA_ij), 0, SA_ij))
 
 #verify that the sum of all jobs is consistent with the number of jobs
@@ -532,12 +662,12 @@ summary(OD_SA3)
 OD_SA3 <- OD_SA3 %>%
   mutate(catch = 1) %>%
   mutate(SA_ij_3 = sp_avail(.,
-                         o_id = o_id3,
-                         d_id = d_id3,
-                         pop = workers_3, 
-                         opp = jobs_3,
-                         r = catch,
-                         f = f_3))
+                            o_id = o_id3,
+                            d_id = d_id3,
+                            pop = workers_3, 
+                            opp = jobs_3,
+                            r = catch,
+                            f = f_3))
 
 #verify that the sum of all jobs is consistent with the number of jobs
 sum(OD_SA3$SA_ij_3)
@@ -595,10 +725,10 @@ plot 1 (SA for each mode calculated seperated and then added together) and plot 
 #plot 1 main plot
 plot_MAD_avail1 <- ggplot() +
   geom_sf(data = zn_test, aes(fill= SA_i1), color = NA) + #data
-    scale_fill_distiller(palette = "RdYlGn", #legend scale bar
-                         name = expression(V["i"]),
-                         na.value = "grey90",
-                         limits = c( round(min(zn_test$SA_i1, na.rm=T)), round(max(zn_test$SA_i1, na.rm=T)))) +
+  scale_fill_distiller(palette = "RdYlGn", #legend scale bar
+                       name = expression(V["i"]),
+                       na.value = "grey90",
+                       limits = c( round(min(zn_test$SA_i1, na.rm=T)), round(max(zn_test$SA_i1, na.rm=T)))) +
   geom_sf(data = Madrid_muni_border, # border for Madrid muni
           colour=alpha("dimgrey",1), 
           size = 0.5, fill=NA, 
@@ -619,19 +749,19 @@ plot_MAD_avail1 <- ggplot() +
 # plot 1 + inset map
 plot_MAD_avail1 <- ggdraw(plot_MAD_avail1) +
   draw_plot({plot_MAD_avail1 + coord_sf(xlim = st_coordinates(bbox_Madrid_muni)[c(1,2),1],
-                                         ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
-                                         expand = FALSE) +
+                                        ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
+                                        expand = FALSE) +
       theme(legend.position = "none")},
-    x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
-    width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
+      x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
+      width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
 
 #plot 2
 plot_MAD_avail2 <- ggplot() +
   geom_sf(data = zn_test, aes(fill= SA_i2), color = NA) + #data
-    scale_fill_distiller(palette = "RdYlGn", #legend scale bar
-                         name = expression(V["i"]),
-                         na.value = "grey90",
-                         limits = c( round(min(zn_test$SA_i2, na.rm=T)), round(max(zn_test$SA_i2, na.rm=T)))) +
+  scale_fill_distiller(palette = "RdYlGn", #legend scale bar
+                       name = expression(V["i"]),
+                       na.value = "grey90",
+                       limits = c( round(min(zn_test$SA_i2, na.rm=T)), round(max(zn_test$SA_i2, na.rm=T)))) +
   geom_sf(data = Madrid_muni_border, # border for Madrid muni
           colour=alpha("dimgrey",1), 
           size = 0.5, fill=NA, 
@@ -652,11 +782,11 @@ plot_MAD_avail2 <- ggplot() +
 # plot 1 + inset map
 plot_MAD_avail2 <- ggdraw(plot_MAD_avail2) +
   draw_plot({plot_MAD_avail2 + coord_sf(xlim = st_coordinates(bbox_Madrid_muni)[c(1,2),1],
-                                         ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
-                                         expand = FALSE) +
+                                        ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
+                                        expand = FALSE) +
       theme(legend.position = "none")},
-    x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
-    width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
+      x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
+      width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
 
 plot_MAD_avail1 # the mode specific SA calculation and then sum them together - approach 1
 plot_MAD_avail2 # the f_, worker_, job_, summed together BEFORE SA calculation - approach 2
@@ -666,11 +796,11 @@ We can normalize it by the number of workers so the numeric value corresponds to
 #plot 1 main plot
 plot_MAD_avail_perworker_1 <- ggplot() +
   geom_sf(data = zn_test, aes(fill= SA_i1/workers_), color = NA) + #data
-    scale_fill_distiller(palette = "RdYlGn", #legend scale bar
-                         name = expression(v["i"]),
-                         na.value = "grey90",
-                         limits = c( round(min(zn_test$SA_i1/zn_test$workers_, na.rm=T)), 
-                                     round(max(zn_test$SA_i1/zn_test$workers_, na.rm=T))))+
+  scale_fill_distiller(palette = "RdYlGn", #legend scale bar
+                       name = expression(v["i"]),
+                       na.value = "grey90",
+                       limits = c( round(min(zn_test$SA_i1/zn_test$workers_, na.rm=T)), 
+                                   round(max(zn_test$SA_i1/zn_test$workers_, na.rm=T))))+
   geom_sf(data = Madrid_muni_border, # border for Madrid muni
           colour=alpha("dimgrey",1), 
           size = 0.5, fill=NA, 
@@ -691,20 +821,20 @@ plot_MAD_avail_perworker_1 <- ggplot() +
 # plot 1 + inset map
 plot_MAD_avail_perworker_1 <- ggdraw(plot_MAD_avail_perworker_1) +
   draw_plot({plot_MAD_avail_perworker_1 + coord_sf(xlim = st_coordinates(bbox_Madrid_muni)[c(1,2),1],
-                                         ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
-                                         expand = FALSE) +
+                                                   ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
+                                                   expand = FALSE) +
       theme(legend.position = "none")},
-    x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
-    width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
+      x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
+      width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
 
 #plot 2
 plot_MAD_avail_perworker_2 <- ggplot() +
   geom_sf(data = zn_test, aes(fill= SA_i2/workers_), color = NA) + #data
-    scale_fill_distiller(palette = "RdYlGn", #legend scale bar
-                         name = expression(v["i"]),
-                         na.value = "grey90",
-                         limits = c( round(min(zn_test$SA_i2/zn_test$workers_, na.rm=T)), 
-                                     round(max(zn_test$SA_i2/zn_test$workers_, na.rm=T))))+
+  scale_fill_distiller(palette = "RdYlGn", #legend scale bar
+                       name = expression(v["i"]),
+                       na.value = "grey90",
+                       limits = c( round(min(zn_test$SA_i2/zn_test$workers_, na.rm=T)), 
+                                   round(max(zn_test$SA_i2/zn_test$workers_, na.rm=T))))+
   geom_sf(data = Madrid_muni_border, # border for Madrid muni
           colour=alpha("dimgrey",1), 
           size = 0.5, fill=NA, 
@@ -725,11 +855,11 @@ plot_MAD_avail_perworker_2 <- ggplot() +
 # plot 1 + inset map
 plot_MAD_avail_perworker_2 <- ggdraw(plot_MAD_avail_perworker_2) +
   draw_plot({plot_MAD_avail_perworker_2 + coord_sf(xlim = st_coordinates(bbox_Madrid_muni)[c(1,2),1],
-                                         ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
-                                         expand = FALSE) +
+                                                   ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
+                                                   expand = FALSE) +
       theme(legend.position = "none")},
-    x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
-    width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
+      x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
+      width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
 
 plot_MAD_avail_perworker_1 # the mode specific SA calculation and then sum them together - approach 1
 plot_MAD_avail_perworker_2 # the f_, worker_, job_, summed together BEFORE SA calculation - approach 2
@@ -788,12 +918,12 @@ Let's quickly compare how many ODs which have car trips changed to transit had E
 madrid_trips_reassigned <- OD_v_HW_optimistic1 %>% 
   group_by(VORIZT1259, VDESZT1259) %>%
   summarise(NEWtrips_transit = sum(trips_transit),
-         NEWtrips_car_motor = sum(trips_car_motor))
+            NEWtrips_car_motor = sum(trips_car_motor))
 
 madrid_trips_original <-OD_v_HW %>%
   group_by(VORIZT1259, VDESZT1259) %>%
   summarise(trips_transit = sum(trips_transit),
-         trips_car_motor = sum(trips_car_motor))
+            trips_car_motor = sum(trips_car_motor))
 
 madrid_trips_reassigned <- madrid_trips_reassigned %>% merge(madrid_trips_original, by =c("VORIZT1259","VDESZT1259" ))
 #all the trip_.y, are the original trips as specified in the travel survey. the trips.x are the assigned trips (moved to transit).
@@ -835,10 +965,10 @@ add the number of workers and jobs from each zona to each trip:
 ```{r}
 #add the number of jobs and workers to the od_ft_tt matrix
 OD_optimistic <- OD_v_HW_optimistic %>% merge(zn %>% dplyr::select(ZT1259, workers_transit,workers_car,workers_bike,workers_walk) %>% st_drop_geometry(),
-                   by.x = "VORIZT1259", by.y="ZT1259", all.x = TRUE)
+                                              by.x = "VORIZT1259", by.y="ZT1259", all.x = TRUE)
 
 OD_optimistic <- OD_optimistic %>% merge(zn %>% dplyr::select(ZT1259, jobs_transit,jobs_car,jobs_bike,jobs_walk) %>% st_drop_geometry(),
-                   by.x = "VDESZT1259", by.y="ZT1259", all.x = TRUE)
+                                         by.x = "VDESZT1259", by.y="ZT1259", all.x = TRUE)
 
 OD_optimistic <- OD_optimistic %>% 
   mutate(workers_transit = ifelse(is.na(workers_transit), 0, workers_transit),
@@ -911,12 +1041,12 @@ OD_optimistic <- OD_optimistic %>%
 OD_optimistic <- OD_optimistic %>%
   mutate(catch = 1) %>%
   mutate(SA_ij = sp_avail(., 
-                         o_id = VORIZT1259,
-                         d_id = VDESZT1259,
-                         pop = workers_,
-                         opp = jobs_,
-                         r = catch,
-                         f = f_),
+                          o_id = VORIZT1259,
+                          d_id = VDESZT1259,
+                          pop = workers_,
+                          opp = jobs_,
+                          r = catch,
+                          f = f_),
          SA_ij = ifelse(is.nan(SA_ij), 0, SA_ij))
 
 #verify that the sum of all jobs is consistent with the number of jobs
@@ -949,11 +1079,11 @@ Here we plot plot 2 (the original scenario) and plot 3 ( this optimistic scenari
 #plot 2
 plot_MAD_avail_perworker_3 <- ggplot() +
   geom_sf(data = zn_test3, aes(fill= SA_i3/workers_), color = NA) + #data
-    scale_fill_distiller(palette = "RdYlGn", #legend scale bar
-                         name = expression(v["i"]),
-                         na.value = "grey90",
-                         limits = c( round(min(zn_test3$SA_i3/zn_test3$workers_, na.rm=T)), 
-                                     round(max(zn_test3$SA_i3/zn_test3$workers_, na.rm=T))))+
+  scale_fill_distiller(palette = "RdYlGn", #legend scale bar
+                       name = expression(v["i"]),
+                       na.value = "grey90",
+                       limits = c( round(min(zn_test3$SA_i3/zn_test3$workers_, na.rm=T)), 
+                                   round(max(zn_test3$SA_i3/zn_test3$workers_, na.rm=T))))+
   geom_sf(data = Madrid_muni_border, # border for Madrid muni
           colour=alpha("dimgrey",1), 
           size = 0.5, fill=NA, 
@@ -974,11 +1104,11 @@ plot_MAD_avail_perworker_3 <- ggplot() +
 # plot 1 + inset map
 plot_MAD_avail_perworker_3 <- ggdraw(plot_MAD_avail_perworker_3) +
   draw_plot({plot_MAD_avail_perworker_3 + coord_sf(xlim = st_coordinates(bbox_Madrid_muni)[c(1,2),1],
-                                         ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
-                                         expand = FALSE) +
+                                                   ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
+                                                   expand = FALSE) +
       theme(legend.position = "none")},
-    x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
-    width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
+      x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
+      width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
 
 plot_MAD_avail_perworker_2
 plot_MAD_avail_perworker_3
