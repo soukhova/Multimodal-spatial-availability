@@ -288,6 +288,8 @@ zn <- zn %>%
 
 # sum(zn$workers_transit) + sum(zn$workers_bike) + sum(zn$workers_car) + sum(zn$workers_walk)
 # sum(zn$jobs_transit) + sum(zn$jobs_bike) + sum(zn$jobs_car) + sum(zn$jobs_walk)
+
+# in 'zn' now we have how many people go to work from each zone (workers) and the number of people that arrive to that zone (jobs). By mode. 
 ```
 
 Then add the number of workers and jobs from each ZN to each trip:
@@ -312,30 +314,79 @@ OD <- OD %>%
 
 Now reshape the data, each row will represent an any origin to to 1 destination (i.e., destination row is unique). We will average the travel times, by mode, and then use this average travel time to find the 'f' (impedance value for travel for each mode). Hint: this is why we needed to find the impedance function in the first place! The functions represent the cost of travel for each mode based on the travel time for a trip, since we are averaging together the travel time for each mode from 
 ```{r}
-#consolidate trips so each trip is unique. workers = jobs.
-OD_test <- OD %>%
+# #consolidate trips so each trip is unique. workers = jobs.
+# OD_test <- OD %>%
+#   group_by(VORIZT1259,VDESZT1259) %>%
+#   summarise(trips_transit = sum(trips_transit),
+#             trips_car_motor = sum(trips_car_motor),
+#             trips_bike = sum(trips_bike),
+#             trips_walk = sum(trips_walk),
+#             workers_transit = mean(workers_transit), #workers_ and jobs_ values are retained from the ZN object - so they are the same value for each OD pair thus we use mean() here. 
+#             workers_car = mean(workers_car),
+#             workers_bike = mean(workers_bike),
+#             workers_walk = mean(workers_walk),
+#             jobs_transit = mean(jobs_transit),
+#             jobs_car = mean(jobs_car),
+#             jobs_bike = mean(jobs_bike),
+#             jobs_walk = mean(jobs_walk)) %>% ungroup()
+# 
+# OD_test <- OD_test %>% mutate(
+#             tt_transit = ifelse(trips_transit != 0, mean(TIEMPO_VIAJES, na.rm=T), NA), #time is averaged for trips from the same origin to destination + same mode - there likely is variation between trips as these come from the survey (e.g., trips taken at different time of day so they are of different length)
+#             tt_car = ifelse(trips_car_motor != 0, mean(TIEMPO_VIAJES, na.rm=T), NA), #NOTE: CHECK!!
+#             tt_bike = ifelse(trips_bike != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
+#             tt_walk = ifelse(trips_walk != 0, mean(TIEMPO_VIAJES, na.rm=T), NA))
+
+
+```
+
+```{r}
+OD_test1 <- OD %>%
   group_by(VORIZT1259,VDESZT1259) %>%
   summarise(trips_transit = sum(trips_transit),
             trips_car_motor = sum(trips_car_motor),
             trips_bike = sum(trips_bike),
             trips_walk = sum(trips_walk),
-            workers_transit = mean(workers_transit), #workers_ and jobs_ values are retained from the ZN object - so they are the same value for each OD pair thus we use mean() here. 
+            workers_transit = mean(workers_transit), #workers_ and jobs_ values are retained from the ZN object - so they are the same value for each OD pair thus we use mean() here.
             workers_car = mean(workers_car),
             workers_bike = mean(workers_bike),
             workers_walk = mean(workers_walk),
             jobs_transit = mean(jobs_transit),
             jobs_car = mean(jobs_car),
             jobs_bike = mean(jobs_bike),
-            jobs_walk = mean(jobs_walk),
-            tt_transit = ifelse(trips_transit != 0, mean(TIEMPO_VIAJES, na.rm=T), NA), #time is averaged for trips from the same origin to destination + same mode - there likely is variation between trips as these come from the survey (e.g., trips taken at different time of day so they are of different length)
-            tt_car = ifelse(trips_car_motor != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
-            tt_bike = ifelse(trips_bike != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
-            tt_walk = ifelse(trips_walk != 0, mean(TIEMPO_VIAJES, na.rm=T), NA)) %>% ungroup()
+            jobs_walk = mean(jobs_walk)) %>% ungroup()
+
+OD_test_transit <- OD %>% filter(trips_transit == 1) %>%
+  group_by(VORIZT1259,VDESZT1259) %>%
+  summarise(tt_transit = mean(TIEMPO_VIAJES, na.rm=T)) %>% ungroup()
+
+OD_test_car <- OD %>% filter(trips_car_motor == 1) %>%
+  group_by(VORIZT1259,VDESZT1259) %>%
+  summarise(tt_car = mean(TIEMPO_VIAJES, na.rm=T)) %>% ungroup()
+
+OD_test_bike <- OD %>% filter(trips_bike == 1) %>%
+  group_by(VORIZT1259,VDESZT1259) %>%
+  summarise(tt_bike = mean(TIEMPO_VIAJES)) %>% ungroup()
+
+OD_test_walk <- OD %>% filter(trips_walk == 1) %>%
+  group_by(VORIZT1259,VDESZT1259) %>%
+  summarise(tt_walk = mean(TIEMPO_VIAJES)) %>% ungroup()
+
+OD_test <- OD_test1 %>% merge(OD_test_transit, by=c("VORIZT1259","VDESZT1259"), all=T)
+OD_test <- OD_test %>% merge(OD_test_car, by=c("VORIZT1259","VDESZT1259"), all=T)
+OD_test <- OD_test %>% merge(OD_test_bike, by=c("VORIZT1259","VDESZT1259"), all=T)
+OD_test <- OD_test %>% merge(OD_test_walk, by=c("VORIZT1259","VDESZT1259"), all=T)
 
 #check, should add up to the origin number of trips 27795 - perfect!
 sum(OD$trips_transit) + sum(OD$trips_car_motor) + sum(OD$trips_bike) + sum(OD$trips_walk)
 sum(OD_test$trips_transit) + sum(OD_test$trips_car_motor) + sum(OD_test$trips_bike) + sum(OD_test$trips_walk)
 ```
+
+Check a sample OD pair:
+```{r}
+OD_test %>% filter(VORIZT1259 == "004-001" & VDESZT1259 == "004-001")
+OD %>% filter(VORIZT1259 == "004-001" & VDESZT1259 == "004-001" & trips_car_motor == "1" )
+```
+Good the averages make sense.
 
 now estimate f value using these averaged travel times:
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -402,7 +453,6 @@ sum_jobs <- OD_SA %>%
 sum(sum_jobs$jobs, na.rm = T)
 
 # same number excellent! there are 27434 jobs total and there are 27795 workers (and subsequently 27795 trips total). The mismatch in numbers arises because we only survey people who's work trip originates in the Madrid region (from home). This means that workers who travel outside of the madrid region still count as a worker (and a trip) + increase 'competition' for the zone.... maybe we don't want this?
-
 ```
 
 Let's try calculating SA from a different approach:
@@ -415,14 +465,15 @@ OD_SA1 <- OD_SA %>%
          workers_ = ifelse(is.na(workers_), 0, workers_),
          jobs_ = (jobs_car + jobs_transit + jobs_bike + jobs_walk),
          jobs_ = ifelse(is.na(jobs_), 0, jobs_),
-         f_ = f_car + f_transit + f_bike + f_walk)
+         f_ = f_car + f_transit + f_bike + f_walk) #CHECK: is this still proportional
 
 # as you can see, sometimes an OD row has multiple modes taking that trip - the f_ value sums all modes in that row. 
 head(OD_SA1 %>% dplyr::select(f_, f_car, f_transit, f_bike, f_walk), 25)
 #*note: summing these all together certainly distorts the travel cost proportional allocation but the correct number of workers (by mode) are multiplied in...so the SA adds up to the number of workers which is a good check. Still not sure what the impact of this is...
+head(OD_SA1 %>% dplyr::select(workers_, workers_car, workers_transit, workers_bike, workers_walk), 25)
 ```
 
-Now calculate SA using this second approach (all workers (not mode specific) competite with eachother) and preform some checks:
+Now calculate SA using this second approach (all workers (not mode specific) compete with each other) and preform some checks:
 ```{r}
 #calculate spatial availability
 OD_SA2 <- OD_SA1 %>%
