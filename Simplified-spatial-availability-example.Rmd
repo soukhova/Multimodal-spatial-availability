@@ -62,52 +62,51 @@ sp_avail <- function(x, o_id, d_id, pop, opp, r, f, alpha = 1){
 
 Import the trip data:
 ```{r data-import-filter}
-OD_v <- read_excel("data-raw/EDM2018VIAJES.xlsx")
+load(file = "data/OD_v.RData")
 ```
 
-# A) Exploring chained-trips... should we include them?
-
-Calculate the duration of each trip
-```{r}
-OD_v <- OD_v %>%
-  mutate(TIEMPO_VIAJES =
-           (as.numeric(OD_v$VDESHORAFIN) - 
-              as.numeric(OD_v$VORIHORAINI))) %>%
-  mutate(TIEMPO_VIAJES = ifelse(TIEMPO_VIAJES == 0, 0.1, TIEMPO_VIAJES)) # set all 0min travel times to 0.1 min
-summary(OD_v$TIEMPO_VIAJES)
-```
-Checking the trip data - it appears each OD is a row, i.e., chained trips are multiple rows. We want to extract every home origin (VORI = 1) to every work destination (VDEST =2) trip as a single row... so let's do this in multiple steps.
-
-First, the direct home to work trips:
+Keep only the direct home to work trips:
 ```{r}
 # not chained home to work trips - direct
 OD_v_HW <- OD_v %>% filter(VORI == "1" & VDES == "2") #only filter in origin casa trips and destination trabajo
 ```
 
+Import zones:
+```{r}
+#importing zones
+load("data/zn1259.RData")
+load("data/zn208.RData")
+load("data/zn_u.RData") # a key to join the zt1259 to the zn208 + contains municipality names
+```
+
+# A) Exploring chained-trips... should we include them?
+
+This needs to be re-thought for the ZT208 resolution. Since we don't have an issue with missing data from ZT208 zones, we will skip trying to include chained trips (including also complicates the impedance zone):
+<!-- Checking the trip data - it appears each OD is a row, i.e., chained trips are multiple rows. We want to extract every home origin (VORI = 1) to every work destination (VDEST =2) trip as a single row... so let's do this in multiple steps.
+
 Next, let's identify the chained trips and then consolidate them. We only care about trip O/D, travel mode, travel time, and 
 ```{r}
-t <- OD_v %>% group_by(ID_HOGAR,ID_IND) %>% 
+temp <- OD_v %>% group_by(ID_HOGAR,ID_IND) %>% 
   filter((VORI == "1" & VDES != "2" & VDES != "1") | (VDES == "2" & VORI != "1"& VORI != "2")) %>% #here the origin NEEDS to be from home, the destination can be anywhere OR the origin can be from anywhere but the destination NEEDS to be work. 
   mutate(chained = lag(VDES) - VORI)
 
-chained2 <- (ifelse(t$chained[-1]==0 |t$chained==0, 0, NA)) %>% as.data.frame()
+chained2 <- (ifelse(temp$chained[-1]==0 | temp$chained==0, 0, NA)) %>% as.data.frame() #identifying chained trips using '0's
 
-t <- cbind(t,chained2) %>% dplyr::rename("chained2" = ".")
+temp <- cbind(temp,chained2) %>% dplyr::rename("chained2" = ".")
 
-t<-t %>% filter(chained2==0) # these are all the CHAINED trips - only considering 1 location before work.  
-t
+temp <- temp %>% filter(chained2==0) # filtering only CHAINED trips - reminder these consider only 1 location before work. 1,629 trips 
 ```
 
 Now... let's only include chained trips with the same mode! 
 ```{r}
-t <- t %>% group_by(ID_HOGAR, ID_IND) %>% mutate(trip = ifelse(((ID_VIAJE - lag(ID_VIAJE)) == 1)
+t <- temp %>% group_by(ID_HOGAR, ID_IND) %>% mutate(trip = ifelse(((ID_VIAJE - lag(ID_VIAJE)) == 1)
                                                                & ((MODO_PRIORITARIO - lag(MODO_PRIORITARIO))== 0), 
-                                                               MODO_PRIORITARIO, 0))
+                                                               MODO_PRIORITARIO, 0)) #if trip is chained the mode (number) is printed, if the trip is not chained a '0' is printed
 
-t %>% filter(trip == 0) %>% nrow() / t %>% filter(chained == 0) %>% nrow()
-t %>% filter(trip != 0 & !is.na(trip)) %>% nrow() / t %>% filter(chained == 0) %>% nrow()
+t %>% filter(trip == 0) %>% nrow() / t  %>% filter(chained == 0) %>% nrow()    #of chained trips / number of non-chained trips
+t  %>% filter(trip != 0 & !is.na(trip))%>% nrow() / t %>% filter(chained == 0) %>% nrow() #of chained trips / number of non-chained trips
 ```
-so ~27% of chained trips are not made using the same mode. THe rest of them are (`r t %>% filter(trip != 0 & !is.na(trip)) %>% nrow() ` trips are chained (1 intermediate destination) and use the same mode).
+so ~4% of trips are chained, and ~27% of chained trips are not made using the same mode. THe rest of them are (`r temp %>% filter(trip != 0 & !is.na(trip)) %>% nrow() ` trips are chained (1 intermediate destination) and use the same mode).
 
 So my question is... should we include these 1,371 extra chained trips (this is if we consolidate these 2 mini trips into 1 home to work trip (with an intermediate stop)). This only represent ~5% additional trips to the direct home to work 27K trips. If we include them... how do we count travel time? just sum both steps of the trip together..? Is that a good idea..? I don't think so.
 
@@ -115,23 +114,15 @@ Let's see if this sample increases the number of ZTs spatially:
 ```{r}
 #bind the t object (chained) to the workers object. 
 t <- t %>% filter(is.na(chained)) # only including origins
-t <- t[,1:20] 
+t <- t[,1:24] 
 OD_v_HW_chained <- rbind(OD_v_HW, t)
 ```
 
-```{r}
-#importing zones
-zn <- st_read("data-raw/zn.shp")
-ALLLEZ <- st_read("data-raw/Zona_Bajas_Emisiones_MADRID.shp")
-
-temp <- read_excel("data-raw/ZonificacionZT1259 complete.xlsx") %>% dplyr::select(ZT1259, Municipality)
-zn_t <- zn %>% merge(temp, by = c("ZT1259"), all.x=TRUE)
-```
 
 ```{r}
-Otrips_zona_c <- OD_v_HW_chained %>% group_by(VORIZT1259)  %>% summarise(Otrips = (n())) # we group by the origin ZT1259 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Otrips' column.
+Otrips_zona_c <- OD_v_HW_chained %>% group_by(VORI_CD_ZT208)  %>% summarise(Otrips = (n())) # we group by the origin ZT208 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Otrips' column.
 
-zn_c <- zn %>% merge(Otrips_zona_c, by.x = "ZT1259", by.y="VORIZT1259", all.x = TRUE)
+zn_c <- zn208 %>% merge(Otrips_zona_c, by.x = "CD_ZT208", by.y="VORI_CD_ZT208", all.x = TRUE)
 
 ggplot() +
   geom_sf(data = zn_c,
@@ -139,9 +130,9 @@ ggplot() +
           color  = NA) +
   scale_fill_distiller(palette = "Spectral")
 
-Otrips_zona <- OD_v_HW %>% group_by(VORIZT1259)  %>% summarise(Otrips = (n())) # we group by the origin ZT1259 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Otrips' column.
+Otrips_zona <- OD_v_HW %>% group_by(VORI_CD_ZT208)  %>% summarise(Otrips = (n())) # we group by the origin ZT208 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Otrips' column.
 
-zn_noc <- zn %>% merge(Otrips_zona, by.x = "ZT1259", by.y="VORIZT1259", all.x = TRUE)
+zn_noc <- zn208 %>% merge(Otrips_zona, by.x = "CD_ZT208", by.y="VORI_CD_ZT208", all.x = TRUE)
 
 ggplot() +
   geom_sf(data = zn_noc,
@@ -155,32 +146,33 @@ summary(zn_noc$Otrips)
 summary(zn_c$Otrips)
 ```
 
-so as we can see... the number of origin ZNs with NO origin trips only goes down by 2.. (from 344 to 342). This is not a lot. 
+so as we can see... the number of origin ZNs with NO origin trips doesn't go down - we only have 1 missing ZT using the 208 zonig system and 1 is still missing after including the chained trips. 
 
-Next step... let's try to see what is happening in these NA zones. What sort of origin trips are being generated? 
-```{r}
-missing_workers <- zn_noc %>% filter(is.na(Otrips)) %>% dplyr::select(ZT1259) #344 zonas are missing home to work trips.
+Next step... let's try to see what is happening in these NA zones. What sort of origin trips are being generated? (analysis for the 1259 zoning system)-->
 
-missing_workers <- missing_workers %>% merge(OD_v, by.x = "ZT1259", by.y="VORIZT1259", all.x = TRUE)
+<!-- ```{r} -->
+<!-- missing_workers <- zn_noc %>% filter(is.na(Otrips)) %>% dplyr::select(ZT1259) #344 zonas are missing home to work trips. -->
 
-temp <- missing_workers %>% st_drop_geometry() %>% group_by(ZT1259) %>% summarise(trip_count = n(),
-                                                                                  Owork_perc = sum(VORI == 2)/n(),
-                                                                                  Ostudy_perc = sum(VORI == 4)/n(),
-                                                                                  Osportwalk_perc = sum(VORI == 10)/n(),
-                                                                                  Oshop_perc = sum(VORI == 5)/n(),
-                                                                                  Ohome_perc = sum(VORI == 1)/n())
-temp
-```
-```{r}
-summary(temp)
-```
-```{r}
-# write.csv(missing_workers %>% st_drop_geometry(),"ZT_Trips_missingworkers.csv", row.names = FALSE)
-```
+<!-- missing_workers <- missing_workers %>% merge(OD_v, by.x = "ZT1259", by.y="VORIZT1259", all.x = TRUE) -->
 
-‘trip count’ is how many trips there are in each ZT. ‘Owork_perc’ is an origin work purpose (of that trip) in each ZT, i.e. 39.47% of origin trips are work related averaged across all ZTs. ‘Ostudy_perc’ is for study origin trips.. etc. You can see that the majority of origin trip purposes are work. This means that these are predominately ‘work’ related areas and none of the households surveyed live in those ZTs. 
+<!-- temp <- missing_workers %>% st_drop_geometry() %>% group_by(ZT1259) %>% summarise(trip_count = n(), -->
+<!--                                                                                   Owork_perc = sum(VORI == 2)/n(), -->
+<!--                                                                                   Ostudy_perc = sum(VORI == 4)/n(), -->
+<!--                                                                                   Osportwalk_perc = sum(VORI == 10)/n(), -->
+<!--                                                                                   Oshop_perc = sum(VORI == 5)/n(), -->
+<!--                                                                                   Ohome_perc = sum(VORI == 1)/n()) -->
+<!-- temp -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- summary(temp) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- # write.csv(missing_workers %>% st_drop_geometry(),"ZT_Trips_missingworkers.csv", row.names = FALSE) -->
+<!-- ``` -->
 
-And looking in excel. even if we consider all origin zones from work themed chained trips (i.e., home to somewhere to work) as 'residential locations' (this is incorrect) we STILL have ~170 zones with no work-to-home trips. 
+<!-- ‘trip count’ is how many trips there are in each ZT. ‘Owork_perc’ is an origin work purpose (of that trip) in each ZT, i.e. 39.47% of origin trips are work related averaged across all ZTs. ‘Ostudy_perc’ is for study origin trips.. etc. You can see that the majority of origin trip purposes are work. This means that these are predominately ‘work’ related areas and none of the households surveyed live in those ZTs.  -->
+
+<!-- And looking in excel. even if we consider all origin zones from work themed chained trips (i.e., home to somewhere to work) as 'residential locations' (this is incorrect) we STILL have ~170 zones with no work-to-home trips.  -->
 
 # B) Calculating spatial availability - an exploration of 3 approaches
 
@@ -234,7 +226,7 @@ Then create the impedance functions:
 ```{r fitting-impedance-function}
 # using fitdist function to fit a distribution using the default maximum likelihood estimation method and Nelder-Mead method for direct optimization
 lnorm_ <- fitdistrplus::fitdist(data=transit_HW_alltt$TIEMPO_VIAJES,#%>% unlist() %>% as.numeric(),
-                                "lnorm", 
+                                "gamma", 
                                 method="mle",
                                 #Notice the use of the weights,
                                 weights = round(transit_HW_alltt$ELE_G_POND_ESC2),
@@ -257,13 +249,13 @@ lnorm_ <- fitdistrplus::fitdist(data=bike_HW_alltt$TIEMPO_VIAJES, #%>% unlist() 
                                 optim.method="Nelder-Mead")
 HW_bike_lnorm <- lnorm_
 
-lnorm_ <- fitdistrplus::fitdist(data=walk_HW_alltt$TIEMPO_VIAJES, #%>% unlist() %>% as.numeric(),
-                                "lnorm", 
+logis_ <- fitdistrplus::fitdist(data=walk_HW_alltt$TIEMPO_VIAJES, #%>% unlist() %>% as.numeric(),
+                                "logis", 
                                 method="mle",
                                 #Notice the use of the weights,
                                 weights = round(walk_HW_alltt$ELE_G_POND_ESC2),
                                 optim.method="Nelder-Mead")
-HW_walk_lnorm <- lnorm_
+HW_walk_lnorm <- logis_
 ```
 
 To visualize the impedance functions we create a data frame and calculate the density of the distribution given the estimated parameters:
@@ -271,7 +263,7 @@ To visualize the impedance functions we create a data frame and calculate the de
 x <- data.frame(t = seq(1, 300, 1))
 
 x_transit <- x %>%
-  mutate(f = dlnorm(t,
+  mutate(f = dgamma(t,
                     HW_transit_lnorm$estimate[1],
                     HW_transit_lnorm$estimate[2]),
          mode = "transit")
@@ -289,7 +281,7 @@ x_bike <- x %>%
          mode = "bike")
 
 x_walk <- x %>%
-  mutate(f = dlnorm(t,
+  mutate(f = dlogis(t,
                     HW_walk_lnorm$estimate[1],
                     HW_walk_lnorm$estimate[2]),
          mode = "walk")
@@ -371,12 +363,12 @@ OD_v_HW <- OD_v_HW  %>%
 
 # The workers are classified by mode
 workers <- OD_v_HW %>%
-  group_by(VORIZT1259,
+  group_by(VORI_CD_ZT208,
            mode) %>%
   # The sum is of the weighted workers
   summarize(workers = sum(ELE_G_POND_ESC2),
             .groups = "drop") %>%
-  rename(ZT1259 = VORIZT1259)
+  rename(CD_ZT208 = VORI_CD_ZT208)
 
 # jobs <- OD_v_HW %>%
 #   group_by(VDESZT1259) %>%
@@ -393,16 +385,14 @@ workers <- OD_v_HW %>%
 
 # Do we need to classify the jobs by mode?
 jobs <- OD_v_HW %>%
-  group_by(VDESZT1259) %>%
+  group_by(VDES_CD_ZT208) %>%
   summarize(jobs = sum(ELE_G_POND_ESC2),
             .groups = "drop") %>%
-  rename(ZT1259 = VDESZT1259)
+  rename(CD_ZT208 = VDES_CD_ZT208)
 ```
 
 Next join workers and jobs to the ZN simple features object:
 ```{r}
-load("data/zn.RData")
-
 # zn <- zn %>%
 #   # Join workers
 #   left_join(workers,
@@ -422,14 +412,14 @@ load("data/zn.RData")
 
 workers_sf <- workers %>%
   # Join workers
-  left_join(zn,
-            by = "ZT1259") %>%
+  left_join(zn208,
+            by = "CD_ZT208") %>%
   st_as_sf()
 
 jobs_sf <- jobs %>%
   # Join jobs
-  left_join(zn,
-            by = "ZT1259") %>%
+  left_join(zn208,
+            by = "CD_ZT208") %>%
   st_as_sf()
 
 # sum(zn$workers_transit) + sum(zn$workers_bike) + sum(zn$workers_car) + sum(zn$workers_walk)
@@ -502,8 +492,8 @@ Now reshape the data, each row will represent an any origin to to 1 destination 
 #             jobs_walk = mean(jobs_walk)) %>% ungroup()
 
 OD <- OD_v_HW %>%
-  group_by(VORIZT1259, 
-           VDESZT1259,
+  group_by(VORI_CD_ZT208,
+           VDES_CD_ZT208,
            mode) %>%
   summarize(tt = mean(TIEMPO_VIAJES),
             .groups = "drop")
@@ -556,11 +546,11 @@ Join workers and jobs to OD table:
 ```{r}
 OD_2 <- OD %>%
   left_join(workers,
-            by = c("VORIZT1259" = "ZT1259", "mode"))
+            by = c("VORI_CD_ZT208" = "CD_ZT208", "mode"))
 
 OD_2 <- OD_2 %>%
   left_join(jobs,
-            by = c("VDESZT1259" = "ZT1259"))
+            by = c("VDES_CD_ZT208" = "CD_ZT208"))
 ```
 
 
@@ -578,18 +568,18 @@ Now estimate f value using these averaged travel times:
 #          f_walk = ifelse(is.na(f_walk), 0, f_walk))
 
 OD_2 <- OD_2 %>%
-  mutate(f = case_when(mode == "transit" ~ dlnorm(tt,
-                                                  HW_transit_lnorm$estimate["meanlog"], 
-                                                  HW_transit_lnorm$estimate["sdlog"]),
+  mutate(f = case_when(mode == "transit" ~ dgamma(tt,
+                                                  HW_transit_lnorm$estimate["shape"], 
+                                                  HW_transit_lnorm$estimate["rate"]),
                        mode == "car/motor" ~ dgamma(tt,
                                                     HW_car_motor_gamma$estimate["shape"],
                                                     HW_car_motor_gamma$estimate["rate"]),
                        mode == "bike" ~ dlnorm(tt,
                                                HW_bike_lnorm$estimate["meanlog"],
                                                HW_bike_lnorm$estimate["sdlog"]),
-                       mode == "walk" ~ dlnorm(tt, 
-                                               HW_walk_lnorm$estimate["meanlog"], 
-                                               HW_walk_lnorm$estimate["sdlog"])))
+                       mode == "walk" ~ dlogis(tt, 
+                                               HW_walk_lnorm$estimate["location"], 
+                                               HW_walk_lnorm$estimate["scale"])))
 ```
 
 
@@ -600,8 +590,8 @@ Calculate spatial availabilty:
 OD_SA <- OD_2 %>%
   mutate(catch = 1) %>%
   mutate(SA_ij = sp_avail(., 
-                          o_id = VORIZT1259,
-                          d_id = VDESZT1259,
+                          o_id = VORI_CD_ZT208,
+                          d_id = VDES_CD_ZT208,
                           pop = workers,
                           opp = jobs,
                           r = catch,
@@ -610,7 +600,7 @@ OD_SA <- OD_2 %>%
 
 Check that the totals are maintained:
 ```{r}
-sum(OD_SA$SA_ij)
+sum(OD_SA$SA_ij, na.rm = T)
 sum(jobs$jobs)
 ```
 
@@ -624,7 +614,7 @@ OD_SA %>%
 Spatial availability by origin (with check):
 ```{r}
 SA_i <- OD_SA %>%
-  group_by(VORIZT1259) %>%
+  group_by(VORI_CD_ZT208) %>%
   summarize(V_i = sum(SA_ij))
 
 summary(SA_i)
@@ -634,7 +624,7 @@ sum(SA_i$V_i)
 Spatial availability by origin/mode (with check):
 ```{r}
 SA_im <- OD_SA %>%
-  group_by(VORIZT1259, 
+  group_by(VORI_CD_ZT208, 
            mode) %>%
   summarize(V_im = sum(SA_ij),
             .groups = "drop")
@@ -646,7 +636,7 @@ sum(SA_im$V_im)
 Calculate worker population by zone of origin (with check):
 ```{r}
 population <- workers %>%
-  group_by(ZT1259) %>%
+  group_by(CD_ZT208) %>%
   summarize(population = sum(workers))
 
 sum(population$population)
@@ -657,12 +647,12 @@ Join zonal worker population (with checks):
 ```{r}
 SA_i <- SA_i %>%
   left_join(population,
-            by = c("VORIZT1259" = "ZT1259"))
+            by = c("VORI_CD_ZT208" = "CD_ZT208"))
 sum(SA_i$V_i)
 
 SA_im <- SA_im %>%
   left_join(population,
-            by = c("VORIZT1259" = "ZT1259"))
+            by = c("VORI_CD_ZT208" = "CD_ZT208"))
 sum(SA_im$V_im)
 ```
 
@@ -682,22 +672,32 @@ summary(SA_im)
 Join geometry of zones to SA:
 ```{r}
 SA_i <- SA_i %>%
-  left_join(zn %>%
-              dplyr::select(ZT1259),
-            by = c("VORIZT1259" = "ZT1259")) %>%
+  left_join(zn208 %>%
+              dplyr::select(CD_ZT208),
+            by =c("VORI_CD_ZT208" = "CD_ZT208")) %>%
   st_as_sf()
 
 SA_im <- SA_im %>%
-  left_join(zn %>%
-              dplyr::select(ZT1259),
-            by = c("VORIZT1259" = "ZT1259")) %>%
+  left_join(zn208 %>%
+              dplyr::select(CD_ZT208),
+            by = c("VORI_CD_ZT208" = "CD_ZT208")) %>%
   st_as_sf()
 ```
 
 Preliminaries to plotting:
+
+Figure out which CD_ZT208 correspond to Madrid - we see that CD_ZT208 1 through 59 do so.
+
+```{r}
+t <- zn_u %>% dplyr::select(CD_ZT208, Municipality) %>% group_by(CD_ZT208,Municipality) %>% summarize() %>% filter(Municipality == "Madrid")
+t
+```
+
 ```{r create-bounding-boxes}
+zn208 <- zn208 %>% mutate(MM = ifelse(str_starts(ZT208,"Madrid"), 1, 0)) %>% filter(MM == 1)
+
 #create the bounding box for the Toronto region + a little extra
-bbox_new1 <- st_bbox(zn%>%filter(Municipality == "Madrid")) # current bounding box
+bbox_new1 <- st_bbox(zn208 %>%filter(MM == 1)) # current bounding box
 
 xrange <- bbox_new1$xmax - bbox_new1$xmin # range of x values
 yrange <- bbox_new1$ymax - bbox_new1$ymin # range of y values
@@ -710,8 +710,9 @@ bbox_new1[4] <- bbox_new1[4] + (0.0 * yrange) # ymax - top
 bbox_Madrid_muni <- bbox_new1 %>%  # take the bounding box ...
   st_as_sfc()
 
-Madrid_muni_border <- zn %>%
-  filter(Municipality == "Madrid") %>%
+sf::sf_use_s2(FALSE) #this terns off the spherical geometry component in the st_union() function - this assumes the sf is just planar. Thats' fine for our purposes
+Madrid_muni_border <- zn208 %>%
+  filter(MM == 1) %>%
   st_union()
 ```
 
@@ -830,6 +831,286 @@ ggplot() +
         plot.margin = margin(t = 0, r = 0, b = 0, l = -80)) + # positing legend and clipping out white space
   facet_wrap(~mode, nrow = 2)
 ```
+
+The previous attempts at calculating spatial availability is commented out and included in the end of the document. There were three different approaches, and the approach reflective above is the 3rd approach tested. The first approach can be used in the case of time windows, but the 2nd and 3rd are similar just the 3rd approach is more conceptually easy to understand and code.
+
+# C) Exploring mode shifting, first an optimistic scenario - no cars (all transit) going into madrid municipality
+
+Let's test out a scenario - all car trips going into madrid municipality are now transit trips. How will this impact the SA profile? We will using the 2nd method (calculating SA within all modes).
+
+<!-- AS finished here May 31, am stuck on how to shift car trips to transit (in a way that's flexible and will allow us to easily toggle the modal shift scenarios (i.e., instead of 100% transit, maybe 80%/10/10 transit/bike/walk)) --> 
+
+First, let's re-assign to-madrid muni car trips to transit trips:
+```{r}
+Madrid_muni <- zn208 %>% filter(MM == 1) 
+
+
+# OD <- OD_v_HW %>%
+#   group_by(VORI_CD_ZT208,
+#            VDES_CD_ZT208,
+#            mode) %>%
+#   summarize(tt = mean(TIEMPO_VIAJES),
+#             .groups = "drop")
+
+
+OD_v_HW_VDES_Mad <- OD_v_HW %>% filter(VDES_Municipality == "Madrid") %>%
+  group_by(VORI_CD_ZT208, VDES_CD_ZT208, mode) %>% 
+  summarize(TIEMPO_VIAJES = mean(TIEMPO_VIAJES))
+
+
+
+OD_v_HW_VDES_Mad %>% mutate(tt = ifelse(mode == "car", ))
+
+OD_v_HW_optimistic1 %>% mutate(TIEMPO_VIAJES_opt = ifelse(mode="car" & MM == 1, NA, ))
+
+OD_v_HW_optimistic1 %>% group_by(mode) %>% summarize(car = mean())
+
+  mutate(TIEMPO_VIAJES_opt = ifelse(mode = "car", ))
+```
+
+
+```{r}
+#reassigning car trips to transit trips (i.e., a 100% shift to transit from car)
+OD_v_HW_optimistic1 <- OD_v_HW_optimistic  %>% filter(MM == 1) %>% #only CAR trips to Madrid
+  mutate(trips_transit = sum(trips_transit,trips_car_motor, na.rm = T), #only trips 
+         trips_car_motor = 0) #16627 ODs are making trips INTO muni, this is 59% of all OD pairs
+
+OD_v_HW_optimistic2 <- OD_v_HW_optimistic  %>% filter(is.na(MM))
+
+OD_v_HW_optimistic <- rbind(OD_v_HW_optimistic1,OD_v_HW_optimistic2,OD_v_HW_optimistic2)
+
+workers <- OD_v_HW_optimistic %>%
+  group_by(VORIZT1259) %>%
+  summarize(workers_transit = sum(trips_transit),
+            workers_car = sum(trips_car_motor),
+            workers_bike = sum(trips_bike),
+            workers_walk = sum(trips_walk),
+            .groups = "drop") %>%
+  transmute(ZT1259 = VORIZT1259,
+            workers_transit,
+            workers_car,
+            workers_bike,
+            workers_walk)
+
+jobs <- OD_v_HW_optimistic %>%
+  group_by(VDESZT1259) %>%
+  summarize(jobs_transit = sum(trips_transit),
+            jobs_car = sum(trips_car_motor),
+            jobs_bike = sum(trips_bike),
+            jobs_walk = sum(trips_walk),
+            .groups = "drop") %>%
+  transmute(ZT1259 = VDESZT1259,
+            jobs_transit,
+            jobs_car,
+            jobs_bike,
+            jobs_walk)
+```
+
+Let's quickly compare how many ODs which have car trips changed to transit had EXISTING transit trips. This may inform what travel time we use.
+```{r}
+madrid_trips_reassigned <- OD_v_HW_optimistic1 %>%
+  group_by(VORIZT1259, VDESZT1259) %>%
+  summarise(NEWtrips_transit = sum(trips_transit),
+            NEWtrips_car_motor = sum(trips_car_motor))
+
+madrid_trips_original <-OD_v_HW %>%
+  group_by(VORIZT1259, VDESZT1259) %>%
+  summarise(trips_transit = sum(trips_transit),
+            trips_car_motor = sum(trips_car_motor))
+
+madrid_trips_reassigned <- madrid_trips_reassigned %>% merge(madrid_trips_original, by =c("VORIZT1259","VDESZT1259" ))
+#all the trip_.y, are the original trips as specified in the travel survey. the trips.x are the assigned trips (moved to transit).
+
+# percentage of transit trips that existed in the original OD pair
+
+countt <- madrid_trips_reassigned %>% mutate(transit_count = ifelse(trips_transit != 0, 1, 0))
+
+sum(countt$transit_count)/nrow(madrid_trips_reassigned)
+```
+
+We can see that only ~50% of the OD pairs had a transit trip originally - so we can only borrow transit trip times from thest ODs... we'd have to figure out how to subsitute the remaining 50%. Alternatively - we can figure out any other solution to apply to all mode-shifted trips.
+
+For simplicity, let's continue and  just take the travel time (for car) for these trips and put it on the transit impedance curve.
+
+To continue this process, join the workers and jobs to the ZN simple features object:
+```{r}
+load("data/zn.RData")
+
+zn <- zn %>%
+  # Join workers
+  left_join(workers,
+            by = "ZT1259") %>%
+  # Join jobs
+  left_join(jobs,
+            by = "ZT1259") %>%
+  # Replace NAs with zeros
+  mutate(workers_transit = tidyr::replace_na(workers_transit, 0),
+         workers_car = tidyr::replace_na(workers_car, 0),
+         workers_bike = tidyr::replace_na(workers_bike, 0),
+         workers_walk = tidyr::replace_na(workers_walk, 0),
+         jobs_transit = tidyr::replace_na(jobs_transit, 0),
+         jobs_car = tidyr::replace_na(jobs_car, 0),
+         jobs_bike = tidyr::replace_na(jobs_bike, 0),
+         jobs_walk = tidyr::replace_na(jobs_walk, 0))
+```
+
+add the number of workers and jobs from each zona to each trip:
+```{r}
+#add the number of jobs and workers to the od_ft_tt matrix
+OD_optimistic <- OD_v_HW_optimistic %>% merge(zn %>% dplyr::select(ZT1259, workers_transit,workers_car,workers_bike,workers_walk) %>% st_drop_geometry(),
+                                              by.x = "VORIZT1259", by.y="ZT1259", all.x = TRUE)
+
+OD_optimistic <- OD_optimistic %>% merge(zn %>% dplyr::select(ZT1259, jobs_transit,jobs_car,jobs_bike,jobs_walk) %>% st_drop_geometry(),
+                                         by.x = "VDESZT1259", by.y="ZT1259", all.x = TRUE)
+
+OD_optimistic <- OD_optimistic %>%
+  mutate(workers_transit = ifelse(is.na(workers_transit), 0, workers_transit),
+         workers_car = ifelse(is.na(workers_car), 0, workers_car),
+         workers_bike = ifelse(is.na(workers_bike), 0, workers_bike),
+         workers_walk = ifelse(is.na(workers_walk), 0, workers_walk),
+         jobs_car = ifelse(is.na(jobs_car), 0, jobs_car),
+         jobs_transit = ifelse(is.na(jobs_transit), 0, jobs_transit),
+         jobs_bike = ifelse(is.na(jobs_bike), 0, jobs_bike),
+         jobs_walk = ifelse(is.na(jobs_walk), 0, jobs_walk))
+```
+
+now reshape the data, each row will represent an any origin to to 1 destination (i.e., destination row is unique). We will average the travel times, by mode, and then use this average travel time to find the 'f' (impedance value for travel for each mode). Note: this is a *KEY* assumption - I'm giving the new transit trips the SAME travel time as they had when traveling by car but I am predicting the travel cost using the impedance curve of TRANSIT instead of CAR - that's the only difference. This is certainly a strange assumption. A solution could be to use the r5r calculated transit travel times but as we saw they don't fit the original data travel times well...
+```{r}
+#consolidate trips so each trip is unique. workers = jobs.
+OD_optimistic <- OD_optimistic %>%
+  group_by(VORIZT1259,VDESZT1259) %>%
+  summarise(trips_transit = sum(trips_transit),
+            trips_car_motor = sum(trips_car_motor),
+            trips_bike = sum(trips_bike),
+            trips_walk = sum(trips_walk),
+            workers_transit = mean(workers_transit),
+            # workers_transit = ifelse(is.na(workers_transit), 0, workers_transit),
+            workers_car = mean(workers_car),
+            # workers_car = ifelse(is.na(workers_car), 0, workers_car),
+            workers_bike = mean(workers_bike),
+            # workers_bike = ifelse(is.na(workers_bike), 0, workers_bike),
+            workers_walk = mean(workers_walk),
+            # workers_walk = ifelse(is.na(workers_walk), 0, workers_walk),
+            jobs_transit = mean(jobs_transit),
+            jobs_car = mean(jobs_car),
+            jobs_bike = mean(jobs_bike),
+            jobs_walk = mean(jobs_walk),
+            # jobs_car = ifelse(is.na(jobs_car), 0, jobs_car),
+            # jobs_transit = ifelse(is.na(jobs_transit), 0, jobs_transit),
+            # jobs_bike = ifelse(is.na(jobs_bike), 0, jobs_bike),
+            # jobs_walk = ifelse(is.na(jobs_walk), 0, jobs_walk),
+            tt_transit = ifelse(trips_transit != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
+            tt_car = ifelse(trips_car_motor != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
+            tt_bike = ifelse(trips_bike != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
+            tt_walk = ifelse(trips_walk != 0, mean(TIEMPO_VIAJES, na.rm=T), NA)) %>% ungroup()
+
+```
+
+now estimate f value using these averaged travel times:
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+#dgamma is the density plot for gamma function and dlnorm is the desntiy plot for the lognormal function; adding values as "f" our impedance function
+OD_optimistic <- OD_optimistic %>%
+  mutate(f_car = dgamma(tt_car, HW_car_motor_gamma$estimate["shape"], HW_car_motor_gamma$estimate["rate"]),
+         f_car = ifelse(is.na(f_car), 0, f_car),
+         f_transit = dlnorm(tt_transit, HW_transit_lnorm$estimate["meanlog"], HW_transit_lnorm$estimate["sdlog"]),
+         f_transit = ifelse(is.na(f_transit), 0, f_transit),
+         f_bike = dlnorm(tt_bike, HW_bike_lnorm$estimate["meanlog"], HW_bike_lnorm$estimate["sdlog"]),
+         f_bike = ifelse(is.na(f_bike), 0, f_bike),
+         f_walk = dlnorm(tt_walk, HW_walk_lnorm$estimate["meanlog"], HW_walk_lnorm$estimate["sdlog"]),
+         f_walk = ifelse(is.na(f_walk), 0, f_walk))
+```
+
+Calculating SA:
+```{r}
+#add new summed columns
+OD_optimistic <- OD_optimistic %>%
+  mutate(workers_ = (workers_car+ workers_transit+ workers_bike+ workers_walk),
+         workers_ = ifelse(is.na(workers_), 0, workers_),
+         jobs_ = (jobs_car + jobs_transit + jobs_bike + jobs_walk),
+         jobs_ = ifelse(is.na(jobs_), 0, jobs_),
+         f_ = f_car + f_transit + f_bike + f_walk)
+
+#calculate spatial availability
+OD_optimistic <- OD_optimistic %>%
+  mutate(catch = 1) %>%
+  mutate(SA_ij = sp_avail(.,
+                          o_id = VORIZT1259,
+                          d_id = VDESZT1259,
+                          pop = workers_,
+                          opp = jobs_,
+                          r = catch,
+                          f = f_),
+         SA_ij = ifelse(is.nan(SA_ij), 0, SA_ij))
+
+#verify that the sum of all jobs is consistent with the number of jobs
+sum(OD_optimistic$SA_ij)
+
+#verify that the sum of all jobs is consistent with the number of jobs - from another perspective
+sum_jobs <- OD_optimistic %>%
+  group_by(VDESZT1259) %>%
+  summarise(jobs = mean(jobs_))
+sum(sum_jobs$jobs, na.rm = T)
+#Perfect it works!
+```
+
+Let's aggregate the spatial availability by origin zone:
+```{r}
+#aggregating spatial availability
+MAD_availability <- OD_optimistic %>%
+  group_by(VORIZT1259) %>%
+  summarize(SA_i3 = sum(SA_ij),
+            workers_ = mean(workers_car, na.rm=T) + mean(workers_transit, na.rm=T) + mean(workers_bike, na.rm=T) + mean(workers_walk, na.rm=T),
+            avgtt_i = mean(mean(tt_transit) + mean(tt_walk) + mean(tt_car) + mean(tt_bike)),
+            avg_f_i = mean(mean(f_transit) + mean(f_walk) + mean(f_car) + mean(f_bike)))
+
+#Merge TO availability calculation to the TAZ sf object created for accessibility above:
+zn_test3 <- zn %>% merge(MAD_availability, by.x=c("ZT1259"), by.y=c("VORIZT1259"), all.x=T)
+```
+
+Here we plot plot 2 (the original scenario) and plot 3 ( this optimistic scenario)
+```{r}
+#plot 2
+plot_MAD_avail_perworker_3 <- ggplot() +
+  geom_sf(data = zn_test3, aes(fill= SA_i3/workers_), color = NA) + #data
+  scale_fill_distiller(palette = "RdYlGn", #legend scale bar
+                       name = expression(v["i"]),
+                       na.value = "grey90",
+                       limits = c( round(min(zn_test3$SA_i3/zn_test3$workers_, na.rm=T)),
+                                   round(max(zn_test3$SA_i3/zn_test3$workers_, na.rm=T))))+
+  geom_sf(data = Madrid_muni_border, # border for Madrid muni
+          colour=alpha("dimgrey",1),
+          size = 0.5, fill=NA,
+          show.legend = "polygon") +
+  annotation_north_arrow(location = "tl", # north arrow for both the main plot and inset
+                         height = unit(0.8, "cm"),
+                         width = unit(0.8, "cm"),
+                         style = north_arrow_orienteering(line_width = 0.25,
+                                                          line_col = "dimgrey",
+                                                          fill = c("white","dimgrey"))) +
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm")) +
+  theme_void() +
+  theme(legend.position = c(1.10, 0.25),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = -80)) # positing legend and clipping out white space
+
+
+# plot 1 + inset map
+plot_MAD_avail_perworker_3 <- ggdraw(plot_MAD_avail_perworker_3) +
+  draw_plot({plot_MAD_avail_perworker_3 + coord_sf(xlim = st_coordinates(bbox_Madrid_muni)[c(1,2),1],
+                                                   ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
+                                                   expand = FALSE) +
+      theme(legend.position = "none")},
+      x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
+      width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
+
+plot_MAD_avail_perworker_2
+plot_MAD_avail_perworker_3
+```
+
+As can be seen, the change (visability) is not that dramatic.
+
+
+The commented out different spatial availability calculation approaches (also done at the ZT1259 resolution instead of ZT208)
 <!--
 
 ## Comparing 2 spatial availability calculations
@@ -1163,254 +1444,3 @@ plot_MAD_avail_perworker_2 <- ggdraw(plot_MAD_avail_perworker_2) +
 plot_MAD_avail_perworker_1 # the mode specific SA calculation and then sum them together - approach 1
 plot_MAD_avail_perworker_2 # the f_, worker_, job_, summed together BEFORE SA calculation - approach 2
 ```
-
-# C) Exploring mode shifting, first an optimistic scenario - no cars (all transit) going into madrid municipality 
-
-Let's test out a scenario - all car trips going into madrid municipality are now transit trips. How will this impact the SA profile? We will using the 2nd method (calculating SA within all modes). 
-
-First, let's re-assign to-madrid muni car trips to transit trips:
-```{r}
-Madrid_muni <- zn %>% filter(Municipality == "Madrid") %>% 
-  dplyr::transmute(ZT1259,
-                   MM = 1)
-
-OD_v_HW_optimistic <- OD_v_HW  %>% merge(Madrid_muni, by.x=("VDESZT1259"), by.y=("ZT1259"), all.x=T)
-
-#reassigning car trips to transit
-OD_v_HW_optimistic1 <- OD_v_HW_optimistic  %>% filter(MM == 1) %>% rowwise() %>%
-  mutate(trips_transit = sum(trips_transit,trips_car_motor, na.rm = T),
-         trips_car_motor = 0) #16627 ODs are making trips INTO muni, this is 59% of all OD pairs
-
-OD_v_HW_optimistic2 <- OD_v_HW_optimistic  %>% filter(is.na(MM)) 
-
-OD_v_HW_optimistic <- rbind(OD_v_HW_optimistic1,OD_v_HW_optimistic2)
-
-workers <- OD_v_HW_optimistic %>%
-  group_by(VORIZT1259) %>%
-  summarize(workers_transit = sum(trips_transit),
-            workers_car = sum(trips_car_motor),
-            workers_bike = sum(trips_bike),
-            workers_walk = sum(trips_walk),
-            .groups = "drop") %>%
-  transmute(ZT1259 = VORIZT1259,
-            workers_transit,
-            workers_car,
-            workers_bike,
-            workers_walk)
-
-jobs <- OD_v_HW_optimistic %>%
-  group_by(VDESZT1259) %>%
-  summarize(jobs_transit = sum(trips_transit),
-            jobs_car = sum(trips_car_motor),
-            jobs_bike = sum(trips_bike),
-            jobs_walk = sum(trips_walk),
-            .groups = "drop") %>%
-  transmute(ZT1259 = VDESZT1259,
-            jobs_transit,
-            jobs_car,
-            jobs_bike,
-            jobs_walk)
-```
-
-Let's quickly compare how many ODs which have car trips changed to transit had EXISTING transit trips. This may inform what travel time we use.
-```{r}
-madrid_trips_reassigned <- OD_v_HW_optimistic1 %>% 
-  group_by(VORIZT1259, VDESZT1259) %>%
-  summarise(NEWtrips_transit = sum(trips_transit),
-            NEWtrips_car_motor = sum(trips_car_motor))
-
-madrid_trips_original <-OD_v_HW %>%
-  group_by(VORIZT1259, VDESZT1259) %>%
-  summarise(trips_transit = sum(trips_transit),
-            trips_car_motor = sum(trips_car_motor))
-
-madrid_trips_reassigned <- madrid_trips_reassigned %>% merge(madrid_trips_original, by =c("VORIZT1259","VDESZT1259" ))
-#all the trip_.y, are the original trips as specified in the travel survey. the trips.x are the assigned trips (moved to transit).
-
-# percentage of transit trips that existed in the original OD pair
-
-countt <- madrid_trips_reassigned %>% mutate(transit_count = ifelse(trips_transit != 0, 1, 0))
-
-sum(countt$transit_count)/nrow(madrid_trips_reassigned)
-```
-
-We can see that only ~50% of the OD pairs had a transit trip originally - so we can only borrow transit trip times from thest ODs... we'd have to figure out how to subsitute the remaining 50%. Alternatively - we can figure out any other solution to apply to all mode-shifted trips.
-
-For simplicity, let's continue and  just take the travel time (for car) for these trips and put it on the transit impedance curve. 
-
-To continue this process, join the workers and jobs to the ZN simple features object:
-```{r}
-load("data/zn.RData")
-
-zn <- zn %>%
-  # Join workers
-  left_join(workers,
-            by = "ZT1259") %>%
-  # Join jobs
-  left_join(jobs,
-            by = "ZT1259") %>%
-  # Replace NAs with zeros
-  mutate(workers_transit = tidyr::replace_na(workers_transit, 0),
-         workers_car = tidyr::replace_na(workers_car, 0),
-         workers_bike = tidyr::replace_na(workers_bike, 0),
-         workers_walk = tidyr::replace_na(workers_walk, 0),
-         jobs_transit = tidyr::replace_na(jobs_transit, 0),
-         jobs_car = tidyr::replace_na(jobs_car, 0),
-         jobs_bike = tidyr::replace_na(jobs_bike, 0),
-         jobs_walk = tidyr::replace_na(jobs_walk, 0))
-```
-
-add the number of workers and jobs from each zona to each trip:
-```{r}
-#add the number of jobs and workers to the od_ft_tt matrix
-OD_optimistic <- OD_v_HW_optimistic %>% merge(zn %>% dplyr::select(ZT1259, workers_transit,workers_car,workers_bike,workers_walk) %>% st_drop_geometry(),
-                                              by.x = "VORIZT1259", by.y="ZT1259", all.x = TRUE)
-
-OD_optimistic <- OD_optimistic %>% merge(zn %>% dplyr::select(ZT1259, jobs_transit,jobs_car,jobs_bike,jobs_walk) %>% st_drop_geometry(),
-                                         by.x = "VDESZT1259", by.y="ZT1259", all.x = TRUE)
-
-OD_optimistic <- OD_optimistic %>% 
-  mutate(workers_transit = ifelse(is.na(workers_transit), 0, workers_transit),
-         workers_car = ifelse(is.na(workers_car), 0, workers_car),
-         workers_bike = ifelse(is.na(workers_bike), 0, workers_bike),
-         workers_walk = ifelse(is.na(workers_walk), 0, workers_walk),
-         jobs_car = ifelse(is.na(jobs_car), 0, jobs_car),
-         jobs_transit = ifelse(is.na(jobs_transit), 0, jobs_transit),
-         jobs_bike = ifelse(is.na(jobs_bike), 0, jobs_bike),
-         jobs_walk = ifelse(is.na(jobs_walk), 0, jobs_walk))
-```
-
-now reshape the data, each row will represent an any origin to to 1 destination (i.e., destination row is unique). We will average the travel times, by mode, and then use this average travel time to find the 'f' (impedance value for travel for each mode). Note: this is a *KEY* assumption - I'm giving the new transit trips the SAME travel time as they had when traveling by car but I am predicting the travel cost using the impedance curve of TRANSIT instead of CAR - that's the only difference. This is certainly a strange assumption. A solution could be to use the r5r calculated transit travel times but as we saw they don't fit the original data travel times well... 
-```{r}
-#consolidate trips so each trip is unique. workers = jobs.
-OD_optimistic <- OD_optimistic %>%
-  group_by(VORIZT1259,VDESZT1259) %>%
-  summarise(trips_transit = sum(trips_transit),
-            trips_car_motor = sum(trips_car_motor),
-            trips_bike = sum(trips_bike),
-            trips_walk = sum(trips_walk),
-            workers_transit = mean(workers_transit),
-            # workers_transit = ifelse(is.na(workers_transit), 0, workers_transit),
-            workers_car = mean(workers_car),
-            # workers_car = ifelse(is.na(workers_car), 0, workers_car),
-            workers_bike = mean(workers_bike),
-            # workers_bike = ifelse(is.na(workers_bike), 0, workers_bike),
-            workers_walk = mean(workers_walk),
-            # workers_walk = ifelse(is.na(workers_walk), 0, workers_walk),
-            jobs_transit = mean(jobs_transit),
-            jobs_car = mean(jobs_car),
-            jobs_bike = mean(jobs_bike),
-            jobs_walk = mean(jobs_walk),
-            # jobs_car = ifelse(is.na(jobs_car), 0, jobs_car),
-            # jobs_transit = ifelse(is.na(jobs_transit), 0, jobs_transit),
-            # jobs_bike = ifelse(is.na(jobs_bike), 0, jobs_bike),
-            # jobs_walk = ifelse(is.na(jobs_walk), 0, jobs_walk),
-            tt_transit = ifelse(trips_transit != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
-            tt_car = ifelse(trips_car_motor != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
-            tt_bike = ifelse(trips_bike != 0, mean(TIEMPO_VIAJES, na.rm=T), NA),
-            tt_walk = ifelse(trips_walk != 0, mean(TIEMPO_VIAJES, na.rm=T), NA)) %>% ungroup()
-
-```
-
-now estimate f value using these averaged travel times:
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-#dgamma is the density plot for gamma function and dlnorm is the desntiy plot for the lognormal function; adding values as "f" our impedance function
-OD_optimistic <- OD_optimistic %>%
-  mutate(f_car = dgamma(tt_car, HW_car_motor_gamma$estimate["shape"], HW_car_motor_gamma$estimate["rate"]),
-         f_car = ifelse(is.na(f_car), 0, f_car),
-         f_transit = dlnorm(tt_transit, HW_transit_lnorm$estimate["meanlog"], HW_transit_lnorm$estimate["sdlog"]),
-         f_transit = ifelse(is.na(f_transit), 0, f_transit),
-         f_bike = dlnorm(tt_bike, HW_bike_lnorm$estimate["meanlog"], HW_bike_lnorm$estimate["sdlog"]),
-         f_bike = ifelse(is.na(f_bike), 0, f_bike),
-         f_walk = dlnorm(tt_walk, HW_walk_lnorm$estimate["meanlog"], HW_walk_lnorm$estimate["sdlog"]),
-         f_walk = ifelse(is.na(f_walk), 0, f_walk))
-```
-
-Calculating SA:
-```{r}
-#add new summed columns
-OD_optimistic <- OD_optimistic %>%
-  mutate(workers_ = (workers_car+ workers_transit+ workers_bike+ workers_walk),
-         workers_ = ifelse(is.na(workers_), 0, workers_),
-         jobs_ = (jobs_car + jobs_transit + jobs_bike + jobs_walk),
-         jobs_ = ifelse(is.na(jobs_), 0, jobs_),
-         f_ = f_car + f_transit + f_bike + f_walk)
-
-#calculate spatial availability
-OD_optimistic <- OD_optimistic %>%
-  mutate(catch = 1) %>%
-  mutate(SA_ij = sp_avail(., 
-                          o_id = VORIZT1259,
-                          d_id = VDESZT1259,
-                          pop = workers_,
-                          opp = jobs_,
-                          r = catch,
-                          f = f_),
-         SA_ij = ifelse(is.nan(SA_ij), 0, SA_ij))
-
-#verify that the sum of all jobs is consistent with the number of jobs
-sum(OD_optimistic$SA_ij)
-
-#verify that the sum of all jobs is consistent with the number of jobs - from another perspective
-sum_jobs <- OD_optimistic %>% 
-  group_by(VDESZT1259) %>% 
-  summarise(jobs = mean(jobs_))
-sum(sum_jobs$jobs, na.rm = T)
-#Perfect it works! 
-```
-
-Let's aggregate the spatial availability by origin zone:
-```{r}
-#aggregating spatial availability  
-MAD_availability <- OD_optimistic %>%
-  group_by(VORIZT1259) %>%
-  summarize(SA_i3 = sum(SA_ij),
-            workers_ = mean(workers_car, na.rm=T) + mean(workers_transit, na.rm=T) + mean(workers_bike, na.rm=T) + mean(workers_walk, na.rm=T),
-            avgtt_i = mean(mean(tt_transit) + mean(tt_walk) + mean(tt_car) + mean(tt_bike)),
-            avg_f_i = mean(mean(f_transit) + mean(f_walk) + mean(f_car) + mean(f_bike))) 
-
-#Merge TO availability calculation to the TAZ sf object created for accessibility above:
-zn_test3 <- zn %>% merge(MAD_availability, by.x=c("ZT1259"), by.y=c("VORIZT1259"), all.x=T) 
-```
-
-Here we plot plot 2 (the original scenario) and plot 3 ( this optimistic scenario)
-```{r}
-#plot 2
-plot_MAD_avail_perworker_3 <- ggplot() +
-  geom_sf(data = zn_test3, aes(fill= SA_i3/workers_), color = NA) + #data
-  scale_fill_distiller(palette = "RdYlGn", #legend scale bar
-                       name = expression(v["i"]),
-                       na.value = "grey90",
-                       limits = c( round(min(zn_test3$SA_i3/zn_test3$workers_, na.rm=T)), 
-                                   round(max(zn_test3$SA_i3/zn_test3$workers_, na.rm=T))))+
-  geom_sf(data = Madrid_muni_border, # border for Madrid muni
-          colour=alpha("dimgrey",1), 
-          size = 0.5, fill=NA, 
-          show.legend = "polygon") +
-  annotation_north_arrow(location = "tl", # north arrow for both the main plot and inset
-                         height = unit(0.8, "cm"), 
-                         width = unit(0.8, "cm"),
-                         style = north_arrow_orienteering(line_width = 0.25,
-                                                          line_col = "dimgrey", 
-                                                          fill = c("white","dimgrey"))) +
-  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
-                   height = unit(0.15, "cm")) +
-  theme_void() +
-  theme(legend.position = c(1.10, 0.25), 
-        plot.margin = margin(t = 0, r = 0, b = 0, l = -80)) # positing legend and clipping out white space
-
-
-# plot 1 + inset map
-plot_MAD_avail_perworker_3 <- ggdraw(plot_MAD_avail_perworker_3) +
-  draw_plot({plot_MAD_avail_perworker_3 + coord_sf(xlim = st_coordinates(bbox_Madrid_muni)[c(1,2),1],
-                                                   ylim = st_coordinates(bbox_Madrid_muni)[c(2,3),2],
-                                                   expand = FALSE) +
-      theme(legend.position = "none")},
-      x = 0.65, y = 0.50,  # The distance along a (0,1) x-axis (and y axis) to draw the left edge (the bottom edge) of the plot
-      width = 0.46, height = 0.46) # The width and height of the plot expressed as proportion of the entire ggdraw object
-
-plot_MAD_avail_perworker_2
-plot_MAD_avail_perworker_3
-```
-
-As can be seen, the change (visability) is not that dramatic. 
