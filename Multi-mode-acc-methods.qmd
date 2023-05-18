@@ -1,0 +1,234 @@
+---
+title: "How does my active transport access change when car access is restricted? Measuring multi-modal accessibility with spatial availability"
+format: docx
+bibliography: bibliography.bib
+---
+
+# Abstract
+
+An increasing number of studies within the domain of transportation planning are concerned with the assessment of access to opportunity inequities. Who (the characteristics of people) and how (what modes are used) people can access opportunities of interest are questions central to planning for equity and towards justice. These questions can be addressed, through the imagination of policy intervention scenarios, but methods within the current multi-modal accessibility literature are lacking. In this spirit, we present _spatial availability_ within the context of multi-modal accessibility. We first illustrate its features. We then demonstrate its use on the case study of Low Emission Zones in Madrid (Spain). In using spatial availability, a singly-constrained accessibility measure, imagining policy scenarios that move regions towards a more equitable access-to-opportunity landscape is possible.
+
+# Introduction
+
+<!-- outlines the use of place-based accessibility measures in the literature: equity, planning -- esp. as it relates to modal competition (brief) -->
+Location-based access (or accessibility) measures are ubiquitous in the literature and are present in a variety of configurations. They aim to capture the "potential interaction" that the population at a location has with opportunities based on transportation systems and land-use. Their implementation varies widely depending on the the research question and goal. 
+
+<!-- different types of location-based accessibility measures: constrained vs. unconstrained. Introduce examples of unconstrained measures. -->
+From the perspective of representing a score of _opportunities_ that can be accessed by the population at a location, location-based accessibility measures can be categorized as 1) cumulative opportunity measures, 2) weighted cumulative opportunity measures, and 3) competitive accessibility measures as defined in [@levinsonTransportAccessManual2020]. All these types of measures use a distance decay function (otherwise known as an impedance function) to discount the opportunities that can be potentially accessed based on the travel cost for the population. These three types of accessibility measures can be unified into two categories. Cumulative and weighted cumulative opportunity measures are related: in fact, they just have differing impedance functions. The cumulative opportunity measure has a binary impedance function and the weighted cumulative opportunity measure has an impedance function that can take any functional form (e.g, exponential, log-normal, or even any sort of probability density function as discussed in the Trip Length Distribution literature). From another perspective, these measure are also unconstrained. The impedance function that discounted the opportunities is not constrained by any mass effect. In this way, cumulative and weighted cumulative measures can be considered _unconstrained_ accessibility measures.
+
+<!-- examples of constrained (competitive) measures, the introduction of spatial availability -->
+
+The third type of accessibility measure, competitive measures, discount the number of opportunities allocated based on the population that is demanding those opportunities in addition to discounting by travel impedance (like unconstrained accessibility measures). Competitive measures hence consider both the supply of the opportunities and the demand for those opportunities by the population in addition to the travel impedance. They have been criticized for being difficult to compute (relative to unconstrained measures) and difficult to interpret as they are a ratio of supply to demand [@levinsonTransportAccessManual2020]. In @soukhovIntroducingSpatialAvailability2023, we introduce spatial availability, a type of competitive accessibility measure that is _constrained_ beside a popular _unconstrained_ accessibility measure (Hansen-type gravity model) and a competitive accessibility measure (two-step floating catchment area (2SFCA)). We title spatial availability a _constrained_ accessibility measure since it proportionally allocates all the opportunities (supply) to each origin-location based on competition from the population (demand) and travel impedance in a single step with an interpretable output. The output is the number of opportunities available in the region, per location, such that if all the values for the locations in the region were summed they would equal the total opportunities in the region.
+
+<!-- policy applications of accessibility broadly, but what's missing is multi-modal accessibility methods -->
+The consideration of both supply of opportunities and demand from the population is important for policy applications. Spatial availability can be used to create supply per capita benchmarks for locations, and the delta of supply from this benchmark to existing conditions can be used to motivate policy. Currently, conventional _unconstrained_ accessibility measures are difficult for planners to operationalize for a variety of reasons. Furthermore, exisiting competitive measures are difficult to interpret. 
+
+However, this is a gap in the literature. Researchers and transport planners needs accessibility tools that interpretable consider competition. This is the aim of this paper. An example of a case where conventional accessibility measures (unconstrained and competitive) fall short is in considering multi-modal accessibility. Take for instance, measuring the accessibility to opportunities for a region for car and transit modes. The literature suggests that these modes are in direct competition. A user, if they have access to both modes, will consider the utility (travel impedance) of using one or the other. Thus, the potential for the population to interact with opportunities is directly dependant on ... the opportunities.. 
+
+<!-- introduction of multi-modal accessibility. when modes compete with one another. at the center of this is that modes SHOULD compete. competition considerations is required.-->
+
+
+## An introduction to the limitations of multi-modal methods 
+
+<!-- no competition: multi-modal accessibility examples -->
+@tahmasbiMultimodalAccessibilitybasedEquity2019 computes accessibility across modes. No competition between modes is considered. Methodologically... 
+
+<!-- with competition but NOT proportional allocation: multimodal accessibility examples-->
+@carpentieriMultimodalAccessibilityPrimary2020 "Multimodal Accessibility to Primary Health Services for the Elderly: A Case Study of Naples, Italy"
+
+@taoInvestigatingImpactsPublic2020a "Investigating the impacts of public transport on job accessibility in Shenzhen, China: a multi-modal approach"
+
+@maoMeasuringSpatialAccessibility2013 "Measuring spatial accessibility to healthcare for populations with multiple transportation modes"
+
+A clustering method to modify the cumulative accessibility measure @mohriClusteringMethodMeasuring2021
+<!-- summary of the paper-->
+With the inconsistencies and limitations of existing measures in mind, we propose the multimodal application of spatial availability. To illustrate this application, in Section 2, we demonstrate the formulation of spatial availability in a simple example of two modes and three population and opportunity centers in a synthetic example. In Section 3, we then demonstrate an empirical example of the low emission zone in Madrid Spain. Specifically, how an expansion in the restriction of private vehicles changes the access to opportunities for transit, cycling and walking. In Section 4, we provide concluding remarks on the strengths of the use of spatial availability as a multimodal accessibility measure, potential future uses in policy planning scenarios, and limitations of accessibility measures. 
+
+# Illustrative example: using spatial availability for multiple modes
+
+In brief, we define the _spatial availability_ at $i$ ($V_{i}$) as the proportion of all opportunities $O$ that are allocated to $i$ from all destinations $j$:
+$$
+V_i = \sum_{j=1}^NO_jF^t_{ij}
+$$
+
+\noindent where:
+
+-   $F^t_{ij}$ is a balancing factor that depends on the population and cost of movement in the system.
+-   $O_j$ is the number of opportunities at $j$.
+-   $V_i$ is the number of spatially available opportunities from the perspective of $i$.
+
+The general form of spatial availability is also as a sum, and the fundamental difference between Hansen- and Shen-type accessibility is that opportunities are allocated proportionally. Balancing factor $F^t_{ij}$ consists of two components: a population-based balancing factor $F^p_{i}$ and an impedance-based balancing factor $F^c_{ij}$ that, respectively, allocate opportunities to $i$ in proportion to the size of the population of the different competing centers (the mass effect of the gravity model) and the cost of reaching opportunities (the impedance effect). 
+
+We adapt the illustrative example used in @shen1998 assuming two modes and demonstrate spatial availability's within this multimodal application. <!-- TO DO: demonstrate an illustrate of the example-->
+
+## Proportional allocation by population
+
+According to the gravity modelling framework, the potential for interaction depends on the mass (i.e., the population) and the friction of distance (i.e., the impedance function). We begin by describing the proposed proportional allocation mechanism based on demand by the population. Recall, the total population in the example is 210,000. The proportion of the population by population center, by the two modes ($x$, and $z$) is:
+$$
+\begin{array}{l}
+F^p_A = \frac{50,000}{210,000} & \text{where } F^{px}_A = \frac{40,000}{210,000} \text{ & } F^{pz}_A = \frac{10,000}{210,000}\\ 
+\\
+F^p_B = \frac{150,000}{210,000} & \text{where } F^{px}_B = \frac{100,000}{210,000} \text{ & } F^{pz}_B = \frac{50,000}{210,000}\\
+\\
+F^p_C = \frac{10,000}{210,000} & \text{where } F^{px}_C = \frac{7,000}{210,000} \text{ & } F^{pz}_C = \frac{3,000}{210,000}\\
+\end{array}
+$$
+
+Competition between the subsets of the populations that use the jobs matters. After all, there is a finite number of jobs (210,000 in our example). Jobs are allocated proportionally from each employment center to each population center depending on their population sizes as per the balancing factors $F^p_i$. In this way, employment center 1 allocates $100,000\cdot \frac{50,000}{210,000}= 23,809.52$ jobs to $A$. This  $100,000\cdot \frac{150,000}{210,000}= 71,428.57$ jobs to $B$; and $100,000\cdot \frac{10,000}{210,000}= 7,142.857$ jobs to $C$. Notice how this mechanism ensures that the total number of jobs at employment center 1 is preserved at 100,000.
+
+We can verify that the number of jobs allocated is consistent with the total number of jobs in the system:
+$$
+\begin{array}{l}
+\text{Employment center 1 to population centers A, B, and C: }\\
+100,000 \cdot \frac{50,000}{210,000} + 100,000 \cdot \frac{150,000}{210,000} + 100,000 \cdot \frac{10,000}{210,000} = 100,000\\
+\\
+\text{Employment center 2 to population centers A, B, and C: }\\
+100,000 \cdot \frac{50,000}{210,000} + 100,000 \cdot \frac{150,000}{210,000} + 100,000 \cdot \frac{10,000}{210,000} = 100,000\\
+\\
+\text{Employment center 3 to population centers A, B, and C: }\\
+10,000 \cdot \frac{50,000}{210,000} + 10,000 \cdot \frac{150,000}{210,000} + 10,000 \cdot \frac{10,000}{210,000} = 10,000\\
+\end{array}
+$$
+
+In the general case where there are $N$ population centers in the region, we define the following population-based balancing factors in Equation (\ref{eq:population-balancing-factor}):
+```{=tex}
+\begin{equation}
+\label{eq:population-balancing-factor}
+F^{pM}_{i} = \frac{P_{i}^m}{\sum_{i=1}^N P_{i}^m}
+\end{equation}
+```
+
+Balancing factor $F^p_{i}$ corresponds to the proportion of the population in origin $i$ relative to the population in the region. On the right hand side of the equation, the numerator $P_{i}^m$ is the population at origin $i$. <!-- The summation in the denominator is over $i=1,\cdots,N$, and adds up to the total population of the region. Notice that we incorporate an empirical parameter $\alpha$. The role of $\alpha$ is to modulate the effect of demand by population. When $\alpha <1$, opportunities are allocated more rapidly to smaller centers relative to larger ones; $\alpha>1$ achieves the opposite effect.-->
+
+The discussion so far concerns only the mass effect (i.e., population size) of the gravity model. In addition, the potential for interaction is thought to decrease with increasing cost, so next we define similar balancing factors but based on the impedance.
+
+## Proportional allocation by cost
+
+Clearly, using only balancing factor $F^p_{i}$ to calculate spatial availability $V^p_i$ does not account for the cost of reaching employment centers. Consider instead a set of balancing factors $F^c_{ij}$ that account for the friction of distance for our example. Recall that the impedance function $f(c_{ij})$ equals $\exp(-\beta\cdot c_{ij})$ where  $\beta = 0.1$ and travel time $c_{ij}$ is either 15, 30 or 60 minutes. For instance, the impedance-based balancing factors $F^c_{ij}$ would be the following for employment center 1 (employment center 2 and 3 have their own balancing factor values for each origin $i$ as will be discussed later):
+$$
+\begin{array}{l}
+F^c_{A1} = \frac{0.223130}{0.223130 + 0.049787 + 0.000045} = 0.8174398\\
+F^c_{B1} = \frac{0.049787}{0.223130 + 0.049787 + 0.000045} = 0.1823954\\
+F^c_{C1} = \frac{0.000045}{0.223130 + 0.049787 + 0.000045} = 0.0001648581\\
+\end{array}
+$$
+
+Balancing factors $F^c_{ij}$ use the impedance function to proportionally allocate more jobs to closer population centers, that is, to those with populations _more willing to reach the jobs_. Indeed, the factors $F^c_{ij}$ can be thought of as the proportion of the population at $i$ willing to travel to destination $j$, conditional on the travel behavior as given by the impedance function. For instance, ${81.74398}\%$ of jobs from employment center 1 are allocated to population center $A$ based on impedance.
+
+So as follows from our example, of the 100,000 jobs at employment center 1 the number of jobs allocated to population center $A$ is $100,000\times 0.8174398 = 81,743.98$ jobs; the number allocated to population center $B$ is $100,000\times 0.1823954 = 18,239.54$ jobs; and the number allocated to population center $C$ is $100,000\times 0.0001648581 = 16.48581$ jobs. We see once more that the total number of jobs at the employment center is preserved at 100,000. In this example, the proportional allocation mechanism assigns the largest share of jobs to population center $A$, which is the closest to employment center 1 and the smallest to the more distant population center $C$.
+
+In the general case where there are $N$ population centers and $J$ employment centers in the region, we define the following impedance-based balancing factors:
+```{=tex}
+\begin{equation}
+\label{eq:impedance-balancing-factor}
+F^c_{ij} = \frac{f(c_{ij})}{\sum_{i=1}^N f(c_{ij})}
+\end{equation}
+```
+
+The total number of jobs available to $i$ from $j$ according to impedance is defined as follows:
+$$
+V^c_{ij} = O_j\frac{F^c_{ij}}{\sum_{i=1}^N F^c_{ij}}
+$$
+
+The total number of jobs available to $i$ from all destinations is:
+$$
+V^c_{i} = \sum_{j=1}^J O_j\frac{F^c_{ij}}{\sum_{i=1}^N F^c_{ij}}
+$$
+
+Like the population-based allocation factors, $F^c_{i}$ summed over $i=1,\cdots,N$ always equals to 1 (i.e., $\sum_{i=1}^{N} F^c_{ij} = 1$). As before, the sum of all spatially available jobs equals $O$, the total number of opportunities in the region:
+$$
+\begin{array}{l}
+\sum_{i=1}^N V^c_i =\sum_{i=1}^N\sum_{j=1}^JO_j\frac{F^c_{ij}}{\sum_{i=1}^N F^c_{ij}}\\
+=\sum_{i=1}^N \frac{F^c_{ij}}{\sum_{i=1}^N F^c_{ij}}\cdot\sum_{j=1}^JO_j\\
+=\sum_{j=1}^J O_j = O
+\end{array}
+$$
+
+We are now ready to more formally define spatial availability with due consideration to both population and travel cost effects.
+
+## Assembling mass and impedance effects
+
+Population and the cost of travel are both part of the gravity modelling framework. Since the balancing factors defined in the preceding sections are proportions, they can be combined multiplicatively to obtain their joint effect. This multiplicative relationship can alternatively be understood as the joint probability of allocating opportunities and is captured by Equation (\ref{eq:balancing-factors}), where $F^p_{i}$ is the population-based balancing factor that grants a larger share of the existing opportunities to larger centers and $F^c_{ij}$ is the impedance-based balancing factor that grants a larger share of the existing opportunities to closer centers. This is in line with the tradition of gravity modeling.
+```{=tex}
+\begin{equation}
+\label{eq:balancing-factors}
+F^t_{ij} = \frac{F^p_{i} \cdot F^c_{ij}}{\sum_{i=1}^N F^p_{i} \cdot F^c_{ij}}
+\end{equation}
+```
+
+\noindent with $F^p_{i}$ and $F^c_{ij}$ as defined in Equations (\ref{eq:population-balancing-factor}) and (\ref{eq:impedance-balancing-factor}) respectively. The combined balancing factor $F^t_{ij}$ is used to proportionally allocate jobs from $j$ to $i$. Hence, spatial availability is given by Equation (\ref{eq:spatial-availability}).
+
+```{=tex}
+\begin{equation}
+\label{eq:spatial-availability}
+V_{i} = \sum_{j=1}^J O_j\ F^t_{ij}
+\end{equation}
+```
+
+The terms in Equation (\ref{eq:spatial-availability}):
+
+-   $F^t_{ij}$ is a balancing factor as defined in Equation (\ref{eq:balancing-factors}).
+-   $i$ is a set of origin locations in the region $i = 1,\cdots, N$.
+-   $j$ is a set of destination locations in the region $j = 1,\cdots,J$.
+-   $O_j$ is the number of opportunities at location $j$.
+-   $V_{i}$ is the spatial availability at $i$.
+
+Notice that, unlike $S_i$ in Hansen-type accessibility (Equation (\ref{eq:conventional-accessibility})), the population enters the calculation of $V_{i}$ through $F^p_i$. Returning to the example in Figure \ref{fig:Fig1}, Table \ref{tab:synthetic-example} also contains the information needed to calculate $V_i$, with $\beta$ set again to 0.1. Column __V_ij__ are the jobs available to each origin from each employment center. In this column $V_{A1}=$ 59,901 is the number of jobs available at $A$ from employment center 1. Column __V_i__ (i.e., $\sum_{j=1}^JV_{ij}$) gives the total number of jobs available to origin $i$. We can verify that the total number of jobs available is consistent with the total number of jobs in the region (with some small rounding error):
+$$
+\sum_{i=1}^N V_i = 66,833 + 133,203 + 9,963 \approx 210,000 
+$$
+
+Compared the calculated values of $V_i$ to column __S_i__ (Hansen-type accessibility) in Table \ref{tab:synthetic-example}. The spatial availability values are more intuitive. Recall that population centers $A$ and $B$ had identical Hansen-type accessibility to employment opportunities. According to $V_i$, population center $A$ has greater job availability due to: 1) its close proximity to employment center 1; combined with 2) less competition (i.e., a majority of the population have to travel longer distances to reach employment center 1). Job availability is lower for population center $B$ due to much higher competition (150,000 people can reach 100,000 jobs at equal cost). And center $C$ has almost as many jobs available as it has population. 
+
+As discussed above, Hansen-type accessibility is not designed to preserve the number of jobs in the region. Shen-type accessibility ends up preserving the number of jobs in the region but the definitions of variables are internally obscured; the only way it preserves the number of jobs is if the effect of the impedance function is ignored when expanding the values of jobs per capita to obtain the total number of opportunities. The proportional allocation procedure described above, in contrast, consistently returns a number of jobs available that matches the total number of jobs in the region. 
+
+Since the jobs spatially available are consistent with the jobs in the region, it is possible to define a measure of spatial availability per capita as presented in Equation (\ref{eq:SA-per-capita}):
+```{=tex}
+\begin{equation}
+\label{eq:SA-per-capita}
+v_i = \frac{V_i}{P_i}
+\end{equation}
+```
+
+And, since the jobs are preserved, it is possible to use the regional jobs per capita ($\frac{\sum_{j=1}^J O_j}{\sum_{i=1}^N P_i}$) as a benchmark to compare the spatial availability of jobs per capita at each origin.
+
+In the example, since the population is equal to the number of jobs, the regional value of jobs per capita is $1.0$. To complete the illustrative example, the spatial availability of jobs per capita by origin is:
+```{r SA-6, eval=TRUE, include=FALSE}
+V_i$V_i[1]/50000
+V_i$V_i[2]/150000
+V_i$V_i[3]/10000
+```
+
+```{=tex}
+\begin{equation}
+\label{eq:SA-per-capita-2populations}
+\begin{array}{l}
+v_{1} = \frac{V_1}{P_1} =  \frac{66,833.47}{50,000} = 1.337\\
+v_{2} =  \frac{V_{2}}{P_2} =  \frac{133,203.4}{150,000} = 0.888\\
+v_{3} =  \frac{V_{3}}{P_3} =  \frac{9,963.171}{10,000} = 0.996\\
+\end{array}
+\end{equation}
+```
+
+We can see that population center $A$ has fewer jobs per capita than the regional benchmark, center $B$ has more, and center $C$ is at parity. Remarkably, the spatial availability per capita matches the values of $a_i$ in Table \ref{tab:synthetic-example}. Appendix A has a proof of the mathematical equivalence between the two measures. It is interesting to notice how Weibull (1976) @weibull_axiomatic_1976 and Shen (1998) @shen1998, as well as this paper, all reach identical expressions starting from different assumptions; this effect is known as _equifinality_ (see Ortúzar & Willumsen (2011) @ortuzar_2011_modelling, p. 333 and Williams (1981) @williams_hall_1981). This result means that Shen-type accessibility and 2SFCA can be re-conceptualized as singly-constrained accessibility measures along with the proposed spatial availability measure.
+
+
+
+# The case of Madrid's low emission zones: multimodal accessibility landscapes
+
+<!-- a summary about low emission zones, they are a geographic accessibility restriction. they change the accessibility landscape-->
+
+
+<!-- -->
+
+## Data
+
+Two scenarios:
+- 2018: the small low emission zone
+- Applying an optimistic restriction: what if we increased the restrictions? 
+
+## Multi-modal impedance functions
+
+## Results of 
+
+#

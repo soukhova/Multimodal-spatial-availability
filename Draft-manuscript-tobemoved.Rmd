@@ -93,7 +93,7 @@ sp_avail <- function(x, o_id, d_id, pop, opp, r, f, alpha = 1){
 
 - Information about inequity and LEZ may exasperate these issues 
 
-- lit has found that emissions reduciton should not result in inequalities.. 
+- lit has found that emissions reduction should not result in inequalities.. 
 
 \newpage
 

@@ -585,7 +585,7 @@ OD_2 <- OD_2 %>%
 
 ## Spatial availability
 
-Calculate spatial availabilty:
+Calculate spatial availability:
 ```{r}
 OD_SA <- OD_2 %>%
   mutate(catch = 1) %>%
@@ -838,7 +838,10 @@ The previous attempts at calculating spatial availability is commented out and i
 
 Let's test out a scenario - all car trips going into madrid municipality are now transit trips. How will this impact the SA profile? We will using the 2nd method (calculating SA within all modes).
 
-<!-- AS finished here May 31, am stuck on how to shift car trips to transit (in a way that's flexible and will allow us to easily toggle the modal shift scenarios (i.e., instead of 100% transit, maybe 80%/10/10 transit/bike/walk)) --> 
+<!-- AS finished here May 31, am stuck on how to shift car trips to transit (in a way that's flexible and will allow us to easily toggle the modal shift scenarios (i.e., instead of 100% transit, maybe 80%/10/10 transit/bike/walk)) 
+
+- 1) add akk trips (for all modes) to the dataset as 0
+- 2) allocation factors for trips going INTO madrid LEZ, a factor of 1 (car trip) proportional to other modes by distance--> 
 
 First, let's re-assign to-madrid muni car trips to transit trips:
 ```{r}
