@@ -122,7 +122,7 @@ sp_avail <- function(x, o_id, d_id, pop, opp, r, f, alpha = 1){
 ## Impedance function calibration
 
 ```{r data-import-filter}
-OD_v <- read_excel("data-raw/EDM2018VIAJES.xlsx")
+OD_v <- read_excel("data-prep/data-raw/EDM2018VIAJES.xlsx")
 
 OD_v_HW <- OD_v %>% filter(VORI == "1" & VDES == "2") #only filter in origin casa trips and destination trabajo
 
@@ -349,8 +349,11 @@ jobs <- OD_v_HW %>%
 
 Join workers and jobs to the ZN simple features object:
 ```{r}
-load("data/zn.RData")
-
+load("data-prep/data/zn.RData")
+zn %>%
+  # Join workers
+  left_join(workers,
+            by = "ZT1259")
 zn <- zn %>%
   # Join workers
   left_join(workers,
