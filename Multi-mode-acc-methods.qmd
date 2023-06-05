@@ -1,5 +1,6 @@
 ---
-title: "How does my active transport access change when car access is restricted? Measuring multi-modal accessibility with spatial availability"
+title: "Extending competitive accessibility for multi-modal analysis"
+author: Anastasia Soukhov, Javier Tarriño Ortiz, Julio A. Soria-Lara, Antonio Páez
 format: docx
 bibliography: bibliography.bib
 ---
@@ -249,7 +250,7 @@ ggsave("images/Fig1.png",dpi=600)
 
 # Abstract
 
-An increasing number of studies within the domain of transportation planning are concerned with the assessment of access to opportunity inequities. Who (the characteristics of people) and how (what modes are used) people can access opportunities of interest are questions central to planning for equity and towards justice. These questions can be addressed, through the imagination of policy intervention scenarios, but methods within the current multi-modal accessibility literature are lacking. In this spirit, we present _spatial availability_ within the context of multi-modal accessibility. We first illustrate its features. We then demonstrate its use on the case study of Low Emission Zones in Madrid (Spain). In using spatial availability, a singly-constrained accessibility measure, imagining policy scenarios that move regions towards a more equitable access-to-opportunity landscape is possible.
+An increasing number of studies within the domain of transportation planning are concerned with the inequities in accessibility to opportunities. A dimension of these inequities arise from differences in access by mode type (e.g., commuting using a car as opposed to transit). However, methods implemented in current multi-modal accessibility literature are lacking. This paper presents an extension of _spatial availability_, a singly-constrained competitive accessibility measure, for the context of multi-modal accessibility analysis. We first illustrate the features of spatial availability that lend itself to multi-modal analysis. We then demonstrate its use on the case study of Low Emission Zones in Madrid (Spain) and highlight how this policy intervention changes the accessibility of populations using different modes. In summary, spatial availability can be used to create and interpret multi-modal policy intervention scenarios unlike previous methods: this creation and interpretation can help regions envision a more sustainable and equitable access-to-opportunity landscape.
 
 # Introduction
 
@@ -588,8 +589,33 @@ As a third way of interpreting spatial availability, spatial availability per ca
 <!-- a summary about low emission zones, they are a geographic accessibility restriction. they change the accessibility landscape-->
 
 ## Data 
-<!-- -->
-```{r}
+```{r load-data}
+load("data-prep/data/zn1259.RData") 
+zn1259 <- zn %>% dplyr::select(c("FID", "CD_ZT12", "ZT1259"))
+remove(zn)
+load("data-prep/data/zn208.RData")
+load("data-prep/data/zn_u.RData") # a key to join the zn1259 to the zn208 + contains municipality names
+
+zn1259 <-  merge(zn1259, zn_u, by="ZT1259")
+
+LEZ_centro <- read_sf("data-prep/data-raw/LEZ.shp") %>% st_transform(4326) %>% mutate(merge_all = 1) %>%
+    group_by(merge_all) %>%
+    summarise(geometry = sf::st_union(geometry)) %>%
+    ungroup()
+#add M30 for visualizing
+LEZ_M30 <- read_sf("data-prep/data-raw/Zona_Bajas_Emisiones_MADRID.shp") %>% st_transform(4326)
+
+#creating a list of zones that correspond to the zn208, which indicate if they are in a LEZ.
+LEZ_centro_list <- st_intersection(zn208, LEZ_centro) %>% 
+  st_drop_geometry() %>% 
+  dplyr::select(CD_ZT208) %>% 
+  unlist()
+
+LEZ_M30_list <- st_intersection(zn208, LEZ_M30) %>% 
+  st_drop_geometry() %>% 
+  dplyr::select(CD_ZT208) %>% 
+  unlist()
+
 #import travel times
 load("./data-prep/data-raw/intermed/ttresults/output_OD_bike.Rdata")
 load("./data-prep/data-raw/intermed/ttresults/output_OD_car.Rdata")
@@ -597,21 +623,411 @@ load("./data-prep/data-raw/intermed/ttresults/output_OD_transit.Rdata")
 load("./data-prep/data-raw/intermed/ttresults/output_OD_walk.Rdata")
 ```
 
-<!-- 
-zn1259 centroids. calculate travel times from orign to destinations -> r5r. Use impedance functions per mode. 
+```{r travel-data-from-survey}
+#import travel survey 2018
+load(file = "data-prep/data/OD_v.RData")
 
-with and without madrid centro LEZ. 
+#Keep only the direct home to work trips (no chained home-to-x-to-work trips, they only make up a small portion of home-to-work trips anyways, see the exploration of this in the 'data-exploration.rmd' file)
+OD_v_HW <- OD_v %>% filter(VORI == "1" & VDES == "2" &
+                             VORI_Municipality == "Madrid" & VDES_Municipality == "Madrid") #VORG = 1 = home, VDES = 2
 
-step 1: zn1259 travel times from centroids-->
+#here we separate all the "car" trips, "transit" trips, "bike" trips, and "walk" trips. We then will create 4 different impedance functions
+transit_HW_alltt <- OD_v_HW  %>% 
+  filter(MODO_PRIORITARIO <= 9) %>%
+  transmute(TIEMPO_VIAJES, 
+            mode = "transit")
 
-## Data
+car_motor_HW_alltt <- OD_v_HW  %>% 
+  filter(MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10) %>% #includes both motorcycles and cars
+  transmute(TIEMPO_VIAJES, 
+            mode = "car/motor")
 
-Two scenarios:
-- 2018: the small low emission zone
-- Applying an optimistic restriction: what if we increased the restrictions? 
+bike_HW_alltt <- OD_v_HW  %>% 
+  filter(MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20) %>%
+  transmute(TIEMPO_VIAJES, 
+            mode = "bike")
 
-## Multi-modal impedance functions
+walk_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO == 24) %>%
+  transmute(TIEMPO_VIAJES, 
+            mode = "walk")
+```
 
-## Results of 
+Then create the impedance functions:
+```{r fitting-impedance-function}
+# using fitdist function to fit a distribution using the default maximum likelihood estimation method and Nelder-Mead method for direct optimization
+lnorm_ <- fitdistrplus::fitdist(data=transit_HW_alltt$TIEMPO_VIAJES,#%>% unlist() %>% as.numeric(),
+                                "gamma", 
+                                method="mle",
+                                #Notice the use of the weights,
+                                #weights = round(transit_HW_alltt$ELE_G_POND_ESC2),
+                                optim.method="Nelder-Mead")
+HW_transit_lnorm <- lnorm_
 
-#
+gamma_ <- fitdistrplus::fitdist(data=car_motor_HW_alltt$TIEMPO_VIAJES, #%>% unlist() %>% as.numeric(),
+                                "gamma", 
+                                method="mle",
+                                #Notice the use of the weights,
+                                #weights = round(car_motor_HW_alltt$ELE_G_POND_ESC2), 
+                                optim.method="Nelder-Mead")
+HW_car_motor_gamma <- gamma_
+
+lnorm_ <- fitdistrplus::fitdist(data=bike_HW_alltt$TIEMPO_VIAJES, #%>% unlist() %>% as.numeric(),
+                                "lnorm", 
+                                method="mle",
+                                #Notice the use of the weights,
+                                #weights = round(bike_HW_alltt$ELE_G_POND_ESC2),
+                                optim.method="Nelder-Mead")
+HW_bike_lnorm <- lnorm_
+
+logis_ <- fitdistrplus::fitdist(data=walk_HW_alltt$TIEMPO_VIAJES, #%>% unlist() %>% as.numeric(),
+                                "logis", 
+                                method="mle",
+                                #Notice the use of the weights,
+                                #weights = round(walk_HW_alltt$ELE_G_POND_ESC2),
+                                optim.method="Nelder-Mead")
+HW_walk_lnorm <- logis_
+```
+To visualize the impedance functions we create a data frame and calculate the density of the distribution given the estimated parameters:
+```{r}
+x <- data.frame(t = seq(1, 300, 1))
+
+x_transit <- x %>%
+  mutate(f = dgamma(t,
+                    HW_transit_lnorm$estimate[1],
+                    HW_transit_lnorm$estimate[2]),
+         mode = "transit")
+
+x_car_motor <- x %>%
+  mutate(f = dgamma(t,
+                    shape = HW_car_motor_gamma$estimate[1],
+                    rate = HW_car_motor_gamma$estimate[2]),
+         mode = "car/motor")
+
+x_bike <- x %>%
+  mutate(f = dlnorm(t,
+                    HW_bike_lnorm$estimate[1],
+                    HW_bike_lnorm$estimate[2]),
+         mode = "bike")
+
+x_walk <- x %>%
+  mutate(f = dlogis(t,
+                    HW_walk_lnorm$estimate[1],
+                    HW_walk_lnorm$estimate[2]),
+         mode = "walk")
+```
+
+Bind the empirical and theoretical trip length distributions:
+```{r}
+tld_empirical <- rbind(transit_HW_alltt,
+      car_motor_HW_alltt,
+      bike_HW_alltt,
+      walk_HW_alltt) %>%
+  mutate(mode = factor(mode,
+                       levels = c("bike", "walk", "car/motor", "transit")),
+         distribution = "empirical") 
+
+tld_theoretical <- rbind(x_transit,
+      x_car_motor,
+      x_bike,
+      x_walk) %>%
+  mutate(mode = factor(mode,
+                       levels = c("bike", "walk", "car/motor", "transit")))
+```
+
+Plot:
+```{r}
+ggplot() + 
+  geom_histogram(data = tld_empirical,
+                 aes(x = TIEMPO_VIAJES, 
+                     #weights = ELE_G_POND_ESC2, 
+                     after_stat(density)),
+                 bins = 45) +
+  geom_line(data = tld_theoretical,
+            aes(x = t, y = f)) + 
+  facet_wrap(~ mode, nrow = 2)
+
+#here, let's double check the empirical trip length distributions, as we can see from the two generated plots, our input TLD is correct!
+rbind(transit_HW_alltt,
+      car_motor_HW_alltt,
+      bike_HW_alltt,
+      walk_HW_alltt) %>%
+  mutate(mode = factor(mode,
+                       levels = c("bike", "walk", "car/motor", "transit"))) %>%
+  ggplot(aes(x = TIEMPO_VIAJES, after_stat(density),
+             #weights = ELE_G_POND_ESC2
+             )) + 
+  geom_histogram(bins = 45) + 
+  facet_wrap(~ mode, nrow = 2)
+```
+
+Next, we define $P_i$ (for the population balancing factor) for each mode and $O_j$ associated with each zone. To do this, we add the number of trips (by mode) and create objects which contain the number of workers (origin) and jobs (destinations) - by mode:
+```{r}
+# Instead of creating various columns like above, create a single column with the mode
+OD_v_HW <- OD_v_HW  %>% 
+  mutate(mode = case_when(MODO_PRIORITARIO <= 9 ~ "transit",
+                          MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10 ~ "car/motor",
+                          MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20 ~ "bike",
+                          MODO_PRIORITARIO == 24 ~ "walk"),
+         mode = factor(mode,
+                       levels = c("bike", "walk", "car/motor", "transit")))
+
+# The workers are classified by mode and origin. Ex. from Origin 1 five people use bike mode to get to destinations. This is P_i for each m
+workers <- OD_v_HW %>%
+  group_by(VORI_CD_ZT208,
+           mode) %>%
+  summarize(workers = n(), #we should be summing the number of workers by the weight but we don't have a weight... so for now, 1 row = 1 trip. 
+            .groups = "drop") %>%
+  rename(CD_ZT208 = VORI_CD_ZT208) 
+
+# Calculate the number of jobs per j ($O_j$)
+jobs <- OD_v_HW %>%
+  group_by(VDES_CD_ZT208) %>%
+  summarize(jobs = n(),
+            .groups = "drop") %>%
+  rename(CD_ZT208 = VDES_CD_ZT208)
+```
+
+Next join the number of workers summed at each origin to the ZN simple features object:
+```{r}
+workers_sf <- workers %>%
+  # Join workers
+  left_join(zn208,
+            by = "CD_ZT208") %>%
+  st_as_sf()
+
+jobs_sf <- jobs %>%
+  # Join jobs
+  left_join(zn208,
+            by = "CD_ZT208") %>%
+  st_as_sf()
+```
+
+Now we reshape the data. Each row will represent an any origin to to 1 destination (i.e., destination row is unique). We will average the travel times, by mode, and then use this average travel time to find the 'f' (impedance value for travel for each mode). Hint: this is why we needed to find the impedance function in the first place! The functions represent the cost of travel for each mode based on the travel time for a trip, since we are averaging together the travel time for each mode.
+```{r}
+OD <- OD_v_HW %>%
+  group_by(VORI_CD_ZT208,
+           VDES_CD_ZT208,
+           mode) %>%
+  summarize(tt = mean(TIEMPO_VIAJES),
+            .groups = "drop")
+
+# Check the mean and median travel times by mode
+OD %>% 
+  group_by(mode) %>% 
+  summarize(mtt = mean(tt))
+OD %>% 
+  group_by(mode) %>% 
+  summarize(mtt = median(tt))
+```
+
+Join workers and jobs to OD table:
+```{r}
+OD_2 <- OD %>%
+  left_join(workers,
+            by = c("VORI_CD_ZT208" = "CD_ZT208", "mode"))
+
+OD_2 <- OD_2 %>%
+  left_join(jobs,
+            by = c("VDES_CD_ZT208" = "CD_ZT208"))
+```
+
+Preview the table for one origin and one destination, as an example:
+```{r}
+OD_2 %>% filter(VORI_CD_ZT208 == 1 & VDES_CD_ZT208 == 2) #explanation: 'workers' corresponds to the people who leave ORI 1 to go to any destination by mode (P_im) (e.g., 5 workers leave ORI 1 by bike to go to a job somewhere in the region). 'jobs' corresponds to the number of workers that come to DES 2 as a job destination in the region (sum_m O_j). 'tt' corresponds to the average travel time for i to j per mode (avg. c_ijm) (e.g., only 1 trip is made by bike from ORI 1 to DES 2 and it is 5 mins, so the average travel time is 5 mins) -- this c_ijm will be used to calculate f(c_ijm). 
+```
+
+Estimate f value using these averaged travel times:
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+OD_2 <- OD_2 %>%
+  mutate(f = case_when(mode == "transit" ~ dgamma(tt,
+                                                  HW_transit_lnorm$estimate["shape"], 
+                                                  HW_transit_lnorm$estimate["rate"]),
+                       mode == "car/motor" ~ dgamma(tt,
+                                                    HW_car_motor_gamma$estimate["shape"],
+                                                    HW_car_motor_gamma$estimate["rate"]),
+                       mode == "bike" ~ dlnorm(tt,
+                                               HW_bike_lnorm$estimate["meanlog"],
+                                               HW_bike_lnorm$estimate["sdlog"]),
+                       mode == "walk" ~ dlogis(tt, 
+                                               HW_walk_lnorm$estimate["location"], 
+                                               HW_walk_lnorm$estimate["scale"])))
+```
+
+## Calculating spatial availability 
+Calculate spatial availability:
+```{r}
+OD_SA <- OD_2 %>%
+  mutate(catch = 1) %>%
+  mutate(SA_ij = sp_avail(., 
+                          o_id = VORI_CD_ZT208,
+                          d_id = VDES_CD_ZT208,
+                          pop = workers,
+                          opp = jobs,
+                          r = catch,
+                          f = f))
+```
+
+Check that the totals are maintained, it is!:
+```{r}
+sum(OD_SA$SA_ij, na.rm = T)
+sum(jobs$jobs)
+#sum(OD_SA$tt)
+```
+Spatial availability by mode, we can see that car mode captures 71% of the spatial availability but only accounts for XXXX of the tt_ijm !!:
+```{r}
+OD_SA %>%
+  group_by(mode) %>%
+  summarize(V_m = sum(SA_ij),
+            V_m_perc = sum(SA_ij)/27795,
+            tt_m = sum(tt)/780315.1)
+```
+
+Okay, let's preform a few more checks and then aggregate spatial availability by origin (zn208) and by origin,mode.
+
+Spatial availability by origin (with check). Here we represent spatial availability per origin across all modes for each i. We know that car mode represents the majority of spatial availability per i overall:
+```{r}
+SA_i <- OD_SA %>%
+  group_by(VORI_CD_ZT208) %>%
+  summarize(V_i = sum(SA_ij))
+
+summary(SA_i) 
+sum(SA_i$V_i)
+```
+
+But we can suspect that the spatial distribution of SA is uneven depending on the mode. So here we represent Spatial availability by origin, mode (with check):
+```{r}
+SA_im <- OD_SA %>%
+  group_by(VORI_CD_ZT208, 
+           mode) %>%
+  summarize(V_im = sum(SA_ij),
+            .groups = "drop")
+
+summary(SA_im)
+sum(SA_im$V_im)
+```
+
+Let's preform some more checks. Calculate worker population by zone of origin:
+```{r}
+population <- workers %>%
+  group_by(CD_ZT208) %>%
+  summarize(population = sum(workers))
+
+sum(population$population)
+```
+
+Finally, let's join the zonal worker population to the SA_i and SA_im spatial objects (with checks):
+```{r}
+SA_i <- SA_i %>%
+  left_join(population,
+            by = c("VORI_CD_ZT208" = "CD_ZT208"))
+sum(SA_i$V_i)
+
+SA_im <- SA_im %>%
+  left_join(population,
+            by = c("VORI_CD_ZT208" = "CD_ZT208"))
+sum(SA_im$V_im)
+```
+
+To facilitate the interpretation of spatial availability, here we calculate spatial availability per capita:
+```{r}
+SA_i <- SA_i %>%
+  mutate(v_i = V_i/population)
+
+summary(SA_i)
+
+SA_im <- SA_im %>%
+  mutate(v_im = V_im/population)
+
+summary(SA_im)
+```
+
+Lastly, join geometry of zones to SA so we can visualize:
+```{r}
+SA_i <- SA_i %>%
+  left_join(zn208 %>%
+              dplyr::select(CD_ZT208),
+            by =c("VORI_CD_ZT208" = "CD_ZT208")) %>%
+  st_as_sf()
+
+SA_im <- SA_im %>%
+  left_join(zn208 %>%
+              dplyr::select(CD_ZT208),
+            by = c("VORI_CD_ZT208" = "CD_ZT208")) %>%
+  st_as_sf()
+```
+
+## Plotting:
+
+Figure out which CD_ZT208 correspond to Madrid - we see that CD_ZT208 1 through 59 do so.
+```{r}
+t <- zn_u %>% dplyr::select(CD_ZT208, Municipality) %>% group_by(CD_ZT208,Municipality) %>% summarize() %>% filter(Municipality == "Madrid")
+t
+```
+
+```{r create-bounding-boxes}
+zn208 <- zn208 %>% mutate(MM = ifelse(str_starts(ZT208,"Madrid"), 1, 0)) %>% filter(MM == 1)
+
+#create the bounding box for the Toronto region + a little extra
+bbox_new1 <- st_bbox(zn208 %>%filter(MM == 1)) # current bounding box
+
+xrange <- bbox_new1$xmax - bbox_new1$xmin # range of x values
+yrange <- bbox_new1$ymax - bbox_new1$ymin # range of y values
+
+bbox_new1[1] <- bbox_new1[1] - (0.0 * xrange) # xmin - left
+bbox_new1[3] <- bbox_new1[3] + (0.0 * xrange) # xmax - right
+bbox_new1[2] <- bbox_new1[2] - (0.0 * yrange) # ymin - bottom
+bbox_new1[4] <- bbox_new1[4] + (0.0 * yrange) # ymax - top
+
+bbox_Madrid_muni <- bbox_new1 %>%  # take the bounding box ...
+  st_as_sfc()
+
+sf::sf_use_s2(FALSE) #this terns off the spherical geometry component in the st_union() function - this assumes the sf is just planar. Thats' fine for our purposes
+Madrid_muni_border <- zn208 %>%
+  filter(MM == 1) %>%
+  st_union()
+```
+
+Plot V (spatial availability) by origin:
+```{r}
+ggplot() +
+  geom_sf(data = SA_i,
+          aes(fill = V_i),
+          color = NA) +
+  scale_fill_distiller(palette = "YlGn", #legend scale bar
+                       name = expression(v["i"]),
+                       na.value = "grey90",
+                       direction = 1,
+                       #trans = "log",
+                       #breaks=c(0, 10, 100, 1000, 10000)
+                       )+
+  geom_sf(data = Madrid_muni_border, # border for Madrid muni
+          colour=alpha("black",1), 
+          size = 0.5, 
+          fill=NA, 
+          show.legend = "polygon") +
+  geom_sf(data = LEZ_centro, 
+          colour=alpha("red",1), 
+          size = 0.5, 
+          fill = NA) + 
+  geom_sf(data = LEZ_M30, 
+          colour=alpha("cyan",1), 
+          size = 0.5, 
+          fill = NA) +
+  annotation_north_arrow(location = "tl", # north arrow for both the main plot and inset
+                         height = unit(0.8, "cm"), 
+                         width = unit(0.8, "cm"),
+                         style = north_arrow_orienteering(line_width = 0.25,
+                                                          line_col = "dimgrey", 
+                                                          fill = c("white","dimgrey"))) +
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm")) +
+  theme_void() +
+  theme(legend.position = c(1.10, 0.25), 
+        plot.margin = margin(t = 0, r = 0, b = 0, l = -80)) # positing legend and clipping out white space
+```
+
+
+<!-- Two scenarios: -->
+<!-- - 2018: the small low emission zone -->
+<!-- - Applying an optimistic restriction: what if we increased the restrictions?  -->
+
