@@ -882,14 +882,14 @@ OD_v_HW <- OD_v_HW  %>%
 workers <- OD_v_HW %>%
   group_by(VORIZT1259,
            mode) %>%
-  summarize(workers = n()*ELE_G_POND_ESC2, #we should be summing the number of workers by the weight but we don't have a weight... so for now, 1 row = 1 trip. 
+  summarize(workers = n(), #we should be summing the number of workers by the weight but we don't have a weight... so for now, 1 row = 1 trip. 
             .groups = "drop")%>%
   rename(ZT1259 = VORIZT1259)
 
 # Calculate the number of jobs per j ($O_j$)
 jobs <- OD_v_HW %>%
   group_by(VDESZT1259) %>%
-  summarize(jobs = n()*ELE_G_POND_ESC2,
+  summarize(jobs = n(),
             .groups = "drop") %>%
   rename(ZT1259 = VDESZT1259)
 ```
@@ -936,26 +936,28 @@ OD_2 <- OD %>%
 OD_2 <- OD_2 %>%
   left_join(jobs,
             by = c("VDESZT1259" = "ZT1259"))
+
+#THIS IS TOO MANY!
 ```
 
 Preview the table for one origin and one destination, as an example:
 ```{r}
-OD_2 %>% filter(VORIZT1259 == 1 & VDESZT1259 == 2) #explanation: 'workers' corresponds to the people who leave ORI 1 to go to any destination by mode (P_im) (e.g., 5 workers leave ORI 1 by bike to go to a job somewhere in the region). 'jobs' corresponds to the number of workers that come to DES 2 as a job destination in the region (sum_m O_j). 'tt' corresponds to the average travel time for i to j per mode (avg. c_ijm) (e.g., only 1 trip is made by bike from ORI 1 to DES 2 and it is 5 mins, so the average travel time is 5 mins) -- this c_ijm will be used to calculate f(c_ijm). 
+# OD_2 %>% filter(VORIZT1259 == "079-09-225" & VDESZT1259 == 2) #explanation: 'workers' corresponds to the people who leave ORI 1 to go to any destination by mode (P_im) (e.g., 5 workers leave ORI 1 by bike to go to a job somewhere in the region). 'jobs' corresponds to the number of workers that come to DES 2 as a job destination in the region (sum_m O_j). 'tt' corresponds to the average travel time for i to j per mode (avg. c_ijm) (e.g., only 1 trip is made by bike from ORI 1 to DES 2 and it is 5 mins, so the average travel time is 5 mins) -- this c_ijm will be used to calculate f(c_ijm). 
 ```
 
 Estimate f value using these averaged travel times:
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 OD_2 <- OD_2 %>%
   mutate(f = case_when(mode == "transit" ~ dgamma(tt,
-                                                  HW_transit_lnorm$estimate["shape"], 
-                                                  HW_transit_lnorm$estimate["rate"]),
+                                                  HW_transit_gamma$estimate["shape"], 
+                                                  HW_transit_gamma$estimate["rate"]),
                        mode == "car/motor" ~ dgamma(tt,
                                                     HW_car_motor_gamma$estimate["shape"],
                                                     HW_car_motor_gamma$estimate["rate"]),
                        mode == "bike" ~ dlnorm(tt,
                                                HW_bike_lnorm$estimate["meanlog"],
                                                HW_bike_lnorm$estimate["sdlog"]),
-                       mode == "walk" ~ dlogis(tt, 
+                       mode == "walk" ~ dlnorm(tt, 
                                                HW_walk_lnorm$estimate["location"], 
                                                HW_walk_lnorm$estimate["scale"])))
 ```
@@ -966,8 +968,8 @@ Calculate spatial availability:
 OD_SA <- OD_2 %>%
   mutate(catch = 1) %>%
   mutate(SA_ij = sp_avail(., 
-                          o_id = VORI_CD_ZT208,
-                          d_id = VDES_CD_ZT208,
+                          o_id = VORIZT1259,
+                          d_id = VDESZT1259,
                           pop = workers,
                           opp = jobs,
                           r = catch,
@@ -994,7 +996,7 @@ Okay, let's preform a few more checks and then aggregate spatial availability by
 Spatial availability by origin (with check). Here we represent spatial availability per origin across all modes for each i. We know that car mode represents the majority of spatial availability per i overall:
 ```{r}
 SA_i <- OD_SA %>%
-  group_by(VORI_CD_ZT208) %>%
+  group_by(VORIZT1259) %>%
   summarize(V_i = sum(SA_ij))
 
 summary(SA_i) 
