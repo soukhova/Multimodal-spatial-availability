@@ -790,7 +790,6 @@ lnorm_$bic #lowest aic and bic, so we pick this distribution.
 norm_$bic
 
 HW_walk_lnorm <- lnorm_
-
 ```
 
 To visualize the impedance functions we create a data frame and calculate the density of the distribution given the estimated parameters:
@@ -882,14 +881,14 @@ OD_v_HW <- OD_v_HW  %>%
 workers <- OD_v_HW %>%
   group_by(VORIZT1259,
            mode) %>%
-  summarize(workers = n(), #we should be summing the number of workers by the weight but we don't have a weight... so for now, 1 row = 1 trip. 
+  summarize(workers = sum(ELE_G_POND_ESC2), #we should be summing the number of workers by the weight but we don't have a weight... so for now, 1 row = 1 trip. 
             .groups = "drop")%>%
   rename(ZT1259 = VORIZT1259)
 
 # Calculate the number of jobs per j ($O_j$)
 jobs <- OD_v_HW %>%
   group_by(VDESZT1259) %>%
-  summarize(jobs = n(),
+  summarize(jobs = sum(ELE_G_POND_ESC2),
             .groups = "drop") %>%
   rename(ZT1259 = VDESZT1259)
 ```
@@ -958,8 +957,8 @@ OD_2 <- OD_2 %>%
                                                HW_bike_lnorm$estimate["meanlog"],
                                                HW_bike_lnorm$estimate["sdlog"]),
                        mode == "walk" ~ dlnorm(tt, 
-                                               HW_walk_lnorm$estimate["location"], 
-                                               HW_walk_lnorm$estimate["scale"])))
+                                               HW_walk_lnorm$estimate["meanlog"], 
+                                               HW_walk_lnorm$estimate["sdlog"])))
 ```
 
 ## Calculating spatial availability 
@@ -980,15 +979,15 @@ Check that the totals are maintained, it is!:
 ```{r}
 sum(OD_SA$SA_ij, na.rm = T)
 sum(jobs$jobs)
-#sum(OD_SA$tt)
+sum(OD_SA$tt)
 ```
-Spatial availability by mode, we can see that car mode captures 71% of the spatial availability but only accounts for XXXX of the tt_ijm !!:
+Spatial availability by mode, we can see that car mode captures 43% of the spatial availability but only accounts for 30% of the tt_ijm !!:
 ```{r}
 OD_SA %>%
   group_by(mode) %>%
   summarize(V_m = sum(SA_ij),
-            V_m_perc = sum(SA_ij)/27795,
-            tt_m = sum(tt)/780315.1)
+            V_m_perc = sum(SA_ij)/847574,
+            tt_m = sum(tt)/435061.9)
 ```
 
 Okay, let's preform a few more checks and then aggregate spatial availability by origin (zn208) and by origin,mode.
@@ -1006,7 +1005,7 @@ sum(SA_i$V_i)
 But we can suspect that the spatial distribution of SA is uneven depending on the mode. So here we represent Spatial availability by origin, mode (with check):
 ```{r}
 SA_im <- OD_SA %>%
-  group_by(VORI_CD_ZT208, 
+  group_by(VORIZT1259, 
            mode) %>%
   summarize(V_im = sum(SA_ij),
             .groups = "drop")
@@ -1018,7 +1017,7 @@ sum(SA_im$V_im)
 Let's preform some more checks. Calculate worker population by zone of origin:
 ```{r}
 population <- workers %>%
-  group_by(CD_ZT208) %>%
+  group_by(ZT1259) %>%
   summarize(population = sum(workers))
 
 sum(population$population)
@@ -1028,12 +1027,12 @@ Finally, let's join the zonal worker population to the SA_i and SA_im spatial ob
 ```{r}
 SA_i <- SA_i %>%
   left_join(population,
-            by = c("VORI_CD_ZT208" = "CD_ZT208"))
+            by = c("VORIZT1259" = "ZT1259"))
 sum(SA_i$V_i)
 
 SA_im <- SA_im %>%
   left_join(population,
-            by = c("VORI_CD_ZT208" = "CD_ZT208"))
+            by = c("VORIZT1259" = "ZT1259"))
 sum(SA_im$V_im)
 ```
 
@@ -1053,31 +1052,25 @@ summary(SA_im)
 Lastly, join geometry of zones to SA so we can visualize:
 ```{r}
 SA_i <- SA_i %>%
-  left_join(zn208 %>%
-              dplyr::select(CD_ZT208),
-            by =c("VORI_CD_ZT208" = "CD_ZT208")) %>%
+  left_join(zn1259 %>%
+              dplyr::select(ZT1259),
+            by =c("VORIZT1259" = "ZT1259")) %>%
   st_as_sf()
 
 SA_im <- SA_im %>%
-  left_join(zn208 %>%
-              dplyr::select(CD_ZT208),
-            by = c("VORI_CD_ZT208" = "CD_ZT208")) %>%
+  left_join(zn1259 %>%
+              dplyr::select(ZT1259),
+            by = c("VORIZT1259" = "ZT1259")) %>%
   st_as_sf()
 ```
 
 ## Plotting:
 
-Figure out which CD_ZT208 correspond to Madrid - we see that CD_ZT208 1 through 59 do so.
-```{r}
-t <- zn_u %>% dplyr::select(CD_ZT208, Municipality) %>% group_by(CD_ZT208,Municipality) %>% summarize() %>% filter(Municipality == "Madrid")
-t
-```
-
 ```{r create-bounding-boxes}
-zn208 <- zn208 %>% mutate(MM = ifelse(str_starts(ZT208,"Madrid"), 1, 0)) %>% filter(MM == 1)
+zn1259_mad <- zn1259 %>% filter(Municipality == "Madrid")
 
-#create the bounding box for the Toronto region + a little extra
-bbox_new1 <- st_bbox(zn208 %>%filter(MM == 1)) # current bounding box
+#create the bounding box for the Madrid city + a little extra
+bbox_new1 <- st_bbox(zn1259_mad) # current bounding box
 
 xrange <- bbox_new1$xmax - bbox_new1$xmin # range of x values
 yrange <- bbox_new1$ymax - bbox_new1$ymin # range of y values
@@ -1091,8 +1084,7 @@ bbox_Madrid_muni <- bbox_new1 %>%  # take the bounding box ...
   st_as_sfc()
 
 sf::sf_use_s2(FALSE) #this terns off the spherical geometry component in the st_union() function - this assumes the sf is just planar. Thats' fine for our purposes
-Madrid_muni_border <- zn208 %>%
-  filter(MM == 1) %>%
+Madrid_muni_border <- zn1259_mad %>%
   st_union()
 ```
 
@@ -1103,7 +1095,7 @@ ggplot() +
           aes(fill = V_i),
           color = NA) +
   scale_fill_distiller(palette = "YlGn", #legend scale bar
-                       name = expression(v["i"]),
+                       name = expression(V["i"]),
                        na.value = "grey90",
                        direction = 1,
                        #trans = "log",
