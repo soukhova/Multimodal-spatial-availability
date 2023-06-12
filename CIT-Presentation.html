@@ -54,27 +54,20 @@ XXX
 -   `\(i\)` is a set of origin locations
 -   `\(j\)` is a set of destination locations
 -   `\(O_j\)` is the number of opportunities at location `\(j\)`
--   `\(f(\cdot)\)` is an impedance function of `\(c_{ij}\)` (cost of moving between `\(i\)` and `\(j\)`) for each mode `\(m\)`
+-   `\(f(\cdot)\)` is an impedance function of `\(c_{ij}\)` (cost of moving between `\(i\)` and `\(j\)`) for each mode `\(m\)`; if binary, the measure if _cumulative opportunities_
 
-**E.g.**, used in _(Tahmasbi et al., 2019)_.
-
-Suffers from the same interpretability issues _(Handy and Niemeier, 1997; Miller et al., 2018)_.
-
-Does not include competition (demand:supply or the mass effect) _(Shen, 1998; Merlin and Hu, 2018)_.
 
 ]
 
-???
-
-Interpretability issues are not resolved when considering multiple modes. 
-
-**e.g.**, used in _(Tahmasbi et al., 2019)_ for quantify access `\(A_i\)` for `\(m\)` walking, public transit, and private car modes to retail store destinations (different `\(f^m(c_{ij}^m)\)` for each `\(m\)`)
-- Suffers from the same interpretability issues _(Handy and Niemeier, 1997; Miller et al., 2018)_
-- Does not include competition (demand:supply or the mass effect) _(Shen, 1998; Merlin and Hu, 2018)_
-
---
-
+-- 
 .pull-right[
+
+**E.g.**, used in _(Tahmasbi et al., 2019)_ to calculate `\(A_i^m\)` (per mode). Variations on how it is combined across modes.
+
+Suffers from the same interpretability issues _(Handy and Niemeier, 1997; Miller et al., 2018)_.
+
+Does not include competition (demand:supply, mass effect) _(Shen, 1998; Merlin and Hu, 2018)_.
+
 ]
 
 ???
@@ -92,13 +85,19 @@ Accessibility:
 
 - it also doesn't consider competition, which has been shown to reflect empirical accessibility to competitive-opportunities worse than competitive accessibility measures. 
 
+
+Interpretability issues are not resolved when considering multiple modes. 
+
+- Used in _(Tahmasbi et al., 2019)_ to quantify access `\(A_i\)` for `\(m\)` walking, public transit, and private car modes to retail store destinations (different `\(f^m(c_{ij}^m)\)` for each `\(m\)`). Variations on how it is combined across modes (if at all) for general accessibility. It varies so widely because interpretation is inconsistent.
+- Suffers from the same interpretability issues _(Handy and Niemeier, 1997; Miller et al., 2018)_
+- Does not include competition (demand:supply or the mass effect) _(Shen, 1998; Merlin and Hu, 2018)_
+
 ---
-count: false
 ## Multi-modal accessibility measures
 
 .pull-left[
 #### Competitive accessibility (Shen-type) - no proportional allocation
-Shen (1998) modified Hansen-type accessibility; popularized as the **two-step floating catchment approach (2SFCA)** by _(Luo and Wang, 2003)_
+Shen (1998) modified Hansen-type accessibility; popularized as the **two-step floating catchment area (2SFCA) method** by _(Luo and Wang, 2003)_
 
 `$$S_i^m = \sum_j \frac{O_jf(c_{ij})^m}{\sum_m D_j^m}$$`
 
@@ -111,12 +110,12 @@ with:
 
 .pull-right[
 
-It considers multi-model competition following the generalized:
+Generalized multi-model competition:
 `$$S_i = \sum_m \biggl(\frac{P_i^m}{P_i}\biggr) \sum_j \frac{O_jf(c_{ij})^m}{\sum_m \sum_i P_{i}^m f(c_{ij})^m}$$`
 
 E.g., used by _Tao et al., 2020_.
 
-However, the resulting value is an accessibility _score_ so interpretation is obfuscated _(Soukhov et al., 2023)_
+However, the resulting value is an accessibility _score_ so interpretation is obfuscated _(Soukhov et al., 2023)_.
 
 ]
 
@@ -173,12 +172,32 @@ count: false
 ]
 
 ---
+count: false
+### Impedance functions - quantifying how subsets of people travel
+
+.left-column[
+
+`\(f(c_{ij})^m\)` is a function of the cost of moving between `\(i\)` and `\(j\)` for modes `\(m\)`.
+
+`\(f(c_{ij})^{\text{t.behav.1}} = \exp(-0.1\cdot c_{ij})\)`
+
+`\(f(c_{ij})^{\text{t.behav.2}} = \exp(-0.6\cdot c_{ij})\)`
+
+`\(f(c_{ij}) = 1\)` if `\(c_{ij} \leq 30\)` else 
+  `\(f(c_{ij}) = 0\)`
+
+]
+
+.right-column[
+![](CIT-Presentation_files/figure-html/comparison-impedance-functions-synthetic-example3-1.png)&lt;!-- --&gt;
+]
+---
 ### Simulated example - Hansen-type accessibility (no competition or proportional allocation consideration)
 
 
 .pull-left[
 
-&lt;img src="Presentations/toy-example.png" width="5600" /&gt;
+&lt;img src="Presentations/toy-example.png" width="5833" /&gt;
 
 ]
 
@@ -186,7 +205,7 @@ count: false
 
 .pull-right[
 
-`\(A_i^m = \sum_jO_jf(c_{ij})^m\)`
+`\(A_i^m = \sum_jO_jf(c_{ij})^m\)` 
 
 Impedance function: `\(f(c_{ij})^{\text{car}} = f(c_{ij})^{\text{pt}} =exp(-0.1 \cdot c_{ij})\)`; 
 
@@ -247,7 +266,7 @@ Impedance function: `\(f(c_{ij})^{\text{car}} = f(c_{ij})^{\text{pt}} =exp(-0.1 
 ### Synthetic example - Shen-type accessibility (no proportional allocation consideration)
 
 .pull-left[
-&lt;img src="Presentations/toy-example.png" width="5600" /&gt;
+&lt;img src="Presentations/toy-example.png" width="5833" /&gt;
 ]
 
 --
@@ -311,13 +330,14 @@ count: false
 ### Synthetic example - Shen-type accessibility (no proportional allocation consideration)
 
 .pull-left[
-&lt;img src="Presentations/toy-example.png" width="5600" /&gt;
+&lt;img src="Presentations/toy-example.png" width="5833" /&gt;
+
 ]
 
 --
 
 .pull-right[
-`\(S_i = \sum_m \biggl(\frac{P_i^m}{P_i}\biggr) \sum_j \frac{O_j f(c_{ij})^m}{\sum_m \sum_i P_{i}^m f(c_{ij})^m}\)`:
+`\(S_i = \sum_m \biggl(\frac{P_i^m}{P_i}\biggr) S_i^m\)`
 &lt;table&gt;
  &lt;thead&gt;
   &lt;tr&gt;
@@ -358,9 +378,9 @@ We can do better, let's use proportional allocation (NOTE: WHY??????????)
 
 .pull-left[
 
-- Spatial availability per origin and mode:
+- Spatial availability considering multi-modes:
 
-`\(V^m_{i} = \sum_{j=1}^J O_j\ F^{t,m}_{ij}\)`
+`\(V^m_{i} = \sum_{j}^J O_j\ F^{t,m}_{ij}\)`
 
 - The proportional allocation factor combines two aspects of the problem, population and cost:
 
@@ -379,15 +399,15 @@ We can do better, let's use proportional allocation (NOTE: WHY??????????)
 
 .pull-right[
 
-- Spatial availability per origin:
+- Total spatial availability: `\(V_{i} = \sum_{m}^M V^m_{i}\)`
+  - Considers **competition** and **proportionally allocates opportunities** (singly-constrained: `\(O = \sum_{j} O_j\)`)
 
-`\(V_{i} = \sum_{m=1}^M V^m_{i}\)`
+- Total spatial availability per capita: `\(v_{i} = \sum_{m} \frac{V_i^m}{P_{i^m}}\)`
+  - Equivalent to Shen-style accessibility 
 
-- Considers **competition** and **proportionally allocates opportunities** (singly-constrained: `\(O = \sum_{j=1}^J O_j\)`)
 ]
+
 ???
-
-
 - So let me introduce spatial availability, it consists of proportional allocation factors and the opportunities. the population allocation factor is the allocation of opportunities, proportional to the population size. It is always a proportion between 0 to 1. 
 
 - The cost factor allocates opportunities proportionally based on the impedance function. The impedance function can be anything - gravity-based like Hansen, cumulative, etc. It is also always a proportion between 0 to 1. 
@@ -401,14 +421,14 @@ We can do better, let's use proportional allocation (NOTE: WHY??????????)
 ### Spatial availability - competitive _and_ proportional allocation
 
 .pull-left[
-&lt;img src="Presentations/toy-example.png" width="5600" /&gt;
+&lt;img src="Presentations/toy-example.png" width="5833" /&gt;
 ]
 
 --
 
 .pull-right[
 
-`\(V^m_{i} = \sum_{j=1}^J O_j\ F^{t,m}_{ij}\)` and `\(\frac{V^m_{i}}{P_{i}^m}\)`
+`\(V^m_{i} = \sum_{j} O_j\ F^{t,m}_{ij}\)` and `\(v^m_{i} = \frac{V^m_{i}}{P_{i}^m}\)`
 
 
 &lt;table&gt;
@@ -462,18 +482,23 @@ We can do better, let's use proportional allocation (NOTE: WHY??????????)
 
 ]
 
+???
+
+- And finally, if you divide spatial availability by the population, it can be simply normalized to be opportunities available per capita. This is equivalent to Shen-style accessibility. Both competitive and singly-constrained 
+
+
 ---
 count: false
 ### Spatial availability - competitive _and_ proportional allocation
 
 .pull-left[
-&lt;img src="Presentations/toy-example.png" width="5600" /&gt;
+&lt;img src="Presentations/toy-example.png" width="5833" /&gt;
 ]
 
 --
 
 .pull-right[
-`\(S_i\)` (eqv. to `\(\frac{V_i}{P_i}\)`) and `\(V_{i} = \sum_{m=1}^M V^m_{i}\)`
+`\(S_i\)` (eqv. to `\(v_i\)`) and `\(V_{i} = \sum_{m=1}^M V^m_{i}\)`
 
 &lt;table&gt;
  &lt;thead&gt;
@@ -500,11 +525,6 @@ count: false
 
 ]
 
---
-
-- And finally, if you divide spatial availability by the population, it can be simply normalized to be opportunities available per capita. This is equivalent to Shen-style accessibility. Both competitive and singly-constrained 
-
-
 
 ???
 XXX
@@ -530,12 +550,12 @@ A NEEED for multi-modal analysis methods that are interpretive and comparative -
 ### Multi-modal home-to-work accessibility in Madrid: 2018 travel survey
 
 .pull-left[
-&lt;img src="Presentations/SA_i_V_zn1259_plot.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="Presentations/SA_i_V_zn1259_plot.png" width="120%" style="display: block; margin: auto;" /&gt;
 Spatial Availability `\(V_i\)` at resolution Zona 1259
 ]
 
 .pull-right[
-&lt;img src="Presentations/SA_i_V_zn208_plot.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="Presentations/SA_i_V_zn208_plot.png" width="120%" style="display: block; margin: auto;" /&gt;
 Spatial Availability `\(V_i\)` at resolution Zona 208
 ]
 
@@ -553,7 +573,7 @@ Spatial Availability `\(V_i^m\)` at resolution Zona 1259
 ---
 class: center
 ### Multi-modal home-to-work accessibility in Madrid: 2018 travel survey
-&lt;img src="Presentations/SA_im_vv_zn1259_plot.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="Presentations/SA_im_vv_zn1259_plot.png" width="45%" style="display: block; margin: auto;" /&gt;
 Spatial Availability by `\(m\)` population ( `\(v_i^m\)` ) at resolution Zona 1259
 
 ???
@@ -591,12 +611,75 @@ class: center, middle, inverse
 
 #### Spatial availability paper:
 &lt;img src="Presentations/spatial-availability.png" width="10%" /&gt;
+
+---
+class: center, middle, inverse
+
+#Extra slides
+
+---
+### Proof: Spatial availability cancels out into Shen-style accessibility
+
+Population allocation factor:
+`\(F^p_{ij} = \frac{P_{i\in r}^\alpha}{\sum_{i}^K P_{i\in r}^\alpha}\)`
+
+`\(F^p_{A} = \frac{P_{A}^\alpha}{P_{A}^\alpha + P_{B}^\alpha + P_{C}^\alpha}\)`
+
+Cost allocation factor:
+`\(F^c_{ij} = \frac{f(c_{ij})}{\sum_{i=A}^K f(c_{ij})}\)`
+
+`\(F^c_{A1} = \frac{f(c_{A1})}{f(c_{A1})+f(c_{B1})+f(c_{C1})}\)`
+`\(F^c_{B1} = \frac{f(c_{A2})}{f(c_{A2})+f(c_{B2})+f(c_{C2})}\)`
+`\(F^c_{C1} = \frac{f(c_{A3})}{f(c_{A3})+f(c_{B3})+f(c_{C3})}\)`
+
+Now let's put it together with P, and see how the denominators end up cancelling out:
+`\(v_{i} = \sum_{j}\frac{O_j}{P_{i\in r}^\alpha}\frac{\frac{P_{i\in r}^\alpha}{\sum_{i}^K P_{i\in r}^\alpha} \cdot \frac{f(c_{ij})}{\sum_{i}^K f(c_{ij})}}{\sum_{i}^K \frac{P_{i\in r}^\alpha}{\sum_{i}^K P_{i\in r}^\alpha} \cdot \frac{f(c_{ij})}{\sum_{i}^K f(c_{ij})}}\)`
+
+???
+
+- we presented this formula to a few accessibility academics and because the way we explained it - from the perspective of proportional allocation - made it appear to be different than shen's. It was a surprise to see the denominators cancel out to equal shen's! 
+
+---
+
+`\(v_{A} = \frac{O_1}{P_{A}^\alpha}(\frac{\frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{A1})}{f(c_{A1})+f(c_{B1})+f(c_{C1})}}{\frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{A1})}{f(c_{A1})+f(c_{B1})+f(c_{C1})} + \frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{B1})}{f(c_{A1})+f(c_{B1})+f(c_{C1})}+ \frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{C1})}{f(c_{A1})+f(c_{B1})+f(c_{C1})}}) +\)`
+
+`\(\frac{O_2}{P_{A}^\alpha}(\frac{\frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{A2})}{f(c_{A2})+f(c_{B2})+f(c_{C2})}}{\frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{A2})}{f(c_{A2})+f(c_{B2})+f(c_{C2})} + \frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{B2})}{f(c_{A2})+f(c_{B2})+f(c_{C2})}+\frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{C2})}{f(c_{A2})+f(c_{B2})+f(c_{C2})}} )+\)`
+
+`\(\frac{O_3}{P_{A}^\alpha}(\frac{\frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{A3})}{f(c_{A3})+f(c_{B3})+f(c_{C3})}}{\frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{A3})}{f(c_{A3})+f(c_{B3})+f(c_{C3})} + \frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{B3})}{f(c_{A3})+f(c_{B3})+f(c_{C3})}+\frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{C3})}{f(c_{A3})+f(c_{B3})+f(c_{C3})}} )\)`
+
+First, notice how the denominator on the denominator is the same across the summation? Let's simplify it:
+
+`\(v_{A} = \frac{O_1}{P_{A}^\alpha}(\frac{\frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{A1})}{f(c_{A1})+f(c_{B1})+f(c_{C1})}}{\frac{P_{A}^\alpha \cdot f(c_{A1}) + P_{A}^\alpha \cdot f(c_{B1}) + P_{A}^\alpha \cdot f(c_{C1})}{(P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha) \cdot (f(c_{A1})+f(c_{B1})+f(c_{C1}))}}) +\)`
+`\(\frac{O_2}{P_{A}^\alpha}(\frac{\frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{A2})}{f(c_{A2})+f(c_{B2})+f(c_{C2})}}{\frac{P_{A}^\alpha \cdot f(c_{A2}) + P_{A}^\alpha \cdot f(c_{B2}) + P_{A}^\alpha \cdot f(c_{C2})}{(P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha) \cdot (f(c_{A2})+f(c_{B2})+f(c_{C2}))}}) +\)`
+`\(\frac{O_3}{P_{A}^\alpha}(\frac{\frac{P_{A}^\alpha}{P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha} \cdot \frac{f(c_{A3})}{f(c_{A3})+f(c_{B3})+f(c_{C3})}}{\frac{P_{A}^\alpha \cdot f(c_{A3}) + P_{A}^\alpha \cdot f(c_{B3}) + P_{A}^\alpha \cdot f(c_{C3})}{(P_{A}^\alpha+P_{B}^\alpha+P_{C}^\alpha) \cdot (f(c_{A3})+f(c_{B3})+f(c_{C3}))}} )\)`
+
+See how the denominator of the denominator is the same as the denominator of the numerator's denominator for each J (J=1, J=2, and J=3)? Let's cancel those out and simplify:
+
+`\(v_{A} = \frac{O_1}{P_{A}^\alpha}(\frac{P_{A}^\alpha \cdot f(c_{A1})}{P_{A}^\alpha \cdot f(c_{A1}) + P_{A}^\alpha \cdot f(c_{B1}) + P_{A}^\alpha \cdot f(c_{C1})} +\)`
+`\(\frac{O_2}{P_{A}^\alpha}\frac{P_{A}^\alpha \cdot f(c_{A2})}{P_{A}^\alpha \cdot f(c_{A2}) + P_{A}^\alpha \cdot f(c_{B2}) + P_{A}^\alpha \cdot f(c_{C2})} +\)`
+`\(\frac{O_3}{P_{A}^\alpha}\frac{P_{A}^\alpha \cdot f(c_{A3})}{P_{A}^\alpha \cdot f(c_{A3}) + P_{A}^\alpha \cdot f(c_{B3}) + P_{A}^\alpha \cdot f(c_{C3})} )\)`
+
+---
+
+Next, see how we can cancel out the `\(P_{A}^\alpha\)`? Let's do that.
+
+`\(v_{A} = O_1(\frac{f(c_{A1})}{P_{A}^\alpha \cdot f(c_{A1}) + P_{B}^\alpha \cdot f(c_{B1}) + P_{C}^\alpha \cdot f(c_{C1})} + O_2\frac{f(c_{A2})}{P_{A}^\alpha \cdot f(c_{A2}) + P_{B}^\alpha \cdot f(c_{B2}) + P_{C}^\alpha \cdot f(c_{C2})} + O_3\frac{f(c_{A3})}{P_{A}^\alpha \cdot f(c_{A3}) + P_{B}^\alpha \cdot f(c_{B3}) + P_{C}^\alpha \cdot f(c_{C3})} )\)`
+
+
+
+
+
+Shen's accessibility:
+
+`\(S_i = \sum_j \frac{O_jf(c_{ij})}{\sum_kP_kf(c_{jk})}\)`
+
+---
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script src="macros.js"></script>
 <script>var slideshow = remark.create({
-"slideNumberFormat": "%current% / 12",
+"slideNumberFormat": "%current% / 14",
 "highlightStyle": "github",
 "highlightLines": true,
 "ratio": "16:9",

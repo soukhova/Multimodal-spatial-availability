@@ -606,21 +606,31 @@ LEZ_centro <- read_sf("data-prep/data-raw/LEZ.shp") %>% st_transform(4326) %>% m
 LEZ_M30 <- read_sf("data-prep/data-raw/Zona_Bajas_Emisiones_MADRID.shp") %>% st_transform(4326)
 
 #creating a list of zones that correspond to the zn208, which indicate if they are in a LEZ.
-LEZ_centro_list <- st_intersection(zn208, LEZ_centro) %>% 
-  st_drop_geometry() %>% 
-  dplyr::select(CD_ZT208) %>% 
-  unlist()
+# LEZ_centro_list <- st_intersection(zn208, LEZ_centro) %>% 
+#   st_drop_geometry() %>% 
+#   dplyr::select(CD_ZT208) %>% 
+#   unlist()
 
-LEZ_M30_list <- st_intersection(zn208, LEZ_M30) %>% 
-  st_drop_geometry() %>% 
-  dplyr::select(CD_ZT208) %>% 
-  unlist()
+# LEZ_M30_list <- st_intersection(zn208, LEZ_M30) %>% 
+#   st_drop_geometry() %>% 
+#   dplyr::select(CD_ZT208) %>% 
+#   unlist()
 
 #import travel times
-load("./data-prep/data-raw/intermed/ttresults/output_OD_bike.Rdata")
-load("./data-prep/data-raw/intermed/ttresults/output_OD_car.Rdata")
-load("./data-prep/data-raw/intermed/ttresults/output_OD_transit.Rdata")
-load("./data-prep/data-raw/intermed/ttresults/output_OD_walk.Rdata")
+load("./data-prep/data-raw/intermed/ttresults/calc_bikett.Rdata")
+load("./data-prep/data-raw/intermed/ttresults/calc_walktt.Rdata")
+load("./data-prep/data-raw/intermed/ttresults/calc_transittt.Rdata")
+load("./data-prep/data-raw/intermed/ttresults/calc_cartt.Rdata")
+```
+
+```{r travel-data-calculated-filtered}
+zn1259_mad <- zn1259 %>% filter(Municipality == "Madrid")
+zn1259_mad_list <- zn1259_mad %>% st_drop_geometry() %>% dplyr::select(ZT1259)
+
+calc_walktt <- calc_walktt %>% filter((VORIZT1259 %in% zn1259_mad_list$ZT1259) & (VDESZT1259 %in% zn1259_mad_list$ZT1259))
+calc_cartt <- calc_cartt %>% filter((VORIZT1259 %in% zn1259_mad_list$ZT1259) & (VDESZT1259 %in% zn1259_mad_list$ZT1259))
+calc_transittt <- calc_transittt %>% filter((VORIZT1259 %in% zn1259_mad_list$ZT1259) & (VDESZT1259 %in% zn1259_mad_list$ZT1259))
+calc_bikett <- calc_bikett %>% filter((VORIZT1259 %in% zn1259_mad_list$ZT1259) & (VDESZT1259 %in% zn1259_mad_list$ZT1259))
 ```
 
 ```{r travel-data-from-survey}
@@ -637,29 +647,58 @@ transit_HW_alltt <- OD_v_HW  %>%
   filter(MODO_PRIORITARIO <= 9) %>% #(1. Renfe Cercanías ', 2. Autobus interurbano, 3. Autobus urbano otro municipio, 4. Metro, 5. Metro ligero/tranvía, 6. Autobus urbano Madrid EMT, 7. Resto renfe, 8. Autobus discrecional, 9. Autobus de largo recorrido)
   transmute(TIEMPO_VIAJES, 
             ELE_G_POND_ESC2,
-            mode = "transit")
+            mode = "transit",
+            VORIZT1259,
+            VDESZT1259)
 
 car_motor_HW_alltt <- OD_v_HW  %>% 
   filter(MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10) %>% #includes both motorcycles and cars (specifically: 10. Taxi, 11. Coche conductor particular, 12. Coche conductor empresa, 13. Coche conductor alquiler sin conductor, 14. Coche pasajero particular, 15. Coche pasajero empresa, 16. Coche pasajero alquiler con conductor, 17. Moto/ciclomotor particular, 18. Moto/ciclomotor publica, 19. Moto/ciclomotor empresa)
   transmute(TIEMPO_VIAJES, 
             ELE_G_POND_ESC2,
-            mode = "car/motor")
+            mode = "car/motor",
+            VORIZT1259,
+            VDESZT1259)
 
 bike_HW_alltt <- OD_v_HW  %>% 
   filter(MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20) %>% #includes cycling and 'otros', specificially: 20. Bicicleta particular, 21. Bicicleta publica, 22. Bicicleta empresa, 23. Otros)
   transmute(TIEMPO_VIAJES, 
             ELE_G_POND_ESC2,
-            mode = "bike")
+            mode = "bike",
+            VORIZT1259,
+            VDESZT1259)
 
 walk_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO == 24) %>% #"24. Andando/pie"
   transmute(TIEMPO_VIAJES,
             ELE_G_POND_ESC2,
-            mode = "walk")
+            mode = "walk",
+            VORIZT1259,
+            VDESZT1259)
 ```
 
+```{r seeing-how-similar-calc-tt-is-to-survey}
+#Let's see how similar the calc tt is to the survey (only Madrid city travel times). We can see that transit is the most worrisome -- calculating travel times from some arbitrary point in the center of the TAZ is not very accurate. Also travel times for all active modes should also be calculated for trips between 60-120mins (not only 0-60mins). For now let's only work with the survey data.
+
+#walk
+compare_walktts <- calc_walktt %>% merge(walk_HW_alltt, by=c("VORIZT1259", "VDESZT1259")) %>% dplyr::select(-c("ELE_G_POND_ESC2", "mode"))
+compare_walktts %>% summary()
+
+#bike
+compare_biketts <- calc_bikett %>% merge(bike_HW_alltt, by=c("VORIZT1259", "VDESZT1259")) %>% dplyr::select(-c("ELE_G_POND_ESC2", "mode"))
+compare_biketts %>% summary()
+
+#car
+compare_cartts <- calc_cartt %>% merge(car_motor_HW_alltt, by=c("VORIZT1259", "VDESZT1259")) %>% dplyr::select(-c("ELE_G_POND_ESC2", "mode"))
+compare_cartts %>% summary()
+
+#transit 
+compare_transittts <- calc_transittt %>% merge(transit_HW_alltt, by=c("VORIZT1259", "VDESZT1259")) %>% dplyr::select(-c("ELE_G_POND_ESC2", "mode"))
+compare_transittts %>% summary()
+```
 
 ```{r fitting-impedance-function1}
-#see which curve could fit the best using the descdist() function 
+#see which curve will fit the best using the descdist() function. This is to calibrate an impedance function for each mode based on the travel survey
+
+#NOTE: maybe we can try a distance based distribution???? Not really convinced why would could - perhaps to include all modes?
 
 #transit
 transit_HW_alltt_long <- transit_HW_alltt[rep(seq_len(dim(transit_HW_alltt %>% dplyr::select(-mode))[1]), transit_HW_alltt$ELE_G_POND_ESC2), 1]
@@ -881,7 +920,8 @@ OD_v_HW <- OD_v_HW  %>%
 workers <- OD_v_HW %>%
   group_by(VORIZT1259,
            mode) %>%
-  summarize(workers = sum(ELE_G_POND_ESC2), #we should be summing the number of workers by the weight but we don't have a weight... so for now, 1 row = 1 trip. 
+  summarize(workers = sum(ELE_G_POND_ESC2), 
+            total_ttworkers = sum(workers*mean(TIEMPO_VIAJES)),
             .groups = "drop")%>%
   rename(ZT1259 = VORIZT1259)
 
@@ -891,6 +931,21 @@ jobs <- OD_v_HW %>%
   summarize(jobs = sum(ELE_G_POND_ESC2),
             .groups = "drop") %>%
   rename(ZT1259 = VDESZT1259)
+
+#let's also do this for zn208
+workers_zn208 <- OD_v_HW %>%
+  group_by(VORI_CD_ZT208,
+           mode) %>%
+  summarize(workers = sum(ELE_G_POND_ESC2),
+            total_ttworkers = sum(workers*mean(TIEMPO_VIAJES)),
+            .groups = "drop") %>%
+  rename(CD_ZT208 = VORI_CD_ZT208) 
+
+jobs_zn208 <- OD_v_HW %>%
+  group_by(VDES_CD_ZT208) %>%
+  summarize(jobs = sum(ELE_G_POND_ESC2),
+            .groups = "drop") %>%
+  rename(CD_ZT208 = VDES_CD_ZT208)
 ```
 
 Next join the number of workers summed at each origin to the ZN simple features object:
@@ -906,6 +961,17 @@ jobs_sf <- jobs %>%
   left_join(zn1259,
             by = "ZT1259") %>%
   st_as_sf()
+
+#for zn208
+workers_sf_zn208 <- workers_zn208 %>%
+  left_join(zn208,
+            by = "CD_ZT208") %>%
+  st_as_sf()
+
+jobs_sf_zn208 <- jobs_zn208 %>%
+  left_join(zn208,
+            by = "CD_ZT208") %>%
+  st_as_sf()
 ```
 
 Now we reshape the data. Each row will represent an any origin to to 1 destination (i.e., destination row is unique). We will average the travel times, by mode, and then use this average travel time to find the 'f' (impedance value for travel for each mode). Hint: this is why we needed to find the impedance function in the first place! The functions represent the cost of travel for each mode based on the travel time for a trip, since we are averaging together the travel time for each mode.
@@ -917,8 +983,22 @@ OD <- OD_v_HW %>%
   summarize(tt = mean(TIEMPO_VIAJES),
             .groups = "drop")
 
-# Check the mean and median travel times by mode
+OD_zn208 <- OD_v_HW %>%
+  group_by(VORI_CD_ZT208,
+           VDES_CD_ZT208,
+           mode) %>%
+  summarize(tt = mean(TIEMPO_VIAJES),
+            .groups = "drop")
+
+# Check the mean and median travel times by mode, the first is at the level of zn1259 and the second is at zn208
 OD %>% 
+  group_by(mode) %>% 
+  summarize(mean_tt = mean(tt),
+            median_tt = median(tt),
+            min_tt = min(tt),
+            max_tt = max(tt))
+
+OD_zn208 %>% 
   group_by(mode) %>% 
   summarize(mean_tt = mean(tt),
             median_tt = median(tt),
@@ -936,17 +1016,35 @@ OD_2 <- OD_2 %>%
   left_join(jobs,
             by = c("VDESZT1259" = "ZT1259"))
 
-#THIS IS TOO MANY!
-```
+#let's also do this at the level of zn208
+OD_3 <- OD_zn208 %>%
+  left_join(workers_zn208,
+            by = c("VORI_CD_ZT208" = "CD_ZT208", "mode"))
 
-Preview the table for one origin and one destination, as an example:
-```{r}
-# OD_2 %>% filter(VORIZT1259 == "079-09-225" & VDESZT1259 == 2) #explanation: 'workers' corresponds to the people who leave ORI 1 to go to any destination by mode (P_im) (e.g., 5 workers leave ORI 1 by bike to go to a job somewhere in the region). 'jobs' corresponds to the number of workers that come to DES 2 as a job destination in the region (sum_m O_j). 'tt' corresponds to the average travel time for i to j per mode (avg. c_ijm) (e.g., only 1 trip is made by bike from ORI 1 to DES 2 and it is 5 mins, so the average travel time is 5 mins) -- this c_ijm will be used to calculate f(c_ijm). 
+OD_3 <- OD_3 %>%
+  left_join(jobs_zn208,
+            by = c("VDES_CD_ZT208" = "CD_ZT208"))
+
 ```
 
 Estimate f value using these averaged travel times:
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 OD_2 <- OD_2 %>%
+  mutate(f = case_when(mode == "transit" ~ dgamma(tt,
+                                                  HW_transit_gamma$estimate["shape"], 
+                                                  HW_transit_gamma$estimate["rate"]),
+                       mode == "car/motor" ~ dgamma(tt,
+                                                    HW_car_motor_gamma$estimate["shape"],
+                                                    HW_car_motor_gamma$estimate["rate"]),
+                       mode == "bike" ~ dlnorm(tt,
+                                               HW_bike_lnorm$estimate["meanlog"],
+                                               HW_bike_lnorm$estimate["sdlog"]),
+                       mode == "walk" ~ dlnorm(tt, 
+                                               HW_walk_lnorm$estimate["meanlog"], 
+                                               HW_walk_lnorm$estimate["sdlog"])))
+
+#also for zn208
+OD_3 <- OD_3 %>%
   mutate(f = case_when(mode == "transit" ~ dgamma(tt,
                                                   HW_transit_gamma$estimate["shape"], 
                                                   HW_transit_gamma$estimate["rate"]),
@@ -973,24 +1071,50 @@ OD_SA <- OD_2 %>%
                           opp = jobs,
                           r = catch,
                           f = f))
+
+#and for zn208
+OD_SA_zn208 <- OD_3 %>%
+  mutate(catch = 1) %>%
+  mutate(SA_ij = sp_avail(., 
+                          o_id = VORI_CD_ZT208,
+                          d_id = VDES_CD_ZT208,
+                          pop = workers,
+                          opp = jobs,
+                          r = catch,
+                          f = f))
 ```
 
 Check that the totals are maintained, it is!:
 ```{r}
 sum(OD_SA$SA_ij, na.rm = T)
+sum(OD_SA_zn208$SA_ij, na.rm = T)
 sum(jobs$jobs)
+
 sum(OD_SA$tt)
+sum(OD_SA_zn208$tt)
+
+sum(OD_SA$total_ttworkers)
+sum(OD_SA_zn208$total_ttworkers)
 ```
-Spatial availability by mode, we can see that car mode captures 43% of the spatial availability but only accounts for 30% of the tt_ijm !!:
+Spatial availability by mode, we can see that car mode captures ~43% of the spatial availability but only accounts for ~30% of the tt_ijm !!:
 ```{r}
 OD_SA %>%
   group_by(mode) %>%
   summarize(V_m = sum(SA_ij),
             V_m_perc = sum(SA_ij)/847574,
-            tt_m = sum(tt)/435061.9)
+            tt_m = sum(tt)/435061.9,
+            ttworkers = sum(total_ttworkers)/440728388)
+
+#for zn208
+OD_SA_zn208 %>%
+  group_by(mode) %>%
+  summarize(V_m = sum(SA_ij),
+            V_m_perc = sum(SA_ij)/847574,
+            tt_m = sum(tt)/185686.1,
+            ttworkers = sum(total_ttworkers)/1211991264)
 ```
 
-Okay, let's preform a few more checks and then aggregate spatial availability by origin (zn208) and by origin,mode.
+Okay, let's preform a few more checks and then aggregate spatial availability by origin (for both zn1259 and zn208(less 'NAs')) and by origin,mode.
 
 Spatial availability by origin (with check). Here we represent spatial availability per origin across all modes for each i. We know that car mode represents the majority of spatial availability per i overall:
 ```{r}
@@ -1000,6 +1124,14 @@ SA_i <- OD_SA %>%
 
 summary(SA_i) 
 sum(SA_i$V_i)
+
+#zn208
+SA_i_zn208 <- OD_SA_zn208 %>%
+  group_by(VORI_CD_ZT208) %>%
+  summarize(V_i = sum(SA_ij))
+
+summary(SA_i_zn208) 
+sum(SA_i_zn208$V_i)
 ```
 
 But we can suspect that the spatial distribution of SA is uneven depending on the mode. So here we represent Spatial availability by origin, mode (with check):
@@ -1012,6 +1144,16 @@ SA_im <- OD_SA %>%
 
 summary(SA_im)
 sum(SA_im$V_im)
+
+#zn208
+SA_im_zn208 <- OD_SA_zn208 %>%
+  group_by(VORI_CD_ZT208, 
+           mode) %>%
+  summarize(V_im = sum(SA_ij),
+            .groups = "drop")
+
+summary(SA_im_zn208)
+sum(SA_im_zn208$V_im)
 ```
 
 Let's preform some more checks. Calculate worker population by zone of origin:
@@ -1021,6 +1163,13 @@ population <- workers %>%
   summarize(population = sum(workers))
 
 sum(population$population)
+
+#zn208
+population_zn208 <- workers_zn208 %>%
+  group_by(CD_ZT208) %>%
+  summarize(population = sum(workers))
+
+sum(population_zn208$population)
 ```
 
 Finally, let's join the zonal worker population to the SA_i and SA_im spatial objects (with checks):
@@ -1034,6 +1183,17 @@ SA_im <- SA_im %>%
   left_join(population,
             by = c("VORIZT1259" = "ZT1259"))
 sum(SA_im$V_im)
+
+#zn208
+SA_i_zn208 <- SA_i_zn208 %>%
+  left_join(population_zn208,
+            by = c("VORI_CD_ZT208" = "CD_ZT208"))
+sum(SA_i_zn208$V_i)
+
+SA_im_zn208 <- SA_im_zn208 %>%
+  left_join(population_zn208,
+            by = c("VORI_CD_ZT208" = "CD_ZT208"))
+sum(SA_im_zn208$V_im)
 ```
 
 To facilitate the interpretation of spatial availability, here we calculate spatial availability per capita:
@@ -1047,6 +1207,17 @@ SA_im <- SA_im %>%
   mutate(v_im = V_im/population)
 
 summary(SA_im)
+
+#zn208
+SA_i_zn208 <- SA_i_zn208 %>%
+  mutate(v_i = V_i/population)
+
+summary(SA_i_zn208)
+
+SA_im_zn208 <- SA_im_zn208 %>%
+  mutate(v_im = V_im/population)
+
+summary(SA_im_zn208)
 ```
 
 Lastly, join geometry of zones to SA so we can visualize:
@@ -1062,13 +1233,24 @@ SA_im <- SA_im %>%
               dplyr::select(ZT1259),
             by = c("VORIZT1259" = "ZT1259")) %>%
   st_as_sf()
+
+#zn208
+SA_i_zn208 <- SA_i_zn208 %>%
+  left_join(zn208 %>%
+              dplyr::select(CD_ZT208),
+            by =c("VORI_CD_ZT208" = "CD_ZT208")) %>%
+  st_as_sf()
+
+SA_im_zn208 <- SA_im_zn208 %>%
+  left_join(zn208 %>%
+              dplyr::select(CD_ZT208),
+            by = c("VORI_CD_ZT208" = "CD_ZT208")) %>%
+  st_as_sf()
 ```
 
 ## Plotting:
 
 ```{r create-bounding-boxes}
-zn1259_mad <- zn1259 %>% filter(Municipality == "Madrid")
-
 #create the bounding box for the Madrid city + a little extra
 bbox_new1 <- st_bbox(zn1259_mad) # current bounding box
 
@@ -1088,14 +1270,195 @@ Madrid_muni_border <- zn1259_mad %>%
   st_union()
 ```
 
-Plot V (spatial availability) by origin:
+Plot V (spatial availability) by origin (first zn1259 then zn208):
 ```{r}
-ggplot() +
+SA_i_V_zn208_plot <- ggplot() +
+  geom_sf(data = SA_i_zn208,
+          aes(fill = V_i),
+          color = NA) +
+  scale_fill_distiller(palette = "YlGn", #legend scale bar
+                       name = expression(V["i"]),
+                       na.value = "grey90",
+                       direction = 1,
+                       label = c("14.7 (min.)", "6248 (1st qu.)", " ", "17768 (3rd qu.)\n14613 (mean)", "51655 (max.)"), 
+                       breaks = c(0, quantile(SA_i_zn208$V_i)[2], mean(SA_i_zn208$V_i), quantile(SA_i_zn208$V_i)[4], max(SA_i_zn208$V_i)),
+                       limits = c(0, max(SA_i_zn208$V_i)))+
+  geom_sf(data = Madrid_muni_border, # border for Madrid muni
+          colour=alpha("black",1), 
+          size = 0.5, 
+          fill=NA, 
+          show.legend = "polygon") +
+  geom_sf(data = LEZ_centro, 
+          colour=alpha("red",1), 
+          size = 0.5, 
+          fill = NA) + 
+  geom_sf(data = LEZ_M30, 
+          colour=alpha("cyan",1), 
+          size = 0.5, 
+          fill = NA) +
+annotation_north_arrow(location = "tl", # north arrow for both the main plot and inset
+                         height = unit(0.7, "cm"), 
+                         width = unit(0.7, "cm"),
+                         style = north_arrow_orienteering(line_width = 0.25,
+                                                          line_col = "dimgrey", 
+                                                          fill = c("white","dimgrey"))) +
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm")) +
+  theme_void() +
+  theme(legend.key.width = unit(0.2, 'cm')) # positing legend and clipping out white space
+
+SA_i_V_plot <- ggplot() +
   geom_sf(data = SA_i,
           aes(fill = V_i),
           color = NA) +
   scale_fill_distiller(palette = "YlGn", #legend scale bar
                        name = expression(V["i"]),
+                       na.value = "grey90",
+                       direction = 1,
+                       label = c("0.9 (min.)", "697 (1st qu.)", "1842 (mean)", "2520 (3rd qu.)", "7463 (max.)"), 
+                       breaks = c(0, quantile(SA_i$V_i)[2], mean(SA_i$V_i), quantile(SA_i$V_i)[4], max(SA_i$V_i)),
+                       limits = c(0, max(SA_i$V_i)))+
+  geom_sf(data = Madrid_muni_border, # border for Madrid muni
+          colour=alpha("black",1), 
+          size = 0.5, 
+          fill=NA, 
+          show.legend = "polygon") +
+  geom_sf(data = LEZ_centro, 
+          colour=alpha("red",1), 
+          size = 0.5, 
+          fill = NA) + 
+  geom_sf(data = LEZ_M30, 
+          colour=alpha("cyan",1), 
+          size = 0.5, 
+          fill = NA) +
+  annotation_north_arrow(location = "tl", # north arrow for both the main plot and inset
+                         height = unit(0.7, "cm"), 
+                         width = unit(0.7, "cm"),
+                         style = north_arrow_orienteering(line_col = "dimgrey", 
+                                                          fill = c("white","dimgrey"))) +
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm")) +
+  theme_void() +
+  theme(legend.key.width = unit(0.2, 'cm')) # positing legend and clipping out white space
+```
+
+```{r}
+SA_i_V_zn208_plot
+ggsave("Presentations/SA_i_V_zn208_plot.png")
+```
+
+```{r}
+SA_i_V_plot
+ggsave("Presentations/SA_i_V_zn1259_plot.png")
+```
+
+Plot v (spatial availability per capita) by origin (first zn1259 then zn208):
+```{r}
+SA_i_v_plot <- ggplot() +
+  geom_sf(data = SA_i,
+          aes(fill = v_i),
+          color = NA) +
+  scale_fill_gradient2(name = expression(v["i"]),
+                       midpoint = 1,
+                       na.value = "grey90")+
+  geom_sf(data = Madrid_muni_border, # border for Madrid muni
+          colour=alpha("black",1), 
+          size = 0.5, 
+          fill=NA, 
+          show.legend = "polygon") +
+  geom_sf(data = LEZ_centro, 
+          colour=alpha("red",1), 
+          size = 0.5, 
+          fill = NA) + 
+  geom_sf(data = LEZ_M30, 
+          colour=alpha("cyan",1), 
+          size = 0.5, 
+          fill = NA) +
+  annotation_north_arrow(location = "tl", # north arrow for both the main plot and inset
+                         height = unit(0.7, "cm"), 
+                         width = unit(0.7, "cm"),
+                         style = north_arrow_orienteering(line_col = "dimgrey", 
+                                                          fill = c("white","dimgrey"))) +
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm")) +
+  theme_void() +
+  theme(legend.key.width = unit(0.2, 'cm')) # positing legend and clipping out white space
+
+SA_i_v_zn208_plot <- ggplot() +
+  geom_sf(data = SA_i_zn208,
+          aes(fill = v_i),
+          color = NA) +
+  scale_fill_gradient2(name = expression(v["i"]),
+                       midpoint = 1,
+                       na.value = "grey90")+
+  geom_sf(data = Madrid_muni_border, # border for Madrid muni
+          colour=alpha("black",1), 
+          size = 0.5, 
+          fill=NA, 
+          show.legend = "polygon") +
+  geom_sf(data = LEZ_centro, 
+          colour=alpha("red",1), 
+          size = 0.5, 
+          fill = NA) + 
+  geom_sf(data = LEZ_M30, 
+          colour=alpha("cyan",1), 
+          size = 0.5, 
+          fill = NA) +
+  annotation_north_arrow(location = "tl", # north arrow for both the main plot and inset
+                         height = unit(0.7, "cm"), 
+                         width = unit(0.7, "cm"),
+                         style = north_arrow_orienteering(line_col = "dimgrey", 
+                                                          fill = c("white","dimgrey"))) +
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm")) +
+  theme_void() +
+  theme(legend.key.width = unit(0.2, 'cm')) # positing legend and clipping out white space
+```
+```{r}
+SA_i_v_zn208_plot
+ggsave("Presentations/SA_i_vv_zn208_plot.png")
+```
+```{r}
+SA_i_v_plot
+ggsave("Presentations/SA_i_vv_zn1259_plot.png")
+```
+
+Plot V (spatial availability) by origin-mode (first zn1259 then zn208):
+```{r}
+SA_im_V_plot <- ggplot() +
+  geom_sf(data = SA_im,
+          aes(fill = V_im),
+          color = NA) +
+  scale_fill_distiller(palette = "YlGn", #legend scale bar
+                       name = expression(V["im"]),
+                       na.value = "grey90",
+                       direction = 1)+
+  geom_sf(data = Madrid_muni_border, # border for Madrid munim
+          colour=alpha("black",1), 
+          size = 0.5, 
+          fill=NA, 
+          show.legend = "polygon") +
+  geom_sf(data = LEZ_centro, 
+          colour=alpha("red",1), 
+          size = 0.5, 
+          fill = NA) + 
+  geom_sf(data = LEZ_M30, 
+          colour=alpha("cyan",1), 
+          size = 0.5, 
+          fill = NA) +
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm")) +
+  theme_void() +
+  theme(legend.key.width = unit(0.2, 'cm')) +
+  facet_wrap(~mode, nrow = 2)
+
+#zn208
+SA_im_V_zn208_plot <- ggplot() +
+  geom_sf(data = SA_im_zn208,
+          aes(fill = V_im),
+          color = NA) +
+  scale_fill_distiller(palette = "YlGn", #legend scale bar
+                       name = expression(V["im"]),
                        na.value = "grey90",
                        direction = 1,
                        #trans = "log",
@@ -1114,19 +1477,83 @@ ggplot() +
           colour=alpha("cyan",1), 
           size = 0.5, 
           fill = NA) +
-  annotation_north_arrow(location = "tl", # north arrow for both the main plot and inset
-                         height = unit(0.8, "cm"), 
-                         width = unit(0.8, "cm"),
-                         style = north_arrow_orienteering(line_width = 0.25,
-                                                          line_col = "dimgrey", 
-                                                          fill = c("white","dimgrey"))) +
   annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
                    height = unit(0.15, "cm")) +
   theme_void() +
-  theme(legend.position = c(1.10, 0.25), 
-        plot.margin = margin(t = 0, r = 0, b = 0, l = -80)) # positing legend and clipping out white space
+  theme(legend.key.width = unit(0.2, 'cm')) +
+  facet_wrap(~mode, nrow = 2)
+```
+```{r}
+SA_im_V_plot
+ggsave("Presentations/SA_im_V_zn1259_plot.png")
+```
+```{r}
+SA_im_V_zn208_plot
+ggsave("Presentations/SA_im_V_zn208_plot.png")
 ```
 
+Plot v (spatial availability per capita) by origin (first zn1259 then zn208):
+```{r}
+SA_im_v_plot <- ggplot() +
+  geom_sf(data = SA_im,
+          aes(fill = v_im),
+          color = NA) +
+  scale_fill_gradient2(name = expression(v["i"]),
+                       midpoint = 1,
+                       mid = "grey80")+
+  geom_sf(data = Madrid_muni_border, # border for Madrid muni
+          colour=alpha("black",1), 
+          size = 0.5, 
+          fill=NA, 
+          show.legend = "polygon") +
+  geom_sf(data = LEZ_centro, 
+          colour=alpha("red",1), 
+          size = 0.5, 
+          fill = NA) + 
+  geom_sf(data = LEZ_M30, 
+          colour=alpha("cyan",1), 
+          size = 0.5, 
+          fill = NA) +
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm")) +
+  theme_void() +
+  theme(legend.key.width = unit(0.2, 'cm')) +
+  facet_wrap(~mode, nrow = 2)
+
+SA_im_v_zn208_plot <- ggplot() +
+  geom_sf(data = SA_im_zn208,
+          aes(fill = v_im),
+          color = NA) +
+  scale_fill_gradient2(name = expression(v["i"]),
+                       midpoint = 1,
+                       mid = "grey80")+
+  geom_sf(data = Madrid_muni_border, # border for Madrid muni
+          colour=alpha("black",1), 
+          size = 0.5, 
+          fill=NA, 
+          show.legend = "polygon") +
+  geom_sf(data = LEZ_centro, 
+          colour=alpha("red",1), 
+          size = 0.5, 
+          fill = NA) + 
+  geom_sf(data = LEZ_M30, 
+          colour=alpha("cyan",1), 
+          size = 0.5, 
+          fill = NA) +
+  annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
+                   height = unit(0.15, "cm")) +
+  theme_void() +
+  theme(legend.key.width = unit(0.2, 'cm')) +
+  facet_wrap(~mode, nrow = 2)
+```
+```{r}
+SA_im_v_plot
+ggsave("Presentations/SA_im_vv_zn1259_plot.png")
+```
+```{r}
+SA_im_v_zn208_plot
+ggsave("Presentations/SA_im_vv_zn208_plot.png")
+```
 
 <!-- Two scenarios: -->
 <!-- - 2018: the small low emission zone -->
