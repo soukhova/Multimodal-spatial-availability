@@ -1,0 +1,230 @@
+\begin{thebibliography}{30}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Hansen()]{hansenHowAccessibilityShapes1959}
+Walter~G. Hansen.
+\newblock How accessibility shapes land use.
+\newblock 25\penalty0 (2):\penalty0 73--76.
+\newblock ISSN 0002-8991.
+\newblock \doi{10.1080/01944365908978307}.
+\newblock URL \url{http://www.tandfonline.com/doi/abs/10.1080/01944365908978307}.
+
+\bibitem[Levinson and King()]{levinsonTransportAccessManual2020}
+David Levinson and David King.
+\newblock \emph{Transport Access Manual: {{A}} Guide for Measuring Connection between People and Places.}
+\newblock URL \url{https://ses.library.usyd.edu.au/handle/2123/23733}.
+
+\bibitem[Gower and Grodach()]{gowerPlanningInnovationCity2022}
+Alexa Gower and Carl Grodach.
+\newblock Planning innovation or city branding? exploring how cities operationalise the 20-minute neighbourhood concept.
+\newblock 40\penalty0 (1):\penalty0 36--52.
+\newblock ISSN 0811-1146, 1476-7244.
+\newblock \doi{10.1080/08111146.2021.2019701}.
+\newblock URL \url{https://www.tandfonline.com/doi/full/10.1080/08111146.2021.2019701}.
+
+\bibitem[Siddiq and D.~Taylor()]{siddiqToolsTradeAssessing2021}
+Fariba Siddiq and Brian D.~Taylor.
+\newblock Tools of the trade?: Assessing the progress of accessibility measures for planning practice.
+\newblock 87\penalty0 (4):\penalty0 497--511.
+\newblock ISSN 0194-4363, 1939-0130.
+\newblock \doi{10.1080/01944363.2021.1899036}.
+\newblock URL \url{https://www.tandfonline.com/doi/full/10.1080/01944363.2021.1899036}.
+
+\bibitem[Yan()]{yanAccessibilityBasedPlanningAddressing2021}
+X~Yan.
+\newblock Toward accessibility-based planning addressing the myth of travel cost savings.
+\newblock 87\penalty0 (3):\penalty0 409--423.
+\newblock ISSN 0194-4363.
+\newblock \doi{10.1080/01944363.2020.1850321}.
+
+\bibitem[Fiksel()]{fikselSustainabilityResilienceSystems2006}
+Joseph Fiksel.
+\newblock Sustainability and resilience: toward a systems approach.
+\newblock 2\penalty0 (2):\penalty0 14--21.
+\newblock ISSN 1548-7733.
+\newblock \doi{10.1080/15487733.2006.11907980}.
+\newblock URL \url{https://www.tandfonline.com/doi/full/10.1080/15487733.2006.11907980}.
+
+\bibitem[Valença et~al.()Valença, Moura, and Morais De~Sá]{valencaMainChallengesOpportunities2021}
+Gabriel Valença, Filipe Moura, and Ana Morais De~Sá.
+\newblock Main challenges and opportunities to dynamic road space allocation: From static to dynamic urban designs.
+\newblock 1:\penalty0 100008.
+\newblock ISSN 26670917.
+\newblock \doi{10.1016/j.urbmob.2021.100008}.
+\newblock URL \url{https://linkinghub.elsevier.com/retrieve/pii/S266709172100008X}.
+
+\bibitem[Lee and Miller()]{leeMeasuringImpactsNew2018}
+Jinhyung Lee and Harvey~J. Miller.
+\newblock Measuring the impacts of new public transit services on space-time accessibility: An analysis of transit system redesign and new bus rapid transit in columbus, ohio, {USA}.
+\newblock 93:\penalty0 47--63.
+\newblock ISSN 01436228.
+\newblock \doi{10.1016/j.apgeog.2018.02.012}.
+\newblock URL \url{https://linkinghub.elsevier.com/retrieve/pii/S014362281730930X}.
+
+\bibitem[family=Mohri et~al.()family=Mohri, Mortazavi, and Nassir]{mohriClusteringMethodMeasuring2021}
+given-i=SS family=Mohri, given=SS, S~Mortazavi, and N~Nassir.
+\newblock A clustering method for measuring accessibility and equity in public transportation service: {{Case}} study of {{Melbourne}}.
+\newblock 74.
+\newblock \doi{10.1016/j.scs.2021.103241}.
+
+\bibitem[Mao and Nekorchuk()]{maoMeasuringSpatialAccessibility2013}
+Liang Mao and Dawn Nekorchuk.
+\newblock Measuring spatial accessibility to healthcare for populations with multiple transportation modes.
+\newblock 24:\penalty0 115--122.
+\newblock ISSN 13538292.
+\newblock \doi{10.1016/j.healthplace.2013.08.008}.
+\newblock URL \url{https://linkinghub.elsevier.com/retrieve/pii/S1353829213001135}.
+
+\bibitem[Tarriño-Ortiz et~al.({\natexlab{a}})Tarriño-Ortiz, Soria-Lara, Gómez, and Vassallo]{tarrinoortizPublicAcceptabilityLow2021}
+Javier Tarriño-Ortiz, Julio~A. Soria-Lara, Juan Gómez, and José~Manuel Vassallo.
+\newblock Public acceptability of low emission zones: The case of “madrid central”.
+\newblock 13\penalty0 (6):\penalty0 3251, {\natexlab{a}}.
+\newblock ISSN 2071-1050.
+\newblock \doi{10.3390/su13063251}.
+\newblock URL \url{https://www.mdpi.com/2071-1050/13/6/3251}.
+\newblock Number: 6 Publisher: Multidisciplinary Digital Publishing Institute.
+
+\bibitem[De~Vrij and Vanoutrive()]{devrijNooneVisitsMe2022}
+Eva De~Vrij and Thomas Vanoutrive.
+\newblock ‘no-one visits me anymore’: Low emission zones and social exclusion via sustainable transport policy.
+\newblock URL \url{https://www.tandfonline.com/doi/epdf/10.1080/1523908X.2021.2022465?needAccess=true&role=button}.
+\newblock {ISSN}: 1523-908X.
+
+\bibitem[Verbeek and Hincks()]{verbeekJustManagementUrban2022}
+Thomas Verbeek and Stephen Hincks.
+\newblock The ‘just’ management of urban air pollution? a geospatial analysis of low emission zones in brussels and london.
+\newblock 140:\penalty0 102642.
+\newblock ISSN 01436228.
+\newblock \doi{10.1016/j.apgeog.2022.102642}.
+\newblock URL \url{https://linkinghub.elsevier.com/retrieve/pii/S0143622822000133}.
+
+\bibitem[Soukhov et~al.()Soukhov, Paez, Higgins, and Mohamed]{soukhovIntroducingSpatialAvailability2023}
+Anastasia Soukhov, Antonio Paez, Christopher~D. Higgins, and Moataz Mohamed.
+\newblock Introducing spatial availability, a singly-constrained measure of competitive accessibility | {{PLOS ONE}}.
+\newblock pages 1--30.
+\newblock \doi{https:// doi.org/10.1371/journal.pone.0278468}.
+\newblock URL \url{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0278468}.
+
+\bibitem[Tahmasbi et~al.()Tahmasbi, Mansourianfar, Haghshenas, and Kim]{tahmasbiMultimodalAccessibilitybasedEquity2019}
+Behnam Tahmasbi, Mohammad~Hadi Mansourianfar, Hossein Haghshenas, and Inhi Kim.
+\newblock Multimodal accessibility-based equity assessment of urban public facilities distribution.
+\newblock 49:\penalty0 101633.
+\newblock ISSN 22106707.
+\newblock \doi{10.1016/j.scs.2019.101633}.
+\newblock URL \url{https://linkinghub.elsevier.com/retrieve/pii/S2210670719300940}.
+
+\bibitem[Luo and Wang()]{luoMeasuresSpatialAccessibility2003}
+Wei Luo and Fahui Wang.
+\newblock Measures of spatial accessibility to health care in a {GIS} environment: Synthesis and a case study in the chicago region.
+\newblock 30\penalty0 (6):\penalty0 865--884.
+\newblock ISSN 0265-8135, 1472-3417.
+\newblock \doi{10.1068/b29120}.
+\newblock URL \url{http://journals.sagepub.com/doi/10.1068/b29120}.
+
+\bibitem[Shen()]{shenLocationCharacteristicsInnercity1998}
+Q~Shen.
+\newblock Location characteristics of inner-city neighborhoods and employment accessibility of low-wage workers.
+\newblock 25\penalty0 (3):\penalty0 345--365.
+\newblock ISSN 0265-8135, 1472-3417.
+\newblock \doi{10.1068/b250345}.
+\newblock URL \url{http://epb.sagepub.com/lookup/doi/10.1068/b250345}.
+
+\bibitem[Weibull()]{weibullAxiomaticApproachMeasurement1976}
+Jörgen~W. Weibull.
+\newblock An axiomatic approach to the measurement of accessibility.
+\newblock 6\penalty0 (4):\penalty0 357--379.
+\newblock ISSN 01660462.
+\newblock \doi{10.1016/0166-0462(76)90031-4}.
+\newblock URL \url{https://linkinghub.elsevier.com/retrieve/pii/0166046276900314}.
+
+\bibitem[Joseph and Bantock()]{josephMeasuringPotentialPhysical1982}
+Alun~E. Joseph and Peter~R. Bantock.
+\newblock Measuring potential physical accessibility to general practitioners in rural areas: A method and case study.
+\newblock 16\penalty0 (1):\penalty0 85--90.
+\newblock ISSN 02779536.
+\newblock \doi{10.1016/0277-9536(82)90428-2}.
+\newblock URL \url{https://linkinghub.elsevier.com/retrieve/pii/0277953682904282}.
+
+\bibitem[Tao et~al.()Tao, Zhou, Lin, Chao, and Li]{taoInvestigatingImpactsPublic2020a}
+Zhuolin Tao, Jiangping Zhou, Xiongbin Lin, Heng Chao, and Guicai Li.
+\newblock Investigating the impacts of public transport on job accessibility in {{Shenzhen}}, {{China}}: A multi-modal approach.
+\newblock 99:\penalty0 105025.
+\newblock ISSN 02648377.
+\newblock \doi{10.1016/j.landusepol.2020.105025}.
+\newblock URL \url{https://linkinghub.elsevier.com/retrieve/pii/S0264837719321209}.
+
+\bibitem[Carpentieri et~al.()Carpentieri, Guida, and Masoumi]{carpentieriMultimodalAccessibilityPrimary2020}
+Gerardo Carpentieri, Carmen Guida, and Houshmand~E. Masoumi.
+\newblock Multimodal {{Accessibility}} to {{Primary Health Services}} for the {{Elderly}}: {{A Case Study}} of {{Naples}}, {{Italy}}.
+\newblock 12\penalty0 (3):\penalty0 781.
+\newblock ISSN 2071-1050.
+\newblock \doi{10.3390/su12030781}.
+\newblock URL \url{https://www.mdpi.com/2071-1050/12/3/781}.
+
+\bibitem[{España - Ministerio para la Transición Ecológica}({\natexlab{a}})]{espanaPlanNacionalIntegrado2020}
+{España - Ministerio para la Transición Ecológica}.
+\newblock Plan nacional integrado de energía y clima ({PNIEC}) 2021-2030, {\natexlab{a}}.
+\newblock URL \url{https://www.miteco.gob.es/es/prensa/pniec.html}.
+
+\bibitem[{España - Ministerio para la Transición Ecológica}({\natexlab{b}})]{espanaResolucion10Enero2020}
+{España - Ministerio para la Transición Ecológica}.
+\newblock Resolución de 10 de enero de 2020, de la dirección general de biodiversidad y calidad ambiental, por la que se publica el programa nacional de control de la contaminación atmosférica, {\natexlab{b}}.
+\newblock URL \url{https://www.boe.es/eli/es/res/2020/01/10/(10)}.
+
+\bibitem[{Barcelona}()]{barcelonaGUIATECNICAPARA2021}
+{Barcelona}.
+\newblock {GUÍA} {TÉCNICA} {PARA} {LA} {IMPLEMENTACIÓN} {DE} {ZONAS} {DE} {BAJAS} {EMISIONES}.
+\newblock URL \url{https://revista.dgt.es/images/GUIA-ZBE.pdf}.
+
+\bibitem[Tarriño-Ortiz et~al.({\natexlab{b}})Tarriño-Ortiz, Gómez, Soria-Lara, and Vassallo]{tarrinoortizAnalyzingImpactLow2022}
+Javier Tarriño-Ortiz, Juan Gómez, Julio~A. Soria-Lara, and José~M. Vassallo.
+\newblock Analyzing the impact of low emission zones on modal shift.
+\newblock 77:\penalty0 103562, {\natexlab{b}}.
+\newblock ISSN 2210-6707.
+\newblock \doi{10.1016/j.scs.2021.103562}.
+\newblock URL \url{https://www.sciencedirect.com/science/article/pii/S2210670721008283}.
+
+\bibitem[Lopez and Paez(2017)]{lopez_2017_spatial}
+Fernando~A. Lopez and Antonio Paez.
+\newblock Spatial clustering of high-tech manufacturing and knowledge-intensive service firms in the greater toronto area.
+\newblock \emph{Canadian Geographer-Geographe Canadien}, 61\penalty0 (2):\penalty0 240--252, 2017.
+\newblock ISSN 0008-3658.
+\newblock \doi{10.1111/cag.12326}.
+\newblock URL \url{<Go to ISI>://WOS:000405290100016}.
+\newblock Times Cited: 0 Lopez-Hernandez, Fernando A./J-3365-2012; Paez, Antonio/A-1894-2008 Lopez-Hernandez, Fernando A./0000-0002-5397-9748; Paez, Antonio/0000-0001-6912-9919 0 1541-0064.
+
+\bibitem[Horbachov and Svichynskyi()]{horbachov_theoretical_2018}
+Peter Horbachov and Stanislav Svichynskyi.
+\newblock Theoretical substantiation of trip length distribution for home-based work trips in urban transit systems.
+\newblock 11\penalty0 (1):\penalty0 593--632.
+\newblock ISSN 1938-7849.
+\newblock URL \url{https://www.jstor.org/stable/26622420}.
+\newblock Publisher: Journal of Transport and Land Use.
+
+\bibitem[Batista et~al.(2019)Batista, Leclercq, and Geroliminis]{batista_estimation_2019}
+S.F.A. Batista, Ludovic Leclercq, and Nikolas Geroliminis.
+\newblock Estimation of regional trip length distributions for the calibration of the aggregated network traffic models.
+\newblock \emph{Transportation Research Part B: Methodological}, 122:\penalty0 192--217, April 2019.
+\newblock ISSN 01912615.
+\newblock \doi{10.1016/j.trb.2019.02.009}.
+\newblock URL \url{https://linkinghub.elsevier.com/retrieve/pii/S0191261518311603}.
+
+\bibitem[Delignette-Muller and Dutang(2015)]{fitdistrplus_2015}
+Marie~Laure Delignette-Muller and Christophe Dutang.
+\newblock {fitdistrplus}: An {R} package for fitting distributions.
+\newblock \emph{Journal of Statistical Software}, 64\penalty0 (4):\penalty0 1--34, 2015.
+\newblock URL \url{https://www.jstatsoft.org/article/view/v064i04}.
+
+\bibitem[Reggiani et~al.()Reggiani, Bucci, and Russo]{reggianiAccessibilityImpedanceForms2011}
+Aura Reggiani, Pietro Bucci, and Giovanni Russo.
+\newblock Accessibility and impedance forms: Empirical applications to the german commuting network.
+\newblock 34\penalty0 (2):\penalty0 230--252.
+\newblock ISSN 0160-0176, 1552-6925.
+\newblock \doi{10.1177/0160017610387296}.
+\newblock URL \url{http://journals.sagepub.com/doi/10.1177/0160017610387296}.
+
+\end{thebibliography}

@@ -1,0 +1,387 @@
+---
+title: "00-OD-preparation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries
+
+Here we load the libraries we will be using in this .Rmd file:
+```{r}
+library(tidyverse) 
+library(readxl) #imports excel files
+library(geojsonio) #converts geoJSON files to R classes and vice versa
+library(sf) # sf= simple features! These are spatial objects in R, read here: https://r-spatial.github.io/sf/index.html
+library(lubridate) #for time formating
+library(ggspatial)
+```
+
+## Import data
+
+```{r}
+OD_v <- read_excel("data-raw/EDM2018VIAJES.xlsx") #here we import the trips file, by default this function imports the first sheet in an excel file. This .Rmd file is saved in the same place as the .xlsx file so we just need to write the name of the file we want to read. run ' help(read_excel) ` to see the documentation of this function. 
+
+summary(OD_v) #descriptive stats of each row
+```
+
+You can also view a few rows of the 'OD' table like this:
+```{r}
+head(OD_v, 12) #the first 12 rows
+```
+
+I'm interested in making the table spatial! It currently does not have coordinates but we can add from the Madrid Region shapefile which can be downloaded from the [Open Data Portal Madrid Regional Transport Consortium](https://datos.crtm.es/datasets/zonificacionzt1259/explore?location=40.420959%2C-3.695073%2C12.93):
+```{r}
+# # here we download the madrid zona shapefile using the API GeoJSON resource! neat let's download ZT1259 and the lower resolution ZT208
+# ZT1259 <- geojson_read("https://opendata.arcgis.com/datasets/97f83bab03664d4e9853acf0e431d893_0.geojson",  what = "sp")
+# ZT1259 <- st_as_sf(ZT1259) %>% st_transform(crs = 4326) #transform it into a 'sf' class object and transform coordinates to WGS84
+# 
+# # downloaded ZT208 from here, the API link doesn't work for our application: https://hub.arcgis.com/datasets/crtm::zonificacionzt208/about
+# 
+# #let's save both to data-raw just in case this link/resource doesn't work in the future
+# st_write(ZT1259, "data-raw/ZT1259.shp")
+zn <-st_read("data-raw/ZT1259.shp")
+#ZT208 is now in the data-raw, I’ve 
+#let's read ZT208 and call it zn208, this will be our main resolution now
+zn208 <- st_read("data-raw/ZonificacionZT208.shp")
+zn208 <- st_as_sf(zn208) %>% st_transform(crs = 4326) #transform it into a 'sf' class object and transform coordinates to WGS84
+```
+
+let's add the CD_ZT208 values to the zn object so that each ZT1259 is associated with a CD_ZT208.
+```{r}
+sf::sf_use_s2(FALSE)
+zn_u <- st_join(zn, zn208,  join = st_intersects, left = TRUE, largest = TRUE) #NOTE THIS IS KEY
+
+zn_u <- zn_u %>% st_drop_geometry() %>% 
+  transmute(CD_ZT208,
+            ZT1259)
+```
+Now since that was spatially joined, let's double check the association using the associated CD_ZT208 IDs associated to each household located in a ZT1259 origin! We pulled this data from the household level data ('EMD2018HOGARES'). 
+
+Note: Why we must  use the st_join dataset is because the associated household level data is not complete, i.e., only ~900 (of the 1259 ZTs) have an associated CD_ZT208. We need ALL ZTs to have an associated CD_ZT208 or the travel survey won't be able to completely be transfered to the CD_ZT208 resolution and we'll miss data.
+
+```{r}
+zn208_key <- read_excel("data-raw/ZT1259-CD_ZT208-associated.xlsx")
+t <- zn_u %>% merge(zn208_key, by="ZT1259", all = T) %>% 
+  mutate(IN = ifelse(CD_ZT208.x == CD_ZT208.y | is.na(CD_ZT208.y), 1, 0)) 
+t
+sum(t$IN)
+#so since the sum is 1259, it means our join equals the associated join + with the NAs populated. 
+```
+Now importing a list of all the municipalities within the Madrid region and adding them to the zone shape file:
+```{r}
+t <- read_excel("data-raw/ZonificacionZT1259 complete.xlsx") %>% dplyr::select(ZT1259, Municipality)
+
+zn_u <- zn_u %>% merge(t, by = c("ZT1259"), all.x=TRUE)
+```
+
+Let's associate the CD_ZT208 IDs to the trip data, starting with origin trips:
+```{r}
+OD_v <- OD_v %>% merge(zn_u, by.x = "VORIZT1259", by.y = "ZT1259", all.x=T)
+
+OD_v %>% filter(is.na(CD_ZT208)) #some ZT1259 from the travel survey don't exist in the ZT1259 spatial object! (1,091 trips out of the total 222,744) So within these ZTs we can't associate a CD_ZT208 since they don't have a spatial location... I did not previously notice that these ZT1259 zones existed (e.g., 02-000-000, 01-000-000). These origins don't originated from within Madrid but their destinations are in Madrid. 
+
+# And as we can see, only 3 of these trips purposes' are to come home (a destination in madrid)
+OD_v %>% filter(is.na(CD_ZT208) & MOTIVO_PRIORITARIO == 1)
+# 386 of these trips purposes' are to come to work (a destination in madrid)
+OD_v %>% filter(is.na(CD_ZT208) & MOTIVO_PRIORITARIO == 2)
+# 205 of these trips purposes' are to come for a personal matter (a destination in madrid)
+OD_v %>% filter(is.na(CD_ZT208) & MOTIVO_PRIORITARIO == 10)
+
+#(some examples). Since these trips don't originate in Madrid we don't care about them from the 'supply' side but we do care about them from the 'demand' side (they increase the number of opportunities IN madrid).
+
+#rename column
+OD_v <- OD_v %>% rename(VORI_CD_ZT208 = CD_ZT208,
+                        VORI_Municipality = Municipality)
+```
+
+Now destination trips:
+```{r}
+OD_v <- OD_v %>% merge(zn_u , by.x = "VDESZT1259", by.y = "ZT1259", all.x=T)
+
+OD_v %>% filter(is.na(CD_ZT208)) #some ZT1259 from the travel survey don't exist in the ZT1259 spatial object! (916 trips out of the total 222,744) So within these ZTs we can't associate a CD_ZT208 since they don't have a spatial location... I did not previously notice that these ZT1259 zones existed (e.g., 02-000-000, 03-000-000). These destinations are not within Madrid but their origins are in Madrid. 
+
+# And as we can see,  0 of these trips purposes' are home related ( i.e., home outside of Madrid are not contained in this data set)
+OD_v %>% filter(is.na(CD_ZT208) & MOTIVO_PRIORITARIO == 1)
+# 397 of these trips purposes' are work related ( i.e., work trips that go outside of Madrid are not contained in this data set)
+OD_v %>% filter(is.na(CD_ZT208) & MOTIVO_PRIORITARIO == 2)
+# 177 of these trips purposes' are to leave for a personal matter (a destination outside of madrid)
+OD_v %>% filter(is.na(CD_ZT208) & MOTIVO_PRIORITARIO == 10)
+
+#(some examples). These trips end outside of Madrid, so these trips increase competition (supply side demand, i.e. more population) but don't add opportunities in Madrid.
+
+#rename column
+OD_v <- OD_v %>% rename(VDES_CD_ZT208 = CD_ZT208,
+                        VDES_Municipality = Municipality)
+```
+
+Add time:
+```{r}
+OD_v <- OD_v %>%
+  mutate(TIEMPO_VIAJES =
+           (as.numeric(OD_v$VDESHORAFIN) - 
+              as.numeric(OD_v$VORIHORAINI))) %>%
+  mutate(TIEMPO_VIAJES = ifelse(TIEMPO_VIAJES == 0, 0.1, TIEMPO_VIAJES)) # set all 0min travel times to 0.1 min
+summary(OD_v$TIEMPO_VIAJES)
+```
+
+
+These following chunks will be removed as they apply to ZT1259 and replaced with Javier's manual analysis applied to ZT208. A note though, it contains a beautiful plot so come back for the code.
+
+<!-- ```{r} -->
+<!-- ALLLEZ <- st_read("data-raw/Zona_Bajas_Emisiones_MADRID.shp") -->
+<!-- ``` -->
+
+<!-- Next, we will add a column which indicates if a zone is in a LEZ or is located within Madrid City Centre (this area contains the LEZ and is contained within the Municipality of Madrid): -->
+<!-- ```{r} -->
+<!-- #IDS that correspond to CC - city center and LEZ - low emission zone -->
+<!-- CC_IDS <- c("079-01", "079-02", "079-03", "079-04", "079-05", "079-06", "079-07") -->
+<!-- LEZ_IDS <- c("079-01-001", "079-01-002", "079-01-003", "079-01-004", "079-01-005", "079-01-006", "079-01-007", "079-01-008", "079-01-009", "079-01-010", "079-01-012", "079-01-013", "079-01-014", "079-01-015", "079-01-016", "079-01-017", "079-01-018", "079-01-019","079-01-020", "079-01-021", "079-01-022", "079-01-023") -->
+
+<!-- #manually added column to zn which identifies if an ID is in the city center (1) or not (0). This searches for any instance of "079-01-XXX", "079-02-XXX" etc. -->
+<!-- zn$CC <- ifelse(grepl(paste(CC_IDS, collapse = "|"), zn$ZT1259), 1,0) -->
+
+<!-- #more simple to use the mutate function here since the string of IDs is complete for LEZ -->
+<!-- zn <- zn %>% mutate(LEZ = ifelse(ZT1259 %in% LEZ_IDS, 1, 0)) -->
+
+<!-- ``` -->
+
+<!-- create a bounding box for the plot: -->
+<!-- ```{r} -->
+<!-- #create the bounding box for the Toronto region + a little extra -->
+<!-- bbox_new1 <- st_bbox(zn %>% filter(CC == 1)) # current bounding box -->
+
+<!-- xrange <- bbox_new1$xmax - bbox_new1$xmin # range of x values -->
+<!-- yrange <- bbox_new1$ymax - bbox_new1$ymin # range of y values -->
+
+<!-- bbox_new1[1] <- bbox_new1[1] - (0.2 * xrange) # xmin - left -->
+<!-- bbox_new1[3] <- bbox_new1[3] + (0.2 * xrange) # xmax - right -->
+<!-- bbox_new1[2] <- bbox_new1[2] - (0.05 * yrange) # ymin - bottom -->
+<!-- bbox_new1[4] <- bbox_new1[4] + (0.05 * yrange) # ymax - top -->
+
+<!-- bbox_CityCentre <- bbox_new1 %>%  # take the bounding box ... -->
+<!--   st_as_sfc() -->
+<!-- ``` -->
+
+<!-- plot: -->
+<!-- ```{r} -->
+<!-- plot_rmad <- ggplot() + -->
+<!--   geom_sf(data = zn, fill = "light grey", col = "dark grey", size=0.5) + #all of madrid region -->
+<!--   geom_sf(data = zn %>% filter(Municipality == "Madrid"), aes(fill = "Municipality of Madrid"), col = "yellow3", size=0.5, show.legend = "polygon") + # madrid municiality -->
+<!--   geom_sf(data = zn %>% filter(CC == 1), aes(fill =  "City centre"), col = NA, show.legend = "polygon") + # madrid city centre -->
+<!--   geom_sf(data = zn %>%  filter(LEZ == 1), aes(fill = "Low emission zone"), col = NA, show.legend = "polygon") + #madrid low emission zone -->
+<!--   geom_sf(data = bbox_CityCentre, fill = NA, col = "black", size = 0.5)+ -->
+<!--   scale_fill_manual(labels = c("City centre", "Low emission zone", "Municipality of Madrid"), -->
+<!--                       values = c("green", "red", "yellow")) +  -->
+<!--   annotation_north_arrow(location = "tl", # north arrow for both the main plot and inset -->
+<!--                          height = unit(0.8, "cm"),  -->
+<!--                          width = unit(0.8, "cm"), -->
+<!--                          style = north_arrow_orienteering(line_width = 0.25, -->
+<!--                                                           line_col = "dimgrey",  -->
+<!--                                                           fill = c("white","dimgrey"))) + -->
+<!--   annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset -->
+<!--                    height = unit(0.15, "cm")) + -->
+<!--   scale_y_continuous(breaks = c(40, 40.4, 40.8, 41.2)) +  -->
+<!--   scale_x_continuous(breaks = c(-3.0, -3.8, -4.6)) + -->
+<!--   guides(fill=guide_legend(title=NULL)) + -->
+<!--   theme_minimal() + theme(legend.position = c(0.25, .16))  -->
+
+<!-- #just the city center and LEZ -->
+<!-- plot_ccmad <- ggplot() + -->
+<!--   geom_sf(data = zn %>% filter(CC == 1), aes(fill = "City centre"), col = "green3") + # madrid city centre -->
+<!--   geom_sf(data = zn %>%  filter(LEZ == 1), aes(fill = "Low emission zone"), col = "red4") + #madrid low emission zone -->
+<!--   geom_sf(data = bbox_CityCentre, fill = NA, col = "black", size = 0.5)+ -->
+<!--   scale_fill_manual(labels = c("City centre", "Low emission zone"), -->
+<!--                     values = c("green", "red")) +  -->
+<!--   annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset -->
+<!--                    height = unit(0.15, "cm"), -->
+<!--                    pad_y = unit(0.05, "cm")) + -->
+<!--   guides(fill=guide_legend(title=NULL)) + -->
+<!--   theme_void() + theme(legend.position = "none")  -->
+
+<!-- cowplot::plot_grid(plot_rmad, plot_ccmad, ncol = 2, rel_widths = c(2.5,1))  -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- ggplot() + -->
+<!--   geom_sf(data = zn) + -->
+<!--   geom_sf(data = ALLLEZ, fill="red")  -->
+<!-- ``` -->
+
+
+## Exploring the data - filtering OD trips, home to work
+
+```{r}
+OD_v_Oc_Dt <- OD_v %>% filter(VORI == "1" & VDES == "2") #only filter in origin casa trips and destination trabajo
+
+count(OD_v_Oc_Dt) # from the 222,744 trips we now have 27,796 trips
+
+summary(OD_v_Oc_Dt$VORI_CD_ZT208)
+summary(OD_v_Oc_Dt$VDES_CD_ZT208)
+#worrying..
+```
+
+What can we say about these work trips? (commented out for now)
+
+<!-- Well, the majority of trip frequency is "A diario, de lunes a viernes" (Daily, from Monday to Friday - 1) -->
+<!-- ```{r} -->
+<!-- hist(OD_v_Oc_Dt$VFRECUENCIA) -->
+<!-- ``` -->
+<!-- The average destination arrival time (Destino. Hora llegada) is: -->
+<!-- ```{r} -->
+<!-- Dtrips <- as.POSIXct(OD_v$VDESHORAFIN, format="%H%M") %>% format("%H:%M") # formatting and removing date so we just how time -->
+<!-- seconds_to_period(mean(period_to_seconds(hm(Dtrips)), na.rm=T)) # finding mean -->
+<!-- ``` -->
+<!-- 9:48am arrival.. not very helpful. -->
+
+<!-- Let's see the distribution: -->
+<!-- ```{r} -->
+<!-- hist(OD_v_Oc_Dt$VDESHORAFIN%>% as.numeric(), breaks = 24) -->
+<!-- ``` -->
+<!-- So we see that 8AM, and 9AM arrival times are most frequent. -->
+
+<!-- We also know that the majority do make this trip by personal car "¿Dispone de vehículo particular para hacer este viaje?" (1): -->
+<!-- ```{r} -->
+<!-- hist(OD_v_Oc_Dt$VVEHICULO) -->
+
+<!-- OD_v_Oc_Dt$VVEHICULO %>% typeof() -->
+<!-- ``` -->
+
+<!-- Let's see how long are short-trips are (by distance, assuming in km units): -->
+<!-- ```{r} -->
+<!-- t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE <= 60) %>% dplyr::select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric()  -->
+<!-- hist(t) -->
+<!-- ``` -->
+
+<!-- As you can see though there are some long distance trip (greater than 60km). There are 101 trips which are between 60km to 600km and 1 trip greater than 600km. For perspective though, these trips make up onl 0.3% of total trips taken ( ~100 trips out of ~28,000 trips). -->
+<!-- ```{r} -->
+<!-- t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE >= 60 & DISTANCIA_VIAJE <= 600) %>% dplyr::select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric()  -->
+<!-- hist(t, breaks = 50) -->
+
+<!-- t <- OD_v_Oc_Dt %>% filter(DISTANCIA_VIAJE >= 600) %>% dplyr::select(DISTANCIA_VIAJE) %>% unlist() %>% as.numeric()  -->
+<!-- hist(t, breaks = 50) -->
+<!-- ``` -->
+
+<!-- Let's check the primary mode:  -->
+<!-- ```{r} -->
+<!-- hist(OD_v_Oc_Dt$MODO_PRIORITARIO) -->
+<!-- ``` -->
+
+<!-- MODO_PRIORITARIO -> 11, 12, 13, 14, 15, 16 correspond to: -->
+<!-- 11 '11. Private car - driver -->
+<!-- 12 '12. Company car - driver -->
+<!-- 13 '13. Rental car without driver -->
+<!-- 14 '14. Private car - passenger -->
+<!-- 15 '15. Company car- passenger -->
+<!-- 16 '16. Car rental with driver - passenger -->
+
+
+## Making OD home to work trips spatial
+
+Here we add # of origin trips to the zona sf object, so we see where trips are coming from. 
+
+First, we count the number of trips coming to each destination:
+```{r}
+Dtrips_zona <- OD_v_Oc_Dt %>% group_by(VDES_CD_ZT208)  %>% summarise(Dtrips = (n())) # we group by the Destination ZT1259 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Dtrips' column.
+
+head(Dtrips_zona,12)
+
+sum(Dtrips_zona$Dtrips)
+```
+
+Now, we add this new column to the zonas sf object:
+```{r}
+zn_t <- zn208 %>% merge(Dtrips_zona, by.x = "CD_ZT208", by.y="VDES_CD_ZT208")
+
+
+sum(zn_t$Dtrips)
+```
+
+a simple plot of the number of DESTINATION home-based trips:
+```{r}
+ggplot() +
+  geom_sf(data = zn_t,
+          aes(fill = Dtrips),
+          color  = NA) +
+  scale_fill_distiller(palette = "Spectral")
+```
+
+For comparison... lets plot the number of ORIGIN home-based trips:
+```{r}
+Otrips_zona <- OD_v_Oc_Dt %>% group_by(VORI_CD_ZT208)  %>% summarise(Otrips = (n())) # we group by the origin ZT1259 ID and then we summarize the number of rows that have the same ZT using the summarize() function and the n() function to create a new 'Otrips' column.
+
+zn_t <- zn_t %>% merge(Otrips_zona, by.x = "CD_ZT208", by.y="VORI_CD_ZT208", all.x = TRUE)
+
+ggplot() +
+  geom_sf(data = zn_t,
+          aes(fill = Otrips),
+          color  = NA) +
+  scale_fill_distiller(palette = "Spectral")
+```
+How many trips come into the LEZ from outside of Madrid municipality and how many of those are car trips? Just curious. 
+
+First, let's add a column which correspond to if the trip is made by car or not my car.
+```{r}
+OD_v_Oc_Dt <- OD_v_Oc_Dt %>% mutate(bycar = ifelse(MODO_PRIORITARIO %in% c(11, 12, 13, 14, 15, 16),
+                                                                         1, 0),
+                                    nocar = ifelse(!(MODO_PRIORITARIO %in% c(11, 12, 13, 14, 15, 16)),
+                                                                         1, 0))
+```
+
+
+Next, let's split the data - one subset of all trips that don't go into the LEZ, and another subset of trips that DO go into the LEZ
+```{r}
+OD_v_Oc_Dt_noDesLEZ <- OD_v_Oc_Dt %>% filter(VDES_Municipality != "Madrid")
+OD_v_Oc_Dt_DesLEZ <- OD_v_Oc_Dt  %>% filter(VDES_Municipality == "Madrid")
+
+count(OD_v_Oc_Dt_DesLEZ)/count(OD_v_Oc_Dt)*100
+```
+we can see that trips into Madrid municipality is the MAJORITY of trips, 60%. Now... how many of these are car trips?
+
+```{r}
+sum(OD_v_Oc_Dt_DesLEZ$bycar)/count(OD_v_Oc_Dt_DesLEZ)
+```
+40% of these LEZ trips are made by car! This could be a huge GHG emission savings... and may have a huge impact on equity.
+
+Let's plot where these car LEZ trips are coming from:
+```{r}
+D2trips_zona <- OD_v_Oc_Dt_DesLEZ %>% group_by(VORI_CD_ZT208)  %>% summarise(Dtrips = (n()),
+                                                                              bycar = sum(bycar),
+                                                                              nocar = sum(nocar))
+
+zn_t <- zn208 %>% merge(D2trips_zona, by.x = "CD_ZT208", by.y="VORI_CD_ZT208")
+```
+
+plots:
+```{r}
+# magnitude of trips made by car 
+ggplot() +
+  geom_sf(data = zn_t,
+          aes(fill = (bycar) ),
+          color  = NA) +
+  scale_fill_distiller(palette = "Spectral") +
+  labs(title = "number of work trips by origin (excluding those that originate in LEZ) made by car ")
+```
+
+% of car trips which go into the LEZ 
+```{r}
+# Mag
+ggplot() +
+  geom_sf(data = zn_t,
+          aes(fill = (bycar/Dtrips * 100) ),
+          color  = NA) +
+  scale_fill_distiller(palette = "Spectral") +
+  labs(title = "% work trips (excluding those that originate in LEZ) made by car ")
+```
+
+## Saving data
+```{r}
+save(zn, file = "data/zn1259.RData")
+save(zn208, file = "data/zn208.RData")
+save(zn_u, file = "data/zn_u.RData")
+save(OD_v, file = "data/OD_v.RData")
+```
+
