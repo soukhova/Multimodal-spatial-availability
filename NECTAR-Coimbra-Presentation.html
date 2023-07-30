@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Multi-modal spatial availability: a research proposal</title>
+    <title>Quantifying multi-modal competition using spatial availability</title>
     <meta charset="utf-8" />
     <meta name="author" content="Anastasia Soukhov, J. Tarriño Ortiz, J. A. Soria-Lara, A. Páez" />
-    <script src="CIT-Presentation_files/header-attrs-2.20/header-attrs.js"></script>
+    <script src="NECTAR-Coimbra-Presentation_files/header-attrs-2.20/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Multi-modal spatial availability: a research proposal
-## CIT - Tenerife 2023
+# Quantifying multi-modal competition using spatial availability
+## NECTAR - Sustainable Neighbourhoods
 ### Anastasia Soukhov, J. Tarriño Ortiz, J. A. Soria-Lara, A. Páez
-### 15-06-2023
+### 21-06-2023
 
 ---
 
@@ -29,8 +29,31 @@ class: center, middle, inverse, title-slide
 
 
 
+
+## Accessibility competition between modes
+
+**Motivation**: interpreting accessibility measures (location-based _potential interaction_) for policy interventions
+
+&lt;img src="Presentations/access-demo.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+---
+## Accessibility competition between modes
+
+**Motivation**: interpreting accessibility measures (location-based _potential interaction_) for policy interventions
+
+&lt;img src="Presentations/access-demo.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+### Overview
+
+**1.** Types of current accessibility measures and their limitations
+
+**2.** Multi-modal **spatial availability**
+
+**3.** Planning accessibility policy interventions considering multi-modal competition
+
+---
 class: center, middle
-## Overview of multi-modal accessibility measures
+## Classification of multi-modal accessibility measures
 
 ##### Hansen-type accessibility _(Hansen, 1959)_
 _No competition_ and _unconstrained_: `\(S_i^m = \sum_j O_j f^m(c_{ij}^m)\)`
@@ -46,11 +69,6 @@ _No competition_ and _unconstrained_: `\(S_i^m = \sum_j O_j f^m(c_{ij}^m)\)`
 **Competitive** and **constrained**: `\(V_i^m = \sum_j O_j F^{t,m}_{ij}\)`
 
 ???
-&lt;!-- for the title slide --&gt; 
-In this presentation I will speak on how current accessibility measures _miss_ considering competition
-**1.** Limitations of current accessibility measures
-**2.** Explaining **spatial availability** with a multi-modal extension
-**3.** Policy scenario planning applications - equity
 
 &lt;!-- for this slide--&gt;
 
@@ -59,19 +77,12 @@ Accessibility: a way to quantify the access that a spatial unit has, a product o
 What do all these types of measures have in common? How they are a weighted sum of opportunities that can be interacted with. What differs between them is how they weight the opportunities.
 
 ---
-class: center
-### Simulated example: uncompetitive and unconstrained
-
-&lt;img src="Presentations/toy-example.png" width="80%" /&gt;
-
----
-count: false
 
 ### Simulated example: uncompetitive and unconstrained
 
 .pull-left[
 
-&lt;img src="Presentations/toy-example.png" width="120%" /&gt;
+&lt;img src="Presentations/toy-example1.png" width="120%" /&gt;
 
 ]
 
@@ -149,7 +160,7 @@ Impedance function: `\(f(c_{ij})^{\text{car}} = f(c_{ij})^{\text{pt}} =exp(-0.1 
 ### Simulated example: competitive and unconstrained
 
 .pull-left[
-&lt;img src="Presentations/toy-example.png" width="120%" /&gt;
+&lt;img src="Presentations/toy-example1.png" width="120%" /&gt;
 ]
 
 --
@@ -157,7 +168,7 @@ Impedance function: `\(f(c_{ij})^{\text{car}} = f(c_{ij})^{\text{pt}} =exp(-0.1 
 .pull-right[
 
 ##### Shen-type accessibility
-`\(a_i^m = \sum_j \frac{O_j f^m(c_{ij}^m)}{\sum_m \sum_i P_{i}^m f^m(c_{ij}^m)^m}\)`
+`\(a_i^m = \sum_j \frac{O_j f^m(c_{ij}^m)}{\sum_m \sum_i P_{i}^m f^m(c_{ij}^m)}\)`
 
 
 &lt;table&gt;
@@ -182,12 +193,12 @@ Impedance function: `\(f(c_{ij})^{\text{car}} = f(c_{ij})^{\text{pt}} =exp(-0.1 
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; car &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1.03 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.05 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; pt &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.62 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.63 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
@@ -206,11 +217,10 @@ Impedance function: `\(f(c_{ij})^{\text{car}} = f(c_{ij})^{\text{pt}} =exp(-0.1 
 ???
 -  ## NOTE: this is competitive for S. you have high access with less demand, A and B are different. It is still unconstrained when you try to retrieve the number of opportunities -- it is the totla population and not the job-seeking population 
 ---
-count: false
 ### Simulated example: competitive and unconstrained
 
 .pull-left[
-&lt;img src="Presentations/toy-example.png" width="120%" /&gt;
+&lt;img src="Presentations/toy-example1.png" width="120%" /&gt;
 
 ]
 
@@ -230,11 +240,11 @@ count: false
 &lt;tbody&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1.32 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.36 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.89 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.88 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
@@ -309,14 +319,14 @@ It also accounts for competition between modes by weighted-sum of mode-specific 
 
 .pull-left[
 
-&lt;img src="Presentations/toy-example.png" width="120%" /&gt;
+&lt;img src="Presentations/toy-example1.png" width="120%" /&gt;
 ]
 
 --
 
 .pull-right[
 
-##### Spatial availability
+##### Spatial availability per origin and mode
 `\(V^m_{i} = \sum_{j} O_j\ F^{t,m}_{ij}\)`
 
 
@@ -332,32 +342,32 @@ It also accounts for competition between modes by weighted-sum of mode-specific 
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; car &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 46945.73 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52021.13 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; pt &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 18973.08 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 15768.20 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; car &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 102997.48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 94250.81 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; pt &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 31211.55 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38081.84 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; car &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 7837.58 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7842.25 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; pt &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 2034.58 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2035.78 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; TOTAL &lt;/td&gt;
@@ -375,18 +385,18 @@ It also accounts for competition between modes by weighted-sum of mode-specific 
 
 
 ---
-count: false
+
 ### Simulated example: competitive _and_ constrained
 
 .pull-left[
-&lt;img src="Presentations/toy-example.png" width="120%" /&gt;
+&lt;img src="Presentations/toy-example1.png" width="120%" /&gt;
 ]
 
 --
 
 .pull-right[
 
-##### Spatial availability
+##### Spatial availability per origin, per mode
 `\(V_{i} = \sum_{m} V^m_{i}\)`
 
 
@@ -396,24 +406,29 @@ count: false
   &lt;tr&gt;
    &lt;th style="text-align:left;"&gt; i &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; V &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; v &lt;/th&gt;
   &lt;/tr&gt;
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 65918.81 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 67789.33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.36 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 134209.03 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 132332.64 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.88 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 9872.16 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9878.03 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.99 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; TOTAL &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 210000.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; NA &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -431,12 +446,12 @@ count: false
 &lt;tbody&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; car &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 157780.79 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 154114.19 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0.65 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; pt &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 52219.21 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 55885.81 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0.35 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
@@ -472,6 +487,12 @@ A NEEED for multi-modal analysis methods that are interpretive and comparative -
 ---
 class: center
 ### Multi-modal home-to-work accessibility in Madrid: 2018 travel survey
+&lt;img src="Presentations/im_populations_zn208_plot.png" width="70%" style="display: block; margin: auto;" /&gt;
+Worker population, by mode, at resolution Zona 208
+
+---
+class: center
+### Multi-modal home-to-work accessibility in Madrid: 2018 travel survey
 &lt;img src="Presentations/Hansen_im_V_zn208_plot.png" width="70%" style="display: block; margin: auto;" /&gt;
 Uncompetitive and unconstrained accessibility `\(S_i^m\)` at resolution Zona 208
 
@@ -502,15 +523,18 @@ Spatial Availability `\(V_i\)` at resolution Zona 208
 class: middle
 ### Spatial availability: planning multi-modal transportation policy
 
-- Scenario evaluation: accessibility when...
+- **Scenario evaluation**: accessibility when...
   - LEZ boundaries change
   - Vehicle characteristic restrictions change
   - Travel behaviour changes
-  
-- Questions of equity: which neighbourhoods, what people, what modes?
+  - Spatial unit of analysis changes
+
+--
+
+- **Questions of equity**: which neighbourhoods, what people, what modes?
   - GHG emission reductions
   - Advantages to non-car users
-  - Who is impacted disproportionally
+  - Who are impacted disproportionally
 
 
 ???
@@ -678,7 +702,7 @@ Shen's accessibility:
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script src="macros.js"></script>
 <script>var slideshow = remark.create({
-"slideNumberFormat": "%current% / 12",
+"slideNumberFormat": "%current% / 17",
 "highlightStyle": "github",
 "highlightLines": true,
 "ratio": "16:9",
