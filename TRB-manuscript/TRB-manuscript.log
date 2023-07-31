@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.7.24)  30 JUL 2023 02:57
-=======
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.7.24)  30 JUL 2023 01:59
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-=======
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.7.24)  30 JUL 2023 01:59
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.7.24)  31 JUL 2023 17:15
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -514,194 +506,27 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \WF@box=\box112
 \WF@everypar=\toks33
 Package: wrapfig 2003/01/31  v 3.6
-<<<<<<< HEAD
-<<<<<<< HEAD
-) (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/caption/caption.sty
-Package: caption 2023/07/28 v3.6m Customizing captions (AR)
-(c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/caption/caption3.sty
-Package: caption3 2023/07/28 v2.4c caption3 kernel (AR)
-\caption@tempdima=\dimen259
-\captionmargin=\dimen260
-\caption@leftmargin=\dimen261
-\caption@rightmargin=\dimen262
-\caption@width=\dimen263
-\caption@indent=\dimen264
-\caption@parindent=\dimen265
-\caption@hangindent=\dimen266
-Package caption Info: Unknown document class (or package),
-(caption)             standard defaults will be used.
-Package caption Info: \@makecaption = \long macro:#1#2->\let \@conttempa \relax \ifdim \prevdepth >-99\p@ \vskip \abovecaptionskip \else \def \@conttempa {\vbox to\topskip {}}\fi \let \@contfnote \footnote \renewcommand {\footnote }[2][]{} \let \@contfmark \footnotemark \renewcommand {\footnotemark }[1][]{} \let \@contlabel \label \renewcommand {\label }[1]{} \sbox \@tempboxa {\@contnfont #1\@contdelim \@conttfont #2} \let \footnote \@contfnote \let \footnotemark \@contfmark \let \label \@contlabel \ifdim \wd \@tempboxa <\linewidth \centering \fi \if@contcw \centering \parbox {\@contcwidth }{\fi \if@conthang \sbox \@tempboxa {\@contnfont #1\@contdelim } \@contpre {\@contnfont #1\@contdelim }\@conttempa {\@contcstyle \hangindent =\wd \@tempboxa \hangafter =\@ne \@conttfont #2\par } \else \if@contindent \@contpre {\@contnfont #1\@contdelim }\@conttempa {\@contcstyle \hangindent =\@contindw \hangafter =\@ne \@conttfont #2\par } \else \@contpre {\@contnfont #1\@contdelim }\@conttempa {\@contcstyle \@conttfont #2\par } \fi \fi \@contpost \if@contcw \par } \fi \vskip \belowcaptionskip  on input line 1175.
-)
-
-Package caption Warning: Unknown document class (or package),
-(caption)                standard defaults will be used.
-See the caption package documentation for explanation.
-
-\c@caption@flags=\count326
-\c@continuedfloat=\count327
-Package caption Info: float package is loaded.
-Package caption Info: hyperref package is loaded.
-Package caption Info: longtable package is loaded.
-(c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/caption/ltcaption.sty
-Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
-)
-Package caption Info: wrapfig package is loaded.
-) (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/siunitx/siunitx.sty
-Package: siunitx 2023-07-26 v3.2.9 A comprehensive (SI) units package
-\l__siunitx_angle_tmp_dim=\dimen267
-\l__siunitx_angle_marker_box=\box113
-\l__siunitx_angle_unit_box=\box114
-\l__siunitx_compound_count_int=\count328
-\l__siunitx_number_exponent_fixed_int=\count329
-\l__siunitx_number_min_decimal_int=\count330
-\l__siunitx_number_min_integer_int=\count331
-\l__siunitx_number_round_precision_int=\count332
-\l__siunitx_number_lower_threshold_int=\count333
-\l__siunitx_number_upper_threshold_int=\count334
-\l__siunitx_number_group_first_int=\count335
-\l__siunitx_number_group_size_int=\count336
-\l__siunitx_number_group_minimum_int=\count337
-\l__siunitx_table_tmp_box=\box115
-\l__siunitx_table_tmp_dim=\dimen268
-\l__siunitx_table_column_width_dim=\dimen269
-\l__siunitx_table_integer_box=\box116
-\l__siunitx_table_decimal_box=\box117
-\l__siunitx_table_uncert_box=\box118
-\l__siunitx_table_before_box=\box119
-\l__siunitx_table_after_box=\box120
-\l__siunitx_table_before_dim=\dimen270
-\l__siunitx_table_carry_dim=\dimen271
-\l__siunitx_unit_tmp_int=\count338
-\l__siunitx_unit_position_int=\count339
-\l__siunitx_unit_total_int=\count340
-) (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/ulem/ulem.sty
-\UL@box=\box121
-\UL@hyphenbox=\box122
-\UL@skip=\skip76
-\UL@hook=\toks34
-\UL@height=\dimen272
-\UL@pe=\count341
-\UL@pixel=\dimen273
-\ULC@box=\box123
-Package: ulem 2019/11/18
-\ULdepth=\dimen274
-) (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/tools/calc.sty
-Package: calc 2017/05/25 v4.3 Infix arithmetic (KKT,FJ)
-\calc@Acount=\count342
-\calc@Bcount=\count343
-\calc@Adimen=\dimen275
-\calc@Bdimen=\dimen276
-\calc@Askip=\skip77
-\calc@Bskip=\skip78
-LaTeX Info: Redefining \setlength on input line 80.
-LaTeX Info: Redefining \addtolength on input line 81.
-\calc@Ccount=\count344
-\calc@Cskip=\skip79
-) (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/tools/tabularx.sty
-Package: tabularx 2020/01/15 v2.11c `tabularx' package (DPC)
-\TX@col@width=\dimen277
-\TX@old@table=\dimen278
-\TX@old@col=\dimen279
-\TX@target=\dimen280
-\TX@delta=\dimen281
-\TX@cols=\count345
-\TX@ftn=\toks35
-) (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/threeparttable/threeparttable.sty
-Package: threeparttable 2003/06/13  v 3.0
-\@tempboxb=\box124
-) (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/adjustbox/adjustbox.sty
-Package: adjustbox 2022/10/17 v1.3a Adjusting TeX boxes (trim, clip, ...)
-(c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/xkeyval/xkeyval.sty
-Package: xkeyval 2022/06/16 v2.9 package option processing (HA)
-(c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/xkeyval/xkeyval.tex (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/xkeyval/xkvutils.tex
-\XKV@toks=\toks36
-\XKV@tempa@toks=\toks37
-)
-\XKV@depth=\count346
-File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
-)) (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/adjustbox/adjcalc.sty
-Package: adjcalc 2012/05/16 v1.1 Provides advanced setlength with multiple back-ends (calc, etex, pgfmath)
-) (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/adjustbox/trimclip.sty
-Package: trimclip 2020/08/19 v1.2 Trim and clip general TeX material
-(c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/collectbox/collectbox.sty
-Package: collectbox 2022/10/17 v0.4c Collect macro arguments as boxes
-\collectedbox=\box125
-)
-\tc@llx=\dimen282
-\tc@lly=\dimen283
-\tc@urx=\dimen284
-\tc@ury=\dimen285
-Package trimclip Info: Using driver 'tc-pdftex.def'.
-(c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/adjustbox/tc-pdftex.def
-File: tc-pdftex.def 2019/01/04 v2.2 Clipping driver for pdftex
-))
-\adjbox@Width=\dimen286
-\adjbox@Height=\dimen287
-\adjbox@Depth=\dimen288
-\adjbox@Totalheight=\dimen289
-\adjbox@pwidth=\dimen290
-\adjbox@pheight=\dimen291
-\adjbox@pdepth=\dimen292
-\adjbox@ptotalheight=\dimen293
-) (./TRB-manuscript.aux
-
-LaTeX Warning: Label `tab:toy-example-table-all-values' multiply defined.
-
-
-LaTeX Warning: Label `tab:toy-example-table-all-values' multiply defined.
-
-
-LaTeX Warning: Label `tab:toy-example-table-all-values' multiply defined.
-
-)
-\openout1 = `TRB-manuscript.aux'.
-
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-=======
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
 ) (./TRB-manuscript.aux)
 \openout1 = `TRB-manuscript.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-<<<<<<< HEAD
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 81.
+LaTeX Font Info:    ... okay on input line 81.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 81.
+LaTeX Font Info:    ... okay on input line 81.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 81.
+LaTeX Font Info:    ... okay on input line 81.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 81.
+LaTeX Font Info:    ... okay on input line 81.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 81.
+LaTeX Font Info:    ... okay on input line 81.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 81.
+LaTeX Font Info:    ... okay on input line 81.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 81.
+LaTeX Font Info:    ... okay on input line 81.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 81.
+LaTeX Font Info:    ... okay on input line 81.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 81.
+LaTeX Font Info:    ... okay on input line 81.
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -742,381 +567,165 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
 (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-<<<<<<< HEAD
-<<<<<<< HEAD
-Package hyperref Info: Link coloring OFF on input line 91.
-=======
-Package hyperref Info: Link coloring OFF on input line 82.
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-=======
-Package hyperref Info: Link coloring OFF on input line 82.
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
+Package hyperref Info: Link coloring OFF on input line 81.
 (./TRB-manuscript.out) (./TRB-manuscript.out)
 \@outlinefile=\write3
 \openout3 = `TRB-manuscript.out'.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-Package caption Info: Begin \AtBeginDocument code.
-Package caption Info: threeparttable package is loaded.
-Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 93.
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 83.
 (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
-LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line 93.
+LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line 83.
 (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line 93.
+LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line 83.
 (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/omlztmcm.fd
 File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line 93.
+LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line 83.
 (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/omsztmcm.fd
 File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line 93.
+LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line 83.
 (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/omxztmcm.fd
 File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 93.
-=======
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 84.
-(c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/t1cmtt.fd
-File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-)
-LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line 84.
-(c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
-File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
-)
-LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line 84.
-(c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/omlztmcm.fd
-File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
-)
-LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line 84.
-(c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/omsztmcm.fd
-File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
-)
-LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line 84.
-(c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/omxztmcm.fd
-File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
-)
-LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 84.
-<<<<<<< HEAD
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
+LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 83.
 (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
-<<<<<<< HEAD
-<<<<<<< HEAD
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 93.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 83.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 93.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 83.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 93.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 83.
 [1
 
 {c:/Users/user/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}]
-Underfull \hbox (badness 10000) in paragraph at lines 96--117
-=======
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 84.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 84.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 84.
-[1
-
-{c:/Users/user/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}]
-Underfull \hbox (badness 10000) in paragraph at lines 87--108
-<<<<<<< HEAD
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
+Underfull \hbox (badness 10000) in paragraph at lines 86--107
 
  []
 
 [2] [3] [4] [5]
-<<<<<<< HEAD
-<<<<<<< HEAD
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 369.
-=======
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 444.
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-=======
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 444.
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 350.
 (c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 ) [6]
-<images/Fig1.png, id=131, 526.96875pt x 325.215pt>
+<images/Fig1.png, id=139, 526.96875pt x 325.215pt>
 File: images/Fig1.png Graphic file (type png)
 <use images/Fig1.png>
-<<<<<<< HEAD
-<<<<<<< HEAD
-Package pdftex.def Info: images/Fig1.png  used on input line 471.
-(pdftex.def)             Requested size: 469.75499pt x 289.92178pt.
-[7]
-
-LaTeX Warning: Reference `tab:Tab1' on page 8 undefined on input line 580.
-
-
-LaTeX Warning: Reference `tab:Tab1' on page 8 undefined on input line 585.
-
-
-LaTeX Warning: Reference `tab:Tab1' on page 8 undefined on input line 608.
-
-[8] [9 <./images/Fig1.png>]
-
-LaTeX Warning: Reference `tab:Tab1' on page 10 undefined on input line 787.
-
-
-LaTeX Warning: Reference `tab:Tab1' on page 10 undefined on input line 798.
-
-
-Overfull \hbox (0.25937pt too wide) in paragraph at lines 804--812
-[]\T1/ptm/m/n/12 Spatial avail-abil-ity can be fur-ther ag-gre-gated to bet-ter in-ter-pret com-pe-ti-tion be-tween modes.
- []
-
-[10] [11]
-Overfull \hbox (13.19196pt too wide) in paragraph at lines 897--909
-\T1/ptm/m/it/12 dis-crim-i-na-tion\T1/ptm/m/n/12 . LEZ ac-tively change how peo-ple ac-cess op-por-tu-ni-ties by mak-ing the travel impedance
- []
-
-<images/i_jobs_zn208_plot.png, id=184, 526.8483pt x 325.215pt>
-File: images/i_jobs_zn208_plot.png Graphic file (type png)
-<use images/i_jobs_zn208_plot.png>
-Package pdftex.def Info: images/i_jobs_zn208_plot.png  used on input line 912.
-(pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-<images/im_populations_zn208_plot.png, id=185, 526.8483pt x 325.215pt>
-File: images/im_populations_zn208_plot.png Graphic file (type png)
-<use images/im_populations_zn208_plot.png>
-Package pdftex.def Info: images/im_populations_zn208_plot.png  used on input line 921.
-(pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-[12 <./images/i_jobs_zn208_plot.png>] [13 <./images/im_populations_zn208_plot.png>]
-<images/tlds_curves_m_plot.png, id=215, 526.8483pt x 325.215pt>
-File: images/tlds_curves_m_plot.png Graphic file (type png)
-<use images/tlds_curves_m_plot.png>
-Package pdftex.def Info: images/tlds_curves_m_plot.png  used on input line 1015.
-(pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-<images/SA_im_V_zn208_plot.png, id=216, 526.8483pt x 325.215pt>
-File: images/SA_im_V_zn208_plot.png Graphic file (type png)
-<use images/SA_im_V_zn208_plot.png>
-Package pdftex.def Info: images/SA_im_V_zn208_plot.png  used on input line 1033.
-(pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-[14] [15 <./images/tlds_curves_m_plot.png>] [16 <./images/SA_im_V_zn208_plot.png>]
-<images/SA_im_vv_zn208_plot.png, id=242, 526.8483pt x 325.215pt>
-File: images/SA_im_vv_zn208_plot.png Graphic file (type png)
-<use images/SA_im_vv_zn208_plot.png>
-Package pdftex.def Info: images/SA_im_vv_zn208_plot.png  used on input line 1087.
-(pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-[17 <./images/SA_im_vv_zn208_plot.png>]
-<images/v_im_per_pop_plot.png, id=250, 526.8483pt x 325.215pt>
-File: images/v_im_per_pop_plot.png Graphic file (type png)
-<use images/v_im_per_pop_plot.png>
-Package pdftex.def Info: images/v_im_per_pop_plot.png  used on input line 1116.
-(pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-[18 <./images/v_im_per_pop_plot.png>] [19] (./TRB-manuscript.bbl
-=======
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-Package pdftex.def Info: images/Fig1.png  used on input line 546.
+Package pdftex.def Info: images/Fig1.png  used on input line 460.
 (pdftex.def)             Requested size: 469.75499pt x 289.92178pt.
 
-Package mathptmx Warning: There are no bold math fonts on input line 550.
+Package mathptmx Warning: There are no bold math fonts on input line 464.
 
-[7] [8
+[7
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.567 
-       <./images/Fig1.png>]
-
-LaTeX Warning: Reference `tab:Tab1' on page 9 undefined on input line 655.
-
-
-LaTeX Warning: Reference `tab:Tab1' on page 9 undefined on input line 660.
-
-
-LaTeX Warning: Reference `tab:Tab1' on page 9 undefined on input line 683.
-
-[9]
-
-LaTeX Warning: Reference `tab:Tab1' on page 10 undefined on input line 721.
-
-
-LaTeX Warning: Reference `tab:Tab1' on page 10 undefined on input line 732.
-
-
-Overfull \hbox (0.25937pt too wide) in paragraph at lines 738--746
+l.479 
+       <./images/Fig1.png>] [8]
+Overfull \hbox (0.25937pt too wide) in paragraph at lines 646--657
 []\T1/ptm/m/n/12 Spatial avail-abil-ity can be fur-ther ag-gre-gated to bet-ter in-ter-pret com-pe-ti-tion be-tween modes.
  []
 
-[10]
-Overfull \hbox (13.19196pt too wide) in paragraph at lines 831--843
-\T1/ptm/m/it/12 dis-crim-i-na-tion\T1/ptm/m/n/12 . LEZ ac-tively change how peo-ple ac-cess op-por-tu-ni-ties by mak-ing the travel impedance
- []
-
-<images/i_jobs_zn208_plot.png, id=168, 526.8483pt x 325.215pt>
+[9]
+<images/i_jobs_zn208_plot.png, id=171, 505.89pt x 505.89pt>
 File: images/i_jobs_zn208_plot.png Graphic file (type png)
 <use images/i_jobs_zn208_plot.png>
-Package pdftex.def Info: images/i_jobs_zn208_plot.png  used on input line 846.
-(pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-<images/im_populations_zn208_plot.png, id=169, 526.8483pt x 325.215pt>
+Package pdftex.def Info: images/i_jobs_zn208_plot.png  used on input line 745.
+(pdftex.def)             Requested size: 469.75499pt x 469.76265pt.
+<images/im_populations_zn208_plot.png, id=172, 505.89pt x 505.89pt>
 File: images/im_populations_zn208_plot.png Graphic file (type png)
 <use images/im_populations_zn208_plot.png>
-Package pdftex.def Info: images/im_populations_zn208_plot.png  used on input line 855.
-(pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-[11] [12
+Package pdftex.def Info: images/im_populations_zn208_plot.png  used on input line 754.
+(pdftex.def)             Requested size: 469.75499pt x 469.76265pt.
+[10] [11
 pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.877 
-       <./images/i_jobs_zn208_plot.png>] [13
+l.777 
+       <./images/i_jobs_zn208_plot.png>] [12
 pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.877 
-       <./images/im_populations_zn208_plot.png>] [14]
-<images/tlds_curves_m_plot.png, id=218, 526.8483pt x 325.215pt>
+l.777 
+       <./images/im_populations_zn208_plot.png>] [13]
+<images/tlds_curves_m_plot.png, id=223, 526.8483pt x 325.215pt>
 File: images/tlds_curves_m_plot.png Graphic file (type png)
 <use images/tlds_curves_m_plot.png>
-Package pdftex.def Info: images/tlds_curves_m_plot.png  used on input line 949.
+Package pdftex.def Info: images/tlds_curves_m_plot.png  used on input line 859.
 (pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-<images/SA_im_V_zn208_plot.png, id=219, 526.8483pt x 325.215pt>
+<images/SA_im_V_zn208_plot.png, id=224, 505.89pt x 505.89pt>
 File: images/SA_im_V_zn208_plot.png Graphic file (type png)
 <use images/SA_im_V_zn208_plot.png>
-Package pdftex.def Info: images/SA_im_V_zn208_plot.png  used on input line 967.
-(pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-[15
+Package pdftex.def Info: images/SA_im_V_zn208_plot.png  used on input line 876.
+(pdftex.def)             Requested size: 469.75499pt x 469.76265pt.
+[14
 pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.1001 
-        <./images/tlds_curves_m_plot.png>] [16
+l.917 
+       <./images/tlds_curves_m_plot.png>] [15
 pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.1001 
-        <./images/SA_im_V_zn208_plot.png>]
-<images/SA_im_vv_zn208_plot.png, id=235, 526.8483pt x 325.215pt>
+l.917 
+       <./images/SA_im_V_zn208_plot.png>]
+<images/SA_im_vv_zn208_plot.png, id=238, 505.89pt x 505.89pt>
 File: images/SA_im_vv_zn208_plot.png Graphic file (type png)
 <use images/SA_im_vv_zn208_plot.png>
-Package pdftex.def Info: images/SA_im_vv_zn208_plot.png  used on input line 1021.
-(pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-[17
+Package pdftex.def Info: images/SA_im_vv_zn208_plot.png  used on input line 920.
+(pdftex.def)             Requested size: 469.75499pt x 469.76265pt.
+
+Overfull \hbox (4.8814pt too wide) in paragraph at lines 940--958
+[]\T1/ptm/m/n/12 Interestingly, $\OML/ztmcm/m/it/12 v[]$ \T1/ptm/m/n/12 for car/motor within and near the LEZ Cen-tro is near or be-low 1 (white/red):
+ []
+
+[16] [17
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.1047 
-        <./images/SA_im_vv_zn208_plot.png>]
-<images/v_im_per_pop_plot.png, id=243, 526.8483pt x 325.215pt>
-File: images/v_im_per_pop_plot.png Graphic file (type png)
-<use images/v_im_per_pop_plot.png>
-Package pdftex.def Info: images/v_im_per_pop_plot.png  used on input line 1050.
-(pdftex.def)             Requested size: 469.75499pt x 289.9714pt.
-[18
-pdfTeX warning (ext4): destination with the same identifier (name{figure.7}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1088 
-        <./images/v_im_per_pop_plot.png>] [19] [20] (./TRB-manuscript.bbl
-<<<<<<< HEAD
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-Underfull \hbox (badness 10000) in paragraph at lines 92--96
+l.986 
+       <./images/SA_im_vv_zn208_plot.png>] [18] (./TRB-manuscript.bbl
+Underfull \hbox (badness 10000) in paragraph at lines 86--90
 \T1/cmtt/m/n/12 doi / epdf / 10 . 1080 / 1523908X . 2021 . 2022465 ? needAccess = true & role = button$[]\T1/ptm/m/n/12 .
  []
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-[20]
-=======
-[21]
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-=======
-[21]
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-Underfull \hbox (badness 4913) in paragraph at lines 106--111
+
+Underfull \hbox (badness 4913) in paragraph at lines 100--105
 []\T1/ptm/m/n/12 Anastasia Soukhov, An-to-nio Paez, Christo-pher D. Hig-gins, and Moataz Mo-
  []
 
 
-Underfull \hbox (badness 1024) in paragraph at lines 106--111
+Underfull \hbox (badness 1024) in paragraph at lines 100--105
 \T1/ptm/m/n/12 hamed.  In-tro-duc-ing spa-tial avail-abil-ity, a singly-constrained mea-sure of com-pet-i-
  []
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-[21]) [22] (./TRB-manuscript.aux)
-=======
-[22]) [23] (./TRB-manuscript.aux)
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-=======
-[22]) [23] (./TRB-manuscript.aux)
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
+[19] [20]) [21] (./TRB-manuscript.aux)
  ***********
 LaTeX2e <2023-06-01> patch level 1
 L3 programming layer <2023-06-30>
  ***********
-
-LaTeX Warning: There were undefined references.
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-LaTeX Warning: There were multiply-defined labels.
-
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
 Package rerunfilecheck Info: File `TRB-manuscript.out' has not changed.
-(rerunfilecheck)             Checksum: 25ECEA75BD5ECC8341C4DAA75E881901;2394.
+(rerunfilecheck)             Checksum: B6A8470A0F35E6317C66F3489E31DFB0;1895.
  ) 
 Here is how much of TeX's memory you used:
-<<<<<<< HEAD
-<<<<<<< HEAD
- 18061 strings out of 477196
- 334945 string characters out of 5811767
+ 12761 strings out of 477196
+ 202691 string characters out of 5811767
  1944238 words of memory out of 5000000
- 38676 multiletter control sequences out of 15000+600000
- 590385 words of font info for 89 fonts, out of 8000000 for 9000
+ 33436 multiletter control sequences out of 15000+600000
+ 590279 words of font info for 88 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 79i,13n,93p,1571b,1065s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 79i,11n,93p,1571b,617s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <c:/Users/user/AppData/Roaming/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1200.600pk><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/symbol/usyr.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/symbol/usyr.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on TRB-manuscript.pdf (22 pages, 1740923 bytes).
+Output written on TRB-manuscript.pdf (21 pages, 1904510 bytes).
 PDF statistics:
- 454 PDF objects out of 1000 (max. 8388607)
+ 449 PDF objects out of 1000 (max. 8388607)
  338 compressed objects within 4 object streams
- 92 named destinations out of 1000 (max. 500000)
-=======
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
- 12812 strings out of 477196
- 203593 string characters out of 5811767
- 1948238 words of memory out of 5000000
- 33486 multiletter control sequences out of 15000+600000
- 593001 words of font info for 90 fonts, out of 8000000 for 9000
- 14 hyphenation exceptions out of 8191
- 79i,11n,93p,1571b,625s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <c:/Users/user/AppData/Roaming/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1200.600pk><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/symbol/usyr.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/symbol/usyr.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/user/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on TRB-manuscript.pdf (23 pages, 1745697 bytes).
-PDF statistics:
- 470 PDF objects out of 1000 (max. 8388607)
- 355 compressed objects within 4 object streams
  86 named destinations out of 1000 (max. 500000)
-<<<<<<< HEAD
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
-=======
->>>>>>> 21431ddad7a6b8c2f40c37983993ced7438ed4bd
- 116 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 127 words of extra memory for PDF output out of 10000 (max. 10000000)
 

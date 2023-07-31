@@ -65,12 +65,6 @@ Jinhyung Lee and Harvey~J. Miller.
 \newblock \doi{10.1016/j.apgeog.2018.02.012}.
 \newblock URL \url{https://linkinghub.elsevier.com/retrieve/pii/S014362281730930X}.
 
-\bibitem[family=Mohri et~al.()family=Mohri, Mortazavi, and Nassir]{mohriClusteringMethodMeasuring2021}
-given-i=SS family=Mohri, given=SS, S~Mortazavi, and N~Nassir.
-\newblock A clustering method for measuring accessibility and equity in public transportation service: {{Case}} study of {{Melbourne}}.
-\newblock 74.
-\newblock \doi{10.1016/j.scs.2021.103241}.
-
 \bibitem[Mao and Nekorchuk()]{maoMeasuringSpatialAccessibility2013}
 Liang Mao and Dawn Nekorchuk.
 \newblock Measuring spatial accessibility to healthcare for populations with multiple transportation modes.
@@ -165,13 +159,13 @@ Gerardo Carpentieri, Carmen Guida, and Houshmand~E. Masoumi.
 \newblock \doi{10.3390/su12030781}.
 \newblock URL \url{https://www.mdpi.com/2071-1050/12/3/781}.
 
-\bibitem[{España - Ministerio para la Transición Ecológica}({\natexlab{a}})]{espanaPlanNacionalIntegrado2020}
-{España - Ministerio para la Transición Ecológica}.
+\bibitem[{España}({\natexlab{a}})]{espanaPlanNacionalIntegrado2020}
+{España}.
 \newblock Plan nacional integrado de energía y clima ({PNIEC}) 2021-2030, {\natexlab{a}}.
 \newblock URL \url{https://www.miteco.gob.es/es/prensa/pniec.html}.
 
-\bibitem[{España - Ministerio para la Transición Ecológica}({\natexlab{b}})]{espanaResolucion10Enero2020}
-{España - Ministerio para la Transición Ecológica}.
+\bibitem[{España}({\natexlab{b}})]{espanaResolucion10Enero2020}
+{España}.
 \newblock Resolución de 10 de enero de 2020, de la dirección general de biodiversidad y calidad ambiental, por la que se publica el programa nacional de control de la contaminación atmosférica, {\natexlab{b}}.
 \newblock URL \url{https://www.boe.es/eli/es/res/2020/01/10/(10)}.
 
@@ -187,6 +181,11 @@ Javier Tarriño-Ortiz, Juan Gómez, Julio~A. Soria-Lara, and José~M. Vassallo.
 \newblock ISSN 2210-6707.
 \newblock \doi{10.1016/j.scs.2021.103562}.
 \newblock URL \url{https://www.sciencedirect.com/science/article/pii/S2210670721008283}.
+
+\bibitem[{Comunidad de Madrid}()]{comunidaddemadridResultadosEDM20182020}
+{Comunidad de Madrid}.
+\newblock Resultados de la {EDM} 2018 - datos abiertos.
+\newblock URL \url{https://datos.comunidad.madrid/catalogo/dataset/resultados-edm2018}.
 
 \bibitem[Lopez and Paez(2017)]{lopez_2017_spatial}
 Fernando~A. Lopez and Antonio Paez.
