@@ -1,6 +1,6 @@
 ---
 title: "Competition for Access to Opportunities between Modes: Multimodal Spatial Availability"
-#runningheader: "Capturing Multimodal Access to Opportunities with the Spatial Availability Measure"
+#runningheader: "Multimodal Spatial Availability: A Singly-Constrained Measure of Competitive Accessibility by Multiple Modes"
 author:
   - name: Anastasia Soukhov
     note: Corresponding Author
