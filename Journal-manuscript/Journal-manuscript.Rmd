@@ -1,6 +1,5 @@
 ---
-title: "Competition for Access to Opportunities between Modes: Multimodal Spatial Availability"
-#runningheader: "Multimodal Spatial Availability: A Singly-Constrained Measure of Competitive Accessibility by Multiple Modes"
+title: "Multimodal Spatial Availability: A Singly-Constrained Measure of Competitive Accessibility by Multiple Modes"
 author:
   - name: Anastasia Soukhov
     note: Corresponding Author
@@ -23,14 +22,11 @@ abstract: |
   An increasing number of studies within the domain of transportation planning are concerned with the inequities in accessibility to opportunities. A dimension of these inequities arises from differences in access by mode type (e.g., commuting using a car as opposed to transit). However, methods implemented in current accessibility literature are lacking within the context of multimodal analysis. This paper presents an extension of spatial availability, a singly-constrained competitive accessibility measure, for the context of multimodal accessibility analysis. We first illustrate the features of spatial availability that lend itself to multimodal analysis. We then demonstrate its use on the case study of Low Emission Zones in Madrid (Spain) and highlight how this policy intervention changes the accessibility of populations using different modes. In summary, spatial availability can be used to create and interpret multimodal policy intervention scenarios unlike previous methods: this creation and interpretation can help regions envision a more sustainable and equitable access-to-opportunity landscape.
   
 keywords: ["Multimodal", "Accessibility", "Equity", "Policy scenarios", "Low emission zones"]
+
 bibliography: mybibfile.bib
-biblio-style: unsrtnat
-classoption:
-#- numbered #  When numbered option is activated, lines are numbered.
-output: 
-  #word_document
-  rticles::trb_article
-wordcount: 7195
+output: rticles::plos_article
+# plos.csl can be download and used locally
+csl: http://www.zotero.org/styles/plos
 ---
 ```{r knitr-setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -61,15 +57,16 @@ library(dplyr) # A Grammar of Data Manipulation
 library(ggplot2) # Create Elegant Data Visualisations Using the Grammar of Graphics
 library(ggforce) # Accelerating 'ggplot2'
 library(geomtextpath) # Curved Text in 'ggplot2'
+library(sfheaders)
 library(ggpmisc) # Miscellaneous Extensions to 'ggplot2'
 library(ggrepel) # Automatically Position Non-Overlapping Text Labels with 'ggplot2'
 library(ggspatial) # Spatial Data Framework for ggplot2
 library(flextable) # Functions for Tabular Reporting
 library(scales) # Scale Functions for Visualization
-library(TAM)
+library(TAM) #Test Analysis Modules
 library(officer)
 library(ggnewscale)
-library(bookdown)
+library(cowplot)
 ```
 
 ```{r sp_avail-function,include=FALSE}
@@ -216,8 +213,8 @@ centers <- data.frame(id = c("Urban center", "Suburb", "Satellite town"),
 # od_lines coded as segments
 od_lines <- data.frame(x = c(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 6.5, 6.5, 6.5),
                        y = c(8.0, 8.0, 8.0, 2.5, 2.5, 2.5, 4.5, 4.5, 4.5),
-                       xend = c(0.5, 0.5, 6.5, 0.5, 0.5, 6.5, 0.5, 0.5, 6.5),
-                       yend = c(7.5, 2.5, 2.5, 7.5, 2.5, 2.5, 7.5, 2.5, 2.5),
+                       xend = c(0.8, 0.4, 6.3, 0.4, 0.8, 6.3, 0.8, 0.7, 6.5),
+                       yend = c(7.7, 2.8, 2.7, 7.2, 2.5, 2.5, 7.5, 2.7, 2.7),
                        group = c("A", "A", "A", "B", "B", "B", "C", "C", "C"),
                        time = c("15 min (x)\n10 min (z)", "30 min (x)\n25 min (z)", "100 min (x)\n80 min (z)",
                                 "30 min (x)\n25 min (z)", "15 min (x)\n10 min (z)", "100 min (x)\n80 min (z)",
@@ -257,6 +254,7 @@ toy_example_plot <- ggplot() +
                    yend = yend,
                    linetype = group,
                    group = group),
+             arrow = arrow(length = unit(0.03, "npc")),
              curvature = 0.20,
              linewidth = 1,
              color = "black") +
@@ -994,12 +992,18 @@ sf::sf_use_s2(FALSE) #this terns off the spherical geometry component in the st_
 Madrid_muni_border <- zn1259_mad %>%
   st_union()
 ```
-```{r merging-borders-for-plotting}
+```{r merging-borders-for-plotting, warning=FALSE}
 Madrid_muni_border <- Madrid_muni_border %>% st_as_sf() %>% transmute(Border = "Madrid municipal border") %>% rename( "geometry" = "x")
 
 borders <- rbind(LEZ_centro %>% transmute(Border = "LEZ centro"), 
                  LEZ_M30 %>% transmute(Border = "LEZ M-30"),
                  Madrid_muni_border)
+
+#to clean up the slivers
+borders <- borders |> st_make_valid() |>
+  group_by(Border) |>
+  summarise() |>
+  sf_remove_holes()
 ```
 
 ```{r, eval=FALSE}
@@ -1171,27 +1175,6 @@ SA_im_v_zn208_plot <- ggplot() +
 SA_im_v_zn208_plot
 ggsave("images/SA_im_vv_zn208_plot.png")
 ```
-```{r, eval=FALSE}
-all_modes_v_im <- merge(x=car, y=bike, by = "VORI_CD_ZT208", all = T) %>% 
-  merge(transit, by = "VORI_CD_ZT208", all=T)%>%
-  merge(walk, by = "VORI_CD_ZT208", all = T)
-
-v_im_per_pop_plot <- ggplot(SA_im_zn208 %>% mutate(area = st_area(SA_im_zn208),
-                                                   pop_den = population/area),
-       aes(x=population,
-         #x = reorder(VORI_CD_ZT208, population),
-           y = v_im,
-           group=mode,
-           color=mode)) +
-  geom_line()  + geom_point()+
-  xlab("Total population at origin") +
-  ylab(expression(v["i"]^{m}))+
-  #scale_x_discrete(breaks=c("5","15","30","45","60"),labels=c("100","10000","20000","30000","41000"))
-  theme_classic()
-
-v_im_per_pop_plot #this doesn't tell me tooo much.. it just means that levels of SA is similar across population densities for the most part. And that bike/walk are similar while car/transit are similar.
-ggsave("images/v_im_per_pop_plot.png")
-```
 
 ```{r, eval=FALSE}
 # here we example the relationship between v_im between modes -- I can't tell anything conclusive.
@@ -1215,25 +1198,197 @@ all_modes_v_im_plot <- ggplot(all_modes_v_im,
   geom_line()  + geom_point()+
   theme_classic()
 ```
+```{r, eval=FALSE}
+all_modes_v_im <- merge(x=car, y=bike, by = "VORI_CD_ZT208", all = T) %>% 
+  merge(transit, by = "VORI_CD_ZT208", all=T)%>%
+  merge(walk, by = "VORI_CD_ZT208", all = T)
+
+v_im_per_pop_plot <- ggplot(SA_im_zn208 %>% mutate(area = st_area(SA_im_zn208),
+                                                   pop_den = population/area),
+       aes(x=population,
+         #x = reorder(VORI_CD_ZT208, population),
+           y = v_im,
+           group=mode,
+           color=mode)) +
+  geom_line()  + geom_point()+
+  xlab("Total population at origin") +
+  ylab(expression(v["i"]^{m}))+
+  #scale_x_discrete(breaks=c("5","15","30","45","60"),labels=c("100","10000","20000","30000","41000"))
+  theme_classic()
+
+v_im_per_pop_plot #this doesn't tell me tooo much.. it just means that levels of SA is similar across population densities for the most part. And that bike/walk are similar while car/transit are similar.
+ggsave("images/v_im_per_pop_plot.png")
+```
+
+```{r, eval=FALSE}
+#Check that the totals are maintained, it is!:
+sum(OD_SA_zn208$V_ij, na.rm = T) #847574 jobs spatially avaialble to the region -- 
+OD_SA_zn208 %>% group_by(VDES_CD_ZT208) %>% summarize(jobs = mean(jobs)) %>% select(jobs) %>% sum()
+
+sum(OD_SA_zn208$tt)
+sum(OD_SA_zn208$total_ttworkers)
+
+#for comparision, the number of travel minutes spent going to jobs. group by jobs zona, and the the number of potential minutes traveling to jobs. This sum is the number of minutes spent commuting to jobs. it is 33680009 minutes, this is approx equal to 43min (mean travel time) *847574 (the total number of workers).
+OD_SA_zn208 %>% group_by(VDES_CD_ZT208) %>% 
+  summarize(jobs_tt_f_t = sum(jobs_tt_f_t)) %>% 
+  select(jobs_tt_f_t) %>% sum() #should equal 33680009 mins total
+```
+
+```{r}
+#Maybe delete this chunk?? 
+
+# Spatial availability by mode, we can see that car mode captures ~48% of the spatial availability but only accounts for ~36% of the tt_ijm !!:
+modal_V_comps <- OD_SA_zn208 %>%
+  group_by(mode) %>%
+  summarize(workers_m = sum(workers),
+            V_m = sum(V_ij),
+            V_m_perc = sum(V_ij)/847574,
+            jobs_tt_f_t = sum(jobs_tt_f_t)/33680009)
+#modal_V_comps #this issue here is workers should equal V_m in our case, make it do it.
+```
+
+```{r}
+#data for the following plot
+modal_V_comps_4plot <- SA_im_zn208 %>% st_drop_geometry() %>%
+  group_by(mode) %>% 
+  summarize(workers_m = sum(population_m),
+            v_m = mean(v_im),
+            V_m = sum(V_im) ,
+            V_m_perc = sum(V_im)/847574,
+            workers_m_perc = sum(population_m)/847574)
+
+modal_V_comps_4plot <- data.frame(Mode = c("Bike", "Walk", "Car/motor", "Transit",
+                                           "Bike", "Walk", "Car/motor", "Transit"),
+                                  perc = c(modal_V_comps_4plot$workers_m_perc, modal_V_comps_4plot$V_m_perc),
+                                  Measure = c(1,1,1,1,2,2,2,2) ) #for labeling the y-axis
+
+CENTRO_comps <- SA_im_zn208 %>% st_drop_geometry() %>% filter(VORI_CD_ZT208 <= 3) %>%
+  group_by(mode) %>% 
+  summarize(workers_m = sum(population_m),
+            V_m = sum(V_im)) %>%
+  transmute(mode,
+    CENTRO_V_m_perc = V_m/sum(V_m),
+    CENTRO_workers_m_perc = workers_m/sum(workers_m)) 
+
+CENTRO_comps <- data.frame(Mode = c("Bike", "Walk", "Car/motor", "Transit",
+                                           "Bike", "Walk", "Car/motor", "Transit"),
+                                  perc = c(CENTRO_comps$CENTRO_workers_m_perc, CENTRO_comps$CENTRO_V_m_perc),
+                                  Measure = c(5,5,5,5,6,6,6,6) ) #for labeling the y-axis
+
+M30_comps <- SA_im_zn208 %>% st_drop_geometry() %>% filter(VORI_CD_ZT208 >= 4 & VORI_CD_ZT208 <= 20) %>%
+  group_by(mode) %>% 
+  summarize(workers_m = sum(population_m),
+            V_m = sum(V_im)) %>%
+  transmute(mode,
+    M30_V_m_perc = V_m/sum(V_m),
+    M30_workers_m_perc = workers_m/sum(workers_m)) 
+
+M30_comps <- data.frame(Mode = c("Bike", "Walk", "Car/motor", "Transit",
+                                           "Bike", "Walk", "Car/motor", "Transit"),
+                                  perc = c(M30_comps$M30_workers_m_perc, M30_comps$M30_V_m_perc),
+                                  Measure = c(3,3,3,3,4,4,4,4) ) 
+
+modal_V_comps_4plot <- rbind(modal_V_comps_4plot,M30_comps,CENTRO_comps)
+```
+
+```{r}
+#comparision plots of spatial availability vs. population by mode for the full region, just m-30, and just centro
+comps_plot <- ggplot(data = modal_V_comps_4plot,
+       aes(y=perc, x=Measure, fill=Mode, label= perc %>% percent(accuracy = 0.1) )) +
+  scale_x_discrete(limits = c("Population by Mode\n(Total: 847,574)","Spatial Availability\n(Total: 847,574)",
+                              "Population by Mode\n(Total: 243,472)","Spatial Availability\n(Total: 217,219)",
+                              "Population by Mode\n(Total: 44,891)","Spatial Availability\n(Total: 38,942)"),
+                   position = "bottom") +
+  geom_col() +
+  scale_fill_manual(values = c("lightgreen","sienna", "coral", "skyblue"))+
+  geom_text(position = position_stack(vjust=0.5), color="black")+
+  theme_classic()+
+  theme(axis.ticks = element_blank(),
+        axis.title = element_blank(),
+        axis.line = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text = element_text(color="black"),
+        legend.position = "bottom",
+        legend.title = element_blank()) +
+  geom_vline(xintercept=c(0.5,2.5, 4.5, 6.5),
+                color = "black", size=1)
+```
+
+```{r}
+ALL_Plot <- ggplot() +
+    geom_sf(data = borders,
+          size = 0.5,
+          aes(col = Border),
+          fill= NA) +
+  scale_color_manual(values = c( "red", "cyan", "black"),
+                     name = element_blank())+
+  geom_sf(data = borders %>% filter(Border == "Madrid municipal border"),
+          size = 0.5,
+          col ="black",
+          fill="black") +
+  theme_void() +
+  ggtitle("All") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")
+
+M30_Plot <- ggplot() +
+    geom_sf(data = borders,
+          size = 0.5,
+          aes(col = Border),
+          fill= NA) +
+  scale_color_manual(values = c( "red", "cyan", "black"),
+                     name = element_blank())+
+  geom_sf(data = borders %>% filter(Border == "LEZ M-30"),
+          size = 0.5,
+          col ="cyan",
+          fill="cyan") +
+  theme_void() +
+  ggtitle("M-30") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")
+
+CENTRO_Plot <- ggplot() +
+    geom_sf(data = borders,
+          size = 0.5,
+          aes(col = Border),
+          fill= NA) +
+  scale_color_manual(values = c( "red", "cyan", "black"),
+                     name = element_blank())+
+  geom_sf(data = borders %>% filter(Border == "LEZ centro"),
+          size = 0.5,
+          col ="red",
+          fill="red") +
+  theme_void() +
+  ggtitle("Centro") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")
+
+modal_V_comps_4plot_plot <- gridExtra::arrangeGrob(
+                        #labels_4plot,
+  gridExtra::arrangeGrob(ALL_Plot, M30_Plot, CENTRO_Plot, ncol=3),
+                        comps_plot,
+                        nrow=2, heights = c(1,2.5) )
+ggsave("images/modal_V_comps_4plot.png", modal_V_comps_4plot_plot)
+```
 
 # Abstract
-An increasing number of studies within the domain of transport are concerned with the inequities in accessibility to opportunities. A dimension of these inequities arise from differences in access by mode type (e.g., the number of work opportunities that can be reached using a car as opposed to transit in a city). However, methods assessing multimodal accessibility in the literature fall short as aspects of competition for opportunities and the explicit methodological acknowledgement of opportunities being _finite_ are lacking. In this vein, this paper presents an extension of _spatial availability_, a singly-constrained competitive accessibility measure, for the context of multimodal accessibility analysis. We first illustrate the features of spatial availability that lends itself to multimodal analysis. We then demonstrate its use on the case study of Low Emission Zones in Madrid (Spain) and highlight how this policy intervention changes the accessibility of populations using different modes. In summary, spatial availability can be used to create and interpret multimodal policy intervention scenarios unlike previous methods: this creation and interpretation can help regions envision a more sustainable and equitable access-to-opportunity landscape by better identifying differences in accessibility afforded by different modes.
+An increasing number of studies within the domain of transport are concerned with the inequities in accessibility to opportunities. A dimension of these inequities arise from differences in access by mode type (e.g., the number of work opportunities that can be reached using a car as opposed to transit in a city). However, methods assessing multimodal accessibility in the literature fall short as aspects of competition for opportunities and the explicit methodological acknowledgement of opportunities being _finite_ are lacking. In this vein, this paper presents an extension of _spatial availability_, a singly-constrained competitive accessibility measure, for the context of multimodal accessibility analysis. We first illustrate the features of spatial availability that lends itself to multimodal analysis. We then demonstrate its use on the case study of Low Emission Zones in Madrid (Spain) and highlight how this policy intervention changes the accessibility for locations where populations use different modes. In summary, spatial availability can be used to create and interpret multimodal policy intervention scenarios unlike previous methods: this creation and interpretation can help regions envision a more sustainable and equitable access-to-opportunity landscape by better identifying differences in accessibility afforded by different modes.
 
 # Introduction
 
 <!-- outlines the use of location-based accessibility measures in the literature: equity, planning -- esp. as it relates to modal competition (brief) -->
 Implementing urban policies that re-shape cities through accessibility gains (i.e., the _potential to interact_ with opportunities as a result of land-use mix and transport systems as originally defined by @hansenHowAccessibilityShapes1959) have been widely applied within the transportation literature and is increasingly discussed by planners [@levinsonTransportAccessManual2020; @gowerPlanningInnovationCity2022; @siddiqToolsTradeAssessing2021; @yanAccessibilityBasedPlanningAddressing2021]. An important challenge in the identification of interventions that equitably transform cities is the effective evaluation of _trade-offs_: cities are complex and dynamic ecologies, and advantaging one component of the city can disadvantage another area, population, or sub-component In this way, policy evaluation should take a _systems_ approach [@fikselSustainabilityResilienceSystems2006]. One way of considering systems is from the perspective of the _finite_. As an illustration, consider the amount of transport space within a city: the amount is typically finite so re-allocating road space away from one mode directly impacts the performance of the others (see the literature on road space reallocation e.g., @valencaMainChallengesOpportunities2021). Evaluating policy impacts in the context of _finity_ provides a way to contextualize the balance of trade-offs that the citizens of a city should tolerate.
 
-From the perspective of urban transport systems, location-based accessibility measures have been used in the context of policy evaluation. For instance, @leeMeasuringImpactsNew2018 assesses the transit accessibility gains to healthcare and employment opportunities for disadvantaged neighbourhood in Columbus, Ohio, USA after the transit system's re-design and introduction of a rapid bus system. However, a limitation of this study, like others that implement accessibility measures, is they do not calculate results under a _constrained_ framework i.e., one of _finity_. The citizens of Columbus should experience qualitative accessibility gains - but is it at the expense of access to opportunities to populations using other modes? <!-- As another example, @mohriClusteringMethodMeasuring2021 implements a modified cumulative opportunity measure to assess differences between private vehicle and transit system accessibility to jobs in Melbourne, but a similar question remains, does the accessibility afforded to the private vehicle using population come at the expense of accessibility losses to transit users? -->
+From the perspective of urban transport systems, location-based accessibility measures have been used in the context of policy evaluation. For instance, @leeMeasuringImpactsNew2018 assesses the transit accessibility gains to healthcare and employment opportunities for disadvantaged neighbourhood in Columbus, Ohio, USA after the transit system's re-design and introduction of a rapid bus system. However, a limitation of this study, like others that implement accessibility measures, is they do not calculate results under a _constrained_ framework i.e., one of _finity_. The citizens of Columbus should experience quantitative accessibility gains - but is it at the expense of access using other modes? As another example, @mohriClusteringMethodMeasuring2021 implements a modified cumulative opportunity measure to assess differences between private vehicle and transit system accessibility to jobs in Melbourne, but a similar question remains: does the accessibility afforded to the private vehicle using population come at the expense of accessibility losses to transit users?
 
-The work of @leeMeasuringImpactsNew2018 uses _non-competitive_ accessibility measures. There is a branch of location-based accessibility measures that do incorporate the effect of competition for opportunities by the population in the region. However, we argue that these existing methods fall short in acknowledging the _finity_ of opportunities. For instance, @maoMeasuringSpatialAccessibility2013 applies a competitive measure, two-step floating catchment approach (2SFCA), for the case of access to healthcare services in Florida for both a multimodal network and a single modal network. While the differences in modal access are discussed, the question of how the advantage in access afforded by one mode over another impacts access for different mode users is unanswered. 
+@leeMeasuringImpactsNew2018 and @mohriClusteringMethodMeasuring2021 both use _non-competitive_ accessibility measures. There is a branch of location-based accessibility measures that do incorporate the effect of competition for opportunities by the population in the region. However, we argue that these existing methods fall short in acknowledging the _finity_ of opportunities. For instance, @maoMeasuringSpatialAccessibility2013 applies a competitive measure, two-step floating catchment approach (2SFCA), for the case of access to healthcare services in Florida for both a multimodal network and a single modal network. While the differences in modal access are discussed, the question of how the advantage in access afforded by one mode over another impacts access for different mode users is unanswered. 
 
-This question of how much one mode-using population can access at the expense of another mode-using population is a pertinent equity question in the evaluation of policy scenarios that are multimodal. For instance, consider the impact of a low emission zone (LEZ). LEZ is a policy of spatial and modal discrimination: the circulation of vehicles that are excessively polluting are restricted in specific regions. In the recognition that opportunities are finite, the implementation of a LEZ explicitly reduces the access that the population using polluting vehicles has to opportunities. This restriction allows the population using other more sustainable modes to potentially have a higher level of access than before the LEZ implementation. This evaluation is especially urgent as LEZ are currently in effect in cities globally; their reception has been mixed [@tarrinoortizPublicAcceptabilityLow2021] and may be having negative impacts on disadvantaged populations who have become mobility restricted [@devrijNooneVisitsMe2022; @verbeekJustManagementUrban2022]. Measures that evaluate the accessibility of modes given both _constrained_ and _competitive_ considerations are lacking in the literature, but are needed, to evaluate such policy interventions impact on accessibility.
+This question of how much one mode-using population can access at the expense of another mode-using population is a pertinent equity question in the evaluation of policy scenarios that are multimodal. For instance, consider the impact of a low emission zone (LEZ). LEZ is a policy of spatial and modal discrimination: the circulation of vehicles that are excessively polluting are restricted in specific regions. In the recognition that opportunities are finite, the implementation of a LEZ explicitly reduces the access that the population using polluting vehicles has to opportunities. This restriction allows the population using other more sustainable modes to potentially have a higher level of access than before the LEZ implementation. This evaluation is especially urgent as LEZ are currently in effect in cities globally; their reception has been mixed [@tarrinoortizPublicAcceptabilityLow2021] and may be having negative impacts on disadvantaged populations who have become mobility-restricted [@devrijNooneVisitsMe2022; @verbeekJustManagementUrban2022]. Measures that evaluate the accessibility of modes given both _constrained_ and _competitive_ considerations are lacking in the literature, but are needed, to evaluate such policy interventions impact on accessibility.
  
 In @soukhovIntroducingSpatialAvailability2023, we introduce spatial availability, a type of location-based accessibility measure that is both _constrained_ and _competitive_. In this paper, we extend the spatial availability measure into a multimodal framework and explore its use in answering the question outlined: _"given opportunities are finite, how many are available to a given location depending on the mode used?"._ The answer to this question quantifies how many opportunities can be accessed, considering competition, for different modes. To foreground this exploration, in Section 2, we discuss short falls of a few existing location-based measures in comparison to spatial availability through a synthetic example. In Section 3, the spatial availability of an empirical example of the LEZ in the city of Madrid, Spain is calculated. We demonstrate how the restriction of car circulation could have impacted the spatial availability of opportunities for each sub-population using transit, cycling and walking modes. In Section 4, we provide concluding remarks on the strengths of the use of spatial availability as a multimodal accessibility measure and potential future uses in policy planning scenarios.
 
 # A review of multimodal accessibility measures
-Location-based accessibility indicators are quantitative measures of _potential_ interaction with opportunities for locations within a given region: they are a product of the relationship between land-use and transport systems. Arguably the most commonly used location-based measured are cumulative opportunity measures and weighted cumulative opportunity measures [@levinsonTransportAccessManual2020]. These measures weight the opportunities that can be potentially interacted with from origin $i$ to destination $j$ based on some sort of travel cost function (e.g., travel time, fare, travel distance) otherwise known as a travel impedance function $f^{m}(c^m_{ij})$. Many weighted cumulative opportunities (often refered to as the gravity-based measure) originate from the measure proposed by @hansenHowAccessibilityShapes1959, which can take the following multimodal form: $S_i^m = \sum_j O_j f^m(c_{ij}^m)$ where $m$ is a set of modes which have mode-specific travel costs $(c_{ij}^m)$ and travel impedance functions $f^m(\cdot)$.
+Location-based accessibility indicators are quantitative measures of _potential_ interaction with opportunities for locations within a given region: they are a product of the relationship between land-use and transport systems. Arguably the most commonly used location-based measured are cumulative opportunity measures and weighted cumulative opportunity measures [@levinsonTransportAccessManual2020]. These measures weight the opportunities that can be potentially interacted with from origin $i$ to destination $j$ based on some sort of travel cost function (e.g., travel time, fare, travel distance) otherwise known as a travel impedance function $f^{m}(c^m_{ij})$. Many weighted cumulative opportunities (often referred to as the gravity-based measure) originate from the measure proposed by @hansenHowAccessibilityShapes1959, which can take the following multimodal form: $S_i^m = \sum_j O_j f^m(c_{ij}^m)$ where $m$ is a set of modes which have mode-specific travel costs $(c_{ij}^m)$ and travel impedance functions $f^m(\cdot)$.
 
 The Hansen-type measure does not consider competition between modes nor is it constrained. As an example, the work of @tahmasbiMultimodalAccessibilitybasedEquity2019 uses the Hansen-type measure to measure the potential interaction with retail locations using walking, public transit, and car modes $m$. $S_i^m$ is the sum of retail locations $j$ that can potentially be interacted with under the travel impedance as calculated for each $i$ and $m$. In other words, each $i$ has three $S_i$ values, one per $m$. In this work, they demonstrate that the car mode has the highest $S_i^{m=car}$ values in the majority of $i$, i.e., populations using a car can potentially interact with the most retail opportunities than populations using other modes. However, the higher $S_i^{m=car}$ values are not a result of lower $S_i^{m}$ values for other modes: it is not assumed that car-using populations potentially accessing more opportunities take away potential opportunities for other populations within the measure (no consideration for competition). This measure is also not constrained: there is no global maximum for $S_i$ or $S_i^m$ values, they are presented as a population normalized accessibility index. This makes the interpretation of the 'potentially interacted opportunities' relative to the region, making comparisons of the results across different regions challenging.
 
@@ -1247,7 +1402,7 @@ Spatial availability improves on previous multimodal accessibility approaches as
 
 ## Multimodal spatial availability $V_i^m$
 
-In brief, we define the _spatial availability_ at $i$ ( $V_{i}$ ) as the proportion of all opportunities in the region $O$ that are allocated to location $i$ from all opportunity destinations $j$. $V_{i}$ is a value of how many opportunities are available to each location $i$ out of all the opportunities in the region. The general formulation of spatial availability $V_{i}$ is shown in Equation (\ref{eq:spatial-availability-general}):
+In brief, we define the _spatial availability_ at $i$ ($V_{i}$) as the proportion of all opportunities in the region $O$ that are allocated to location $i$ from all opportunity destinations $j$. $V_{i}$ is a value of how many opportunities are available to each location $i$ out of all the opportunities in the region. The general formulation of spatial availability $V_{i}$ is shown in Equation (\ref{eq:spatial-availability-general}):
 ```{=tex}
 \begin{equation}
 \label{eq:spatial-availability-general}
@@ -1260,7 +1415,7 @@ V_i = \sum_{j=1}^J O_jF^t_{ij}
 - $F^t_{ij}$ is a balancing factor that depends on the demand for opportunities $O_j$ and cost of movement in the system $f(c_{ij})$.
 - $V_i$ is the number of spatially available opportunities at $i$; the sum of $V_{i}$ is equivalent to the total sum of opportunities in the region (i.e., $\sum_j O_j = \sum_i V_i$)
 
-Spatial availability measure is introduced in @soukhovIntroducingSpatialAvailability2023. The unique feature in the measure is the balancing factor $F^t_{ij}$, a proportional allocation mechanisms, that ensures $V_i$ calculated for each $i$ sums to the total number of opportunities. Through $F^t_{ij}$, spatial availability is a  _competitive_ and _constrained_ accessibility measure that handles the number of opportunities in the region in a finite way. $F^t_{ij}$ consists of two components: a population-based balancing factor $F^p_{i} = \frac{P_i}{\sum_i P_i}$ and an impedance-based balancing factor $F^c_{ij} = \frac{F^c_{ij}}{\sum_j F^c_{ij}}$ that, respectively, allocate opportunities to $i$ in proportion to the size of the population at $i$ (the mass effect) and the cost of reaching opportunities at $j$ (the impedance effect).
+The spatial availability measure is introduced in @soukhovIntroducingSpatialAvailability2023. Spatial availability's unique feature is the balancing factor $F^t_{ij}$, a proportional allocation mechanisms, that ensures the $V_i$ calculated for each $i$ sums, across all $i$ in the region, to equal the total number of opportunities in the region. As such, spatial availability is a  _competitive_ and _constrained_ accessibility measure as $F^t_{ij}$ handles the number of opportunities in the region in a finite way (proportional allocation). $F^t_{ij}$ consists of two components: a population-based balancing factor $F^p_{i} = \frac{P_i}{\sum_i P_i}$ and an impedance-based balancing factor $F^c_{ij} = \frac{F^c_{ij}}{\sum_j F^c_{ij}}$ that, respectively, allocate opportunities to $i$ in proportion to the size of the population at $i$ (the mass effect) and the cost of reaching opportunities at $j$ (the impedance effect).
 
 $F^p_{i}$ and $ F^c_{ij}$ are calculated for each $i$ such that they both equal 1 when summed across all $i$ in the region (e.g., $\sum_i F^p_{i} = 1$ and $\sum_i F^c_{ij} = 1$). These balancing factors are combined multiplicatively to yield $F^t_{ij}$ which ensures that a proportion of the opportunities $O_j$ are allocated to each $i$ accordingly. In other words, assuming a finite number of opportunities in the region, $F^t_{ij}$ proportionally allocates $O_j$ to each $i$ such that the resulting $V_i$ value represents the number of opportunities _spatially available_ to the population at $i$. This value can be seen to represent spatial availability as it is a proportion of the opportunities in the region (i.e., $\sum_j O_j = \sum_i V_i$).
 
@@ -1315,7 +1470,6 @@ The Hansen-type measure $S_i^m$ is presented for each origin and mode in third c
 In the fourth and sixth column in Table 1 <!-- \ref{tab:tab1}--> the Shen-type measure is calculated: first for both origin and mode $a_i^m$ as well as aggregated by the weighted mean mode-population ( $\sum_m \frac{P_i^m}{P_i}*a_i^m$ ) to represent a value for each origin $a_i$. Unlike $S_i^m$, this measure considers _competition_. For instance, the $x$-using populations in $A$ and $B$ centers do not have the same $a_i^m$ values as the $z$-using. In fact, $A$ has the highest values $a_i^m$ and $a_i$ values since this center has the smallest travel impedance to opportunities (lower than at $C$, $A$ and $B$ are equal) and has one of these lowest proximity to a relatively high amount of population (lower than at $B$).
 
 However, the Shen-type measure is _non-constrained_: the total sum of $a_i^m$ or $a_i$ is practically meaningless since it represents a sum of ratios. For instance, the $z$-using sub-population at $A$ has a value of `r a_i %>% filter(i=="A" & m=="z") %>% select(a_im) %>% pull() %>% round(digits=2)` potential jobs per potential job-seeking population compared to `r a_i %>% filter(i=="A" & m=="x") %>% select(a_im) %>% pull() %>% round(digits=2)` for $x$-using sub-population. What is the significance of these values? The difference between these modes is equal to `r ((a_i %>% filter(i=="A" & m=="z") %>% select(a_im)) - (a_i %>% filter(i=="A" & m=="x") %>% select(a_im))) %>% pull() %>% round(digits=2)`, but `r ((a_i %>% filter(i=="A" & m=="z") %>% select(a_im)) - (a_i %>% filter(i=="A" & m=="x") %>% select(a_im))) %>% pull() %>% round(digits=2)` of what? How many more job opportunities are $z$ users interacting with than $x$ users? When $a_i^m$ is aggregated to $a_i$ as shown in the sixth column, the values face similar interpretability issues. 
-
 The Shen-type measure is implemented in the previously discussed work of @taoInvestigatingImpactsPublic2020a to calculate modal $a_i^m$ values and the aggregated $a_i$ is implemented in the work of @carpentieriMultimodalAccessibilityPrimary2020. However, similar to the Hansen-type measure, these works discuss relative and spatially comparative differences in values, they do not make further interpretation of the $a_i^m$ or $a_i$ themselves. This may be because the Shen-type measure is _non-constrained_, this is no benchmark or global maximum to which comparisons can be drawn from.
 
 By contrast, spatial availability $V_i$ considers competition and is constrained such that the total sum of values is equal to the total number of opportunities in the region (i.e., $210,000$ jobs). Seen in fifth column of Table 1 <!-- \ref{tab:tab1}-->, $V_i^m$ for the same mode-using populations in $A$ and $B$ are not the same (as this measure considers competition). In fact, at $A$, the $z$-using sub-population captures `r ((table_toy_format %>% filter(i == "A" & m == "z") %>% select("V_im")) - (table_toy_format %>% filter(i == "A" & m == "x") %>% select("V_im"))) %>% pull() %>% prettyNum(big.mark = ",")` more spatially available jobs (of the $210,000$ jobs in the region) than the sub-population using mode $x$. The numerical difference has a practical interpretation. 
@@ -1324,10 +1478,9 @@ Furthermore, $V_i^m$ values for an $i$ can be aggregated across $m$ and compared
 
 Spatial availability can be further aggregated to better interpret competition between modes. Across the entire region, `r V_ijm %>% filter(m=="z") %>% group_by(i) %>% summarize(pop = first(pop)) %>% select(pop) %>% sum() %>% prettyNum(big.mark = ",")` people use $z$ (`r ((V_ijm %>% filter(m=="z") %>% group_by(i) %>% summarize(pop = first(pop)) %>% select(pop) %>% sum()) / (V_ijm %>% group_by(i,m) %>% summarize(pop = first(pop), .groups = "drop") %>% select("pop") %>% sum())) %>% percent()` of the region population). However, the $z$-using population accounts for `r ((V_ijm %>% filter(m=="z") %>% select(V_ij) %>% sum()) / (V_ijm %>% select(V_ij) %>% sum())) %>% percent()` of the region's total spatial availability - the rest is allocated to the $x$-using population (`r ((V_ijm %>% group_by(i,m) %>% summarize(pop = first(pop), .groups = "drop") %>% filter(m == "x") %>% dplyr::select(pop) %>% sum()) / (V_ijm %>% group_by(i,m) %>% summarize(pop = first(pop), .groups = "drop") %>% dplyr::select(pop) %>% sum())) %>% percent()`of the total population). Notably, the $x$-using population captures `r (((V_ijm %>% group_by(i,m) %>% summarize(pop = first(pop), .groups = "drop") %>% filter(m == "x") %>% dplyr::select(pop) %>% sum()) / (V_ijm %>% group_by(i,m) %>% summarize(pop = first(pop), .groups = "drop") %>% dplyr::select(pop) %>% sum())) - ((V_ijm %>% filter(m=="x") %>% select(V_ij) %>% sum()) / (V_ijm %>% select(V_ij) %>% sum()))) %>% percent()` less spatial availability to opportunities than its population proportion. This understanding can lead us to ask normative questions such as, how unequal should opportunity access for the two mode-using populations be? Can the lower-travel-cost populations spare some spatial availability if a policy of modal-restriction (like a LEZ) was introduced?  
 
-<!-- THIS IS GOOD, but cutting to save words for now.
-
+<!-- THIS IS GOOD, but could be cut to save works-->
 Since spatial availability is constrained and has an interpretable meaning as a proportion of the total opportunities in the region, the values at $i$ have a new significance. Inequality in $V_i^m$ values can be explored through a variety of approaches. For instance, consider travel times. The $z$-using population accounts for `r ((V_ijm %>% group_by(i,m) %>% summarize(V_tt = sum(V_ij*tt), .groups = "drop") %>% filter(m == "z") %>% dplyr::select(V_tt) %>% sum()) / (V_ijm %>% group_by(i,m) %>% summarize(V_tt = sum(V_ij*tt), .groups = "drop") %>% dplyr::select(V_tt) %>% sum())) %>% percent()` of the potential travel time traveled in the region: this is `r (((V_ijm %>% filter(m=="z") %>% select(V_ij) %>% sum()) / (V_ijm %>% select(V_ij) %>% sum())) - (V_ijm %>% group_by(i,m) %>% summarize(V_tt = sum(V_ij*tt), .groups = "drop") %>% filter(m == "z") %>% dplyr::select(V_tt) %>% sum()) / (V_ijm %>% group_by(i,m) %>% summarize(V_tt = sum(V_ij*tt), .groups = "drop") %>% dplyr::select(V_tt) %>% sum())) %>% percent()` less travel time than the proportion of spatial available opportunities that is allocated to them. In other words, the $z$-using population travels less minutes overall and has more spatial availability of opportunities than the $x$-using population using the slower mode $x$. 
--->
+
 Alternatively, inequities in spatial availability between mode-using populations can be explored through proportional benchmarks. A spatial availability per capita $v_i^m$ as presented in Equation (\ref{eq:SA-per-capita}):
 
 ```{=tex}
@@ -1340,8 +1493,6 @@ v_{i}^m = \frac{V_{i}^m}{P_{i}^m}
 The $v_i^m$ values for $A$, $B$, and $C$ for the $x$-using sub-populations are `r V_i %>% group_by(i,m) %>% summarize(v_i = sum(V_im)/sum(pop), .groups="drop") %>% filter(i=="A" & m =="x") %>% select(v_i) %>% sum() %>% round(digits=2)`, `r V_i %>% group_by(i,m) %>% summarize(v_i = sum(V_im)/sum(pop), .groups="drop") %>% filter(i=="B" & m =="x") %>% select(v_i) %>% sum() %>% round(digits=2)` and `r V_i %>% group_by(i,m) %>% summarize(v_i = sum(V_im)/sum(pop), .groups="drop") %>% filter(i=="C" & m =="x") %>% select(v_i) %>% sum() %>% round(digits=2)` spatially available jobs per capita, respectively. The $v_i^m$ for the $z$-using sub-populations are much higher, with values of: `r V_i %>% group_by(i,m) %>% summarize(v_i = sum(V_im)/sum(pop), .groups="drop") %>% filter(i=="A" & m =="z") %>% select(v_i) %>% sum() %>% round(digits=2)`, `r V_i %>% group_by(i,m) %>% summarize(v_i = sum(V_im)/sum(pop), .groups="drop") %>% filter(i=="B" & m =="z") %>% select(v_i) %>% sum() %>% round(digits=2)` and `r V_i %>% group_by(i,m) %>% summarize(v_i = sum(V_im)/sum(pop), .groups="drop") %>% filter(i=="C" & m =="z") %>% select(v_i) %>% sum() %>% round(digits=2)` respectively. The $x$-using population, especially at $B$ and $C$, are directly impacted by the jobs that are spatially available to the $z$-using population _in addition to_ the mass effect (occurring at $B$, high population density) and high travel impedance (occurring at the Satellite $C$).
 
 If, lets say, the planning goal is to have one spatially available job per mode-using population, a policy intervention can be put in place, to reduce the $v_i^z$ values and increase $v_i^x$ values. This demonstration is to show how simply the $V_i^m$ framework can be manipulated quantify the competitive (dis)advantage in a multimodal application. In what follows, we further explore competition between multiple modes through an empirical example.
-
-<!-- The benchmarks for $x$-using populations are evidently lower than the aggregated $A$, $B$, and $C$ $v_i$ values of (`r V_i %>% group_by(i) %>% summarize(v_i = sum(V_im)/sum(pop)) %>% filter(i=="A") %>% select(v_i) %>% sum() %>% round(digits=2)`, `r V_i %>% group_by(i) %>% summarize(v_i = sum(V_im)/sum(pop)) %>% filter(i=="B") %>% select(v_i) %>% sum() %>% round(digits=2)` and `r V_i %>% group_by(i) %>% summarize(v_i = sum(V_im)/sum(pop)) %>% filter(i=="C") %>% select(v_i) %>% sum() %>% round(digits=2)`).-->  
 
 # Empirical example: Madrid LEZ
 
@@ -1361,15 +1512,47 @@ bike_qs <- weighted_quantile(x=tld_empirical_bike$TIEMPO_VIAJES, w=tld_empirical
 walk_qs <- weighted_quantile(x=tld_empirical_walk$TIEMPO_VIAJES, w=tld_empirical_walk$ELE_G_POND_ESC2)
 ```
 
-<!-- a summary about low emission zones, they are a geographic accessibility restriction. they change the accessibility landscape-->
+```{r, eval=FALSE, messages=FALSE}
+#not correlated, but this demonstrates that there's a higher positive linear trend for zones with pops of bike/walk with pops of transit than for pops of car
 
-Low emission zones (LEZ) have been implemented as a climate change policy intervention to reduce GHG emissions, improve air quality, and support sustainable mobility in many countries. Though rules vary<!-- depending on legal aspects and cultural norms-->, LEZ aim to deter/reduce traffic in designated zones under threat of penalty (e.g., fines, seizure of vehicle). <!-- In practice, LEZ limits the volume of traffic by excluding vehicles by license plate, fuel type, or by introducing tolls.--> From the perspective of restriction for passenger transport, LEZ are a policy of _geographic discrimination_. LEZ actively change how people access opportunities by making the travel impedance more costly for car-mode users. If seeing opportunities as finite, this discrimination allows populations to access opportunities by other modes more readily than before. In this way, LEZ change the multimodal competitive accessibility landscape of a city.
+corr_m_pops <- data.frame(VORI_CD_ZT208 = SA_im_zn208$VORI_CD_ZT208 %>% unique())
+
+corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "bike") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_bike" = "population_m")
+
+corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "transit") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_transit" = "population_m")
+
+corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "walk") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_walk" = "population_m")
+
+corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "car/motor") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_car" = "population_m")
+
+#shapiro.test(corr_m_pops$population_m_car) #all pop_ms have p values under 0.05, indicating that they are not statistically different from the null which is that they are something other than normally distirbuted. thus wecannot run the correlation.
+#shapiro.test(corr_m_pops$population_m_transit) 
+
+ggplot(corr_m_pops, aes(x=population_m_walk, y=population_m_car)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(corr_m_pops, aes(x=population_m_walk, y=population_m_transit)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+
+ggplot(corr_m_pops, aes(x=population_m_bike, y=population_m_car)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(corr_m_pops, aes(x=population_m_bike, y=population_m_transit)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+
+
+<!-- a summary about low emission zones, they are a geographic accessibility restriction. they change the accessibility landscape-->
+Low emission zones (LEZ) have been implemented as a climate change policy intervention to reduce GHG emissions, improve air quality, and support sustainable mobility in many countries. Though rules vary<!-- depending on legal aspects and cultural norms-->, LEZ aim to deter/reduce traffic in designated zones under threat of penalty (e.g., fines, seizure of vehicle). <!-- In practice, LEZ limits the volume of traffic by excluding vehicles by license plate, fuel type, or by introducing tolls.--> From the perspective of restriction for passenger transport, LEZ are a policy of _geographic discrimination_ as they change how people access opportunities by making the travel impedance more costly for car-mode users. If seeing opportunities as finite, this discrimination allows populations to access opportunities by other modes more readily than before. In this way, LEZ change the multimodal competitive accessibility landscape of a city.
 
 Spain is one of a few countries with active LEZ and plans to expand their implementation as specified in their climate-change-related plans: _Plan Nacional Integrado de Energía y Clima 2021-2030_ [@espanaPlanNacionalIntegrado2020] and _Plan Nacional de Control de la Contaminación Atmosférica_ [@espanaResolucion10Enero2020]. Specifically, the national Spanish law 7/2021 ( _Ley de Cambio Climático y Transición Energética_) will require all municipalities to implement LEZ by 2023 if they meet at least one of the following requirements: (i) municipalities >50,000 inhab.; (ii) islands; and (iii) municipalities > 20,000 inhab. when air quality exceeds limits specified in _RD 102/2011 de Mejora de Calidad del Aire_ [@barcelonaGUIATECNICAPARA2021].
 
-In 2017, a LEZ was implemented in the Spanish capital city of Madrid following the goals set out in the national agenda <!-- : to fight climate change, cut nitrogen dioxide levels for the benefit of people's health, and prioritize people's movement in the city-->. In geographic scope, the 2017 boundaries of the LEZ were relatively small (covering 4.72 km^{2}) and within the center (i.e., LEZ Centro). These boundaries were expanded in 2023 to inside of the M-30, a highway in proximity to the city center (i.e., LEZ M-30) and the city has plans to further spatially expand the LEZ. Within the 2017 LEZ Centro implementation, all cars, motorcycles and freight with environmental label A or B (higher polluting classification, associated with older make and model of fossil fuel internal combustion engine vehicles), are banned from driving into the area (threat of fine) unless they are used by residents or meet other exemptions. This restriction impacted approximately half of all car trips that were typically made into the LEZ Centro [@tarrinoortizAnalyzingImpactLow2022].
+In 2017, LEZs were implemented in the Spanish capital city of Madrid following the goals set out in the national agenda <!-- : to fight climate change, cut nitrogen dioxide levels for the benefit of people's health, and prioritize people's movement in the city-->. In geographic scope, the 2017 boundaries of the LEZ were relatively small (covering 4.72 km^{2}) and within the center (i.e., LEZ Centro). These boundaries were expanded in 2023 to inside of the M-30, a highway in proximity to the city center (i.e., LEZ M-30) and the city has plans to further spatially expand the LEZ. Within the 2017 LEZ Centro implementation, all cars, motorcycles and freight with environmental label A or B (higher polluting classification, associated with older make and model of fossil fuel internal combustion engine vehicles), are not permitted to enter the area unless they are used by residents or meet other exemptions. This restriction impacted approximately half of all car trips that were typically made into the LEZ Centro [@tarrinoortizAnalyzingImpactLow2022].
 
-In this section, we use $V_i^m$ to quantify the competition for spatially available opportunities between modes after the LEZ Centro implementation. Particularly, we demonstrate how $V_i^m$ can be used to spectate on how the restriction of car mobility in areas around/within the LEZ Centro allowed the other, more sustainable but often with higher travel impedance modes, to become more competitive. 
+For this case study, we use $V_i^m$ to quantify the competition of spatially available opportunities between modes after the LEZ Centro implementation. Particularly, we demonstrate how $V_i^m$ can be used to spectate on how the restriction of car mobility in areas around/within the LEZ Centro allowed the other, more sustainable but often with higher travel impedance modes, to become more competitive. 
 
 ```{r, jobs-plot, fig.cap="\\label{fig:Fig2} Jobs $O_j$ taken by people living and working in Madrid as reported by the 2018 travel survey.", fig.show='hold', fig.align='center'}
 knitr::include_graphics("images/i_jobs_zn208_plot.png") 
@@ -1383,13 +1566,13 @@ The 2018 Community of Madrid travel survey (@comunidaddemadridResultadosEDM20182
 The total sum of jobs $O_j$ that are held are shown in Figure \ref{fig:Fig2} and the populations that go to a work destination by four modal categories $P^m_i$, is reflected in Figure \ref{fig:Fig3}. The modal categories represented in Figure \ref{fig:Fig3} are summarized for the following trip mode types:
 
    - Car/motor: all cars and operating modes (e.g., cab, private driver, company, rental care, main driver, passenger, etc.) and all public, private or company motorcycle/mopeds.
-  - Transit: all bus, trams, and trains
-  - Bike: all bicycle trips (e.g., private, public, or company bike trips) and "other" types of micromobility options
-  - Walk: walking or by foot
+  - Transit: all bus, trams, and trains,
+  - Bike: all bicycle trips (e.g., private, public, or company bike trips) and "other" types of micromobility options,
+  - Walk: walking or by foot,
   
 From Figure \ref{fig:Fig2}, it can be seen that the largest concentration of jobs are within, near, and to the north of the LEZ Centro. The population that is accessing those jobs by mode (Figure \ref{fig:Fig3}), appear spatially distinct. Car and transit trips represent `r (pop_props$population_m[3]/sum(pop_props$population_m)) %>% percent()` and `r (pop_props$population_m[4]/sum(pop_props$population_m)) %>% percent()` of the modal share respectively. The population that travels using transit is more spatially distributed than those using cars - particularly near and within LEZ Centro. This distribution could be a result of a variety of factors including: transit coverage and service within with city,  effective car infrastructure outside of the M-30, and/or the impact of the Central LEZ itself. 
 
-From Figure \ref{fig:Fig2}, it can also be seen that biking and walking trips are less common than motorized trips at `r (pop_props$population_m[1]/sum(pop_props$population_m)) %>% percent()` and `r (pop_props$population_m[2]/sum(pop_props$population_m)) %>% percent()` respectively. The distribution of walking and biking trips appear to be similar to that of transit trips. <!-- This is to be expected as active transport and a higher diversity of land-use spatially occurs with transit infrastructure. <!--CITE-->
+From Figure \ref{fig:Fig3}, it can also be seen that biking and walking trips are less common than motorized trips at `r (pop_props$population_m[1]/sum(pop_props$population_m)) %>% percent()` and `r (pop_props$population_m[2]/sum(pop_props$population_m)) %>% percent()` respectively. Noteably, there is a positive trend between the populations of walking and biking trips in zones and populations of transit trips. This positive trend is higher than for car trip populations. <!-- the populations do not follow a normal distribution, so we can't say there is a correlation, formally. see calcs in chunk at the beginning of this subsection-->
 
 The travel time for each trip is provided within the survey. These travel times, per modal category, are used to calibrate mode-specific travel impedance functions $f^m(c_{ij}^m)$. To illustrate the modal differences in travel lengths, summary descriptive per mode are detailed:
 
@@ -1398,7 +1581,7 @@ The travel time for each trip is provided within the survey. These travel times,
 - Bike: `r weighted_mean(x=tld_empirical_bike$TIEMPO_VIAJES, w=tld_empirical_bike$ELE_G_POND_ESC2)%>% round()` min. (min:`r bike_qs[1]%>% round()` min., Q2: `r bike_qs[2]%>% round()` min., Q3: `r bike_qs[4]%>% round()` min., max: `r bike_qs[5]%>% round()` min.) 
 - Walk: `r weighted_mean(x=tld_empirical_walk$TIEMPO_VIAJES, w=tld_empirical_walk$ELE_G_POND_ESC2)%>% round()` min. (min:`r walk_qs[1]%>% round()` min., Q2: `r walk_qs[2]%>% round()` min., Q3: `r walk_qs[4]%>% round()` min., max: `r walk_qs[5]%>% round()` min.) 
 
-To calculate $f^m(c_{ij}^m)$ from the survey travel times, a concept known as the trip length distribution (TLD) was used. A TLD represents the proportion of trips that are taken at a specific travel cost such as travel time (i.e., probability density distribution of trips taken by travel cost). This distribution is then used to derive impedance functions [e.g., done in the accessibility works of @lopez_2017_spatial, @horbachov_theoretical_2018, and @batista_estimation_2019 for example]. Maximum likelihood estimation and the Nelder-Mead method for direct optimization available within the R {fitdistrplus} package [@fitdistrplus_2015] is used to fit the impedance functions. As shown as shown in Figure \ref{fig:Fig4}, based on goodness-of-fit criteria and associated diagnostics, the gamma and log-normal probability density function (line curves) are selected as best fitting curves for the motorized and non-motorized modes respectively. The selection of functional form aligns with examples used in the literature (e.g., @reggianiAccessibilityImpedanceForms2011). <!--e.g., car gamma XX and active transport log-normal XX.--> Overall, the plots in Figure \ref{fig:Fig4} display the probability of travel given a trip travel time, based on trip flows from the survey. These 'probability of travel' at each travel time for each mode are realized observations reflect the land-use, the transport system, and the population travel behaviour in Madrid.
+To calculate $f^m(c_{ij}^m)$ from the survey travel times, a concept known as the trip length distribution (TLD) was used. A TLD represents the proportion of trips that are taken at a specific travel cost such as travel time (i.e., probability density distribution of trips taken by travel cost). This distribution is then used to derive impedance functions (e.g., done in the accessibility works of @lopez_2017_spatial, @horbachov_theoretical_2018, and @batista_estimation_2019). Maximum likelihood estimation and the Nelder-Mead method for direct optimization available within the R {fitdistrplus} package [@fitdistrplus_2015] is used to fit the impedance functions. As shown as shown in Figure \ref{fig:Fig4}, based on goodness-of-fit criteria and associated diagnostics, the gamma and log-normal probability density function (line curves) are selected as best fitting curves for the motorized and non-motorized modes respectively. The selection of functional form aligns with empirical examples in other regions [@reggianiAccessibilityImpedanceForms2011; @soukhovTTS2016RDataSet2023; @soukhovIntroducingSpatialAvailability2023]. <!--e.g., car gamma XX and active transport log-normal XX.--> Overall, the plots in Figure \ref{fig:Fig4} display the probability of travel given a trip travel time, based on trip flows from the survey. These 'probability of travel' at each travel time for each mode are realized observations that reflect the land-use, the transport system, and the population travel behaviour in Madrid.
 
 <!-- TOO MUCH DETAIL, removed. 
 They are used in this study (as similar to other work that uses TLD [e.g., @lopez_2017_spatial, @horbachov_theoretical_2018, @batista_estimation_2019]) to reflect the travel impedance of each mode to work destinations in Madrid. Overall, as seen from the four plots, trips under 5 minutes do not occur frequently for any mode and as such are assigned a lower travel impedance $f^m(c_{ij}^m)$ value. One reason that these under 5 minute trips do not frequently occur as a result of land-use (residential and job mismatch): not everyone lives in immediate proximity to their workplace. Observing the non-motorized modes, shorter trips occurred more frequently overall for walking populations, particularly around 15 minute lengths, so a trip of approximately 15 minutes is assigned the highest $f^m(c_{ij}^m)$. For biking populations, longer travel times are more common so though the highest $f^m(c_{ij}^m)$ value also corresponds to approximately 15 minutes, the curve is more spread out and values decrease less rapidly at longer travel times than for the walk mode curve. A similar trend occurs for the motorized modal options where transit mode is more spread out than car/motor mode.  -->
@@ -1408,50 +1591,39 @@ knitr::include_graphics("images/tlds_curves_m_plot.png")
 ```
 
 ## Results
-Using the data inputs outlined, $V_i^m$, the spatial availability of jobs, is calculated for each of the four modal categories $m$ at the level of traffic analysis zones $i$ in Madrid and demonstrated in this sub-section.
+The spatial availability of jobs $V_i^m$ is calculated for each of the four modal categories $m$ at the level of traffic analysis zones $i$ in Madrid and demonstrated in Figure \ref{fig:Fig5}.
 
 ```{r, SA-m-plot, fig.cap="\\label{fig:Fig5} Spatial availability of job opportunities per origin and mode $V_i^m$ in Madrid. Calculated using the home-to-work origin-destination flows from the 2018 travel survey. ", fig.show='hold', fig.align='center', fig.height=10}
 knitr::include_graphics("images/SA_im_V_zn208_plot.png")
 ```
-```{r, eval=FALSE}
-#Check that the totals are maintained, it is!:
-sum(OD_SA_zn208$V_ij, na.rm = T) #847574 workers -- 
-OD_SA_zn208 %>% group_by(VDES_CD_ZT208) %>% summarize(jobs = mean(jobs)) %>% select(jobs) %>% sum()
 
-sum(OD_SA_zn208$tt)
-sum(OD_SA_zn208$total_ttworkers)
+$V_i^m$ is a proportion of the total number of the `r SA_i_zn208$V_i %>% sum()  %>% prettyNum(big.mark = ",")` jobs in the region and is visualized in Figure \ref{fig:Fig5}. Since $V_i^m$ is calculated based on the likelihood of travel from observed home-to-work journeys, the values can be understood as the number of full-time jobs that are spatially available to the full-time working population at that $i$ and their associated $m$, relative to all the jobs in the city. $V_i^m$ is the number of jobs that are _spatially available_ to a $m$-using population located at $i$, relative to the travel impedance and size of _all_ populations in the region.
 
-#for comparision, the number of travel minutes spent going to jobs. group by jobs zona, and the the number of potential minutes traveling to jobs. This sum is the number of minutes spent commuting to jobs. it is 33680009 minutes, this is approx equal to 43min (mean travel time) *847574 (the total number of workers).
+Notable are the differences in the magnitude of $V_i^m$ between modes in Figure \ref{fig:Fig5}. The majority of $V_i^m$ is allocated to car- and transit- using populations. This is to be expected, as the population that commutes using these modes represents `r (modal_V_comps_4plot$perc[3] + modal_V_comps_4plot$perc[4]) %>% percent(accuracy=0.1)` of the total population. Differences in $V_i^m$ values within mode-using populations also exist: car-using populations outside of the M-30 region appear to have greater $V_i^m$ values, while some $i$ areas inside the M-30 appear to have higher $V_i^m$ values for the transit-using populations. Overall, the magnitude of $V_i^m$ values for the bikers and walkers are lower than car and transit but the highest $V_i^{bike}$ and $V_i^{walk}$ values tend to be allotted to $i$s within the M-30 and $i$s that have higher $V_i^{transit}$ values.
 
-OD_SA_zn208 %>% group_by(VDES_CD_ZT208) %>% 
-  summarize(jobs_tt_f_t = sum(jobs_tt_f_t)) %>% 
-  select(jobs_tt_f_t) %>% sum() #should equal 33680009 mins total
+The differences between the mode-using population and their mode-specific spatial availability highlights the competitive advantage offered to certain modes in certain spatial extents. As summarized in the left-most columns in Figure \ref{fig:Fig6}, the 'car/motor' and 'transit' populations represent a combined `r (modal_V_comps_4plot$perc[7] + modal_V_comps_4plot$perc[8]) %>% percent(accuracy=0.1)` of the total spatial availability in the city. However, the 'car/motor' using population is allocated disproportionately more $V_i^m$ than its size compared to the transit-using population. The car-using and transit-using population is `r modal_V_comps_4plot$perc[3] %>% percent(accuracy=0.1)` and `r modal_V_comps_4plot$perc[4] %>% percent(accuracy=0.1)` respectively, but is allocated `r modal_V_comps_4plot$perc[7] %>% percent(accuracy=0.1)` and `r modal_V_comps_4plot$perc[8] %>% percent(accuracy=0.1)` respectively, of the city's spatial availability. When treating the number of opportunities that can be reached as a finite value (total: 847,574 opportunities), fewer opportunities are spatial availability to the lesser competitive modes-using populations, in this case walking and cycling. These modes are less competitive as a result of: their lower travel impedance values at longer travel times (see Figure \ref{fig:Fig4} at travel times beyond ~30 minutes); their low population values values overall; and higher populations present in origins with high motorized mode commuting. These factors all contribute to the the car/motor mode being most advantaged in capturing spatially available job opportunities overall.
+```{r, modal-V-comps-plot, fig.cap="\\label{fig:Fig6} Displays the proportion of the working population by mode and spatial availability of job opportunities by mode aggregated for three spatial areas. From left to right, the city of Madrid (All), the area within the M-30 highway (M-30),the area within the Centro region (Centro).", fig.show='hold', fig.align='center', fig.height=10}
+knitr::include_graphics("images/modal_V_comps_4plot.png")
 ```
 
-```{r}
-# Spatial availability by mode, we can see that car mode captures ~48% of the spatial availability but only accounts for ~36% of the tt_ijm !!:
-modal_V_comps <- OD_SA_zn208 %>%
-  group_by(mode) %>%
-  summarize(V_m = sum(V_ij),
-            V_m_perc = sum(V_ij)/847574,
-            jobs_tt_f_t = sum(jobs_tt_f_t)/33680009)
-#modal_V_comps
-```
+There are spatial variations in the competitive advantage of the car-using populations. The proportion of car-using population in the Centro is smaller and has higher travel impedance values relative to the inputs in other areas and mode-using populations. The LEZ Centro implementation further restricts the car-advantage as it shifted more than half of all car trips into the LEZ to another mode [@tarrinoortizAnalyzingImpactLow2022]. This restriction decreased the number of car-using population from $i$s going into the LEZ Centro (an area with a large number of jobs overall, see Figure \ref{fig:Fig2}), thus increasing the mass effect for non-car modes and resulting in proportionally higher $v_i^m$ values for non-car modes. As such, the lower amount of access to opportunities by car-mode allows more opportunities in the LEZ to be available by populations using other modes. 
 
-Figure \ref{fig:Fig5} displays $V_i^m$ for the four modal categories in 2018. $V_i^m$ values represent a proportion of the total number of the `r SA_i_zn208$V_i %>% sum()  %>% prettyNum(big.mark = ",")` jobs in the region; put another way, $V_i^m$ is how many jobs are _spatially available_ to the population located at the $i$ based on the travel impedance of the mode (relative to the travel impedance of all modes) and the mode-using population size at the $i$ (relative to the population size of all modes and $i$). <!-- Since population, their job locations, and associated travel times are used to calculate $V_i^m$, Figure \ref{fig:Fig5} demonstrates values that represent the _realized_ spatial availability of jobs in Madrid. In other words, if someone decided to move into a neighbourhood at an $i$, the amount of jobs that are spatially available to them based on the population within their $i$ and their travel impedance for their used $m$, both relative to the city, is captured by the value of $V_i^m$.--> Note the differences in the magnitudes of $V_i^m$ between modes. The majority of $V_i^m$ is allocated to car- and transit- using populations. This is to be expected, as commuting using motorized modes represents `r (pop_props$population_m[3]/sum(pop_props$population_m) + pop_props$population_m[4]/sum(pop_props$population_m)) %>% percent()` of the population (`r (pop_props$population_m[3]/sum(pop_props$population_m)) %>% percent()` (car/motor) and `r (pop_props$population_m[4]/sum(pop_props$population_m)) %>% percent()` (transit) in 2018). However, these modal options capture `r (modal_V_comps$V_m_perc[3] + modal_V_comps$V_m_perc[4]) %>% percent()` of the total spatial availability in Madrid. In particular, the car/motor using population is allocated disproportionately more $V_i^m$ than its modal population (`r (pop_props$population_m[3]/sum(pop_props$population_m)) %>% percent()` of the population vs. `r modal_V_comps$V_m_perc[3] %>% percent()` of the $V_i^m$) compare to the transit using population and its relatively proportional $V_i^m$ value (`r (pop_props$population_m[2]/sum(pop_props$population_m)) %>% percent()` of the population vs. `r modal_V_comps$V_m_perc[4] %>% percent()` $V_i^m$).
+As summarized in the two right-most columns in Figure \ref{fig:Fig6}, the proportion of spatial availability allocated to the car-using population in the Centro (`r modal_V_comps_4plot$perc[23] %>% percent(accuracy=0.1)` or 5,373 opportunities). As a comparative reference, this is less than the proportion of the car-using population in the Centro (`r modal_V_comps_4plot$perc[19] %>% percent(accuracy=0.1)`), evidently less then the proportion of car-using population in the city, and is the opposite of the trend overall (left-most columns) and within the M-30 (middle columns). More opportunities are spatial availability to non-car using populations within the Centro, particularly transit-using populations (`r modal_V_comps_4plot$perc[24] %>% percent(accuracy=0.1)` of spatially available jobs in the Centro despite representing `r modal_V_comps_4plot$perc[20] %>% percent(accuracy=0.1)` of the population in the Centro and `r modal_V_comps_4plot$perc[4] %>% percent(accuracy=0.1)` in the city overall). 
 
-How does the $V_i^m$ advantage allocated to car-using population arise? From the perspective of finite opportunities, $V_i^m$ is allocated to car-using populations from less competitive modal populations. How competitive one mode is compared to other modes varies spatially, but overall car-using populations capture more opportunities per car-using population than other modal populations. Namely, though walking and cycling populations represent `r (pop_props$population_m[2]/sum(pop_props$population_m)) %>% percent(accuracy = 0.01)` and `r (pop_props$population_m[1]/sum(pop_props$population_m)) %>% percent(accuracy = 0.01)` respectively, $V_i^m={walk}$ and $V_i^m={bike}$ is `r modal_V_comps$V_m_perc[2] %>% percent(accuracy = 0.01)` and `r modal_V_comps$V_m_perc[1] %>% percent(accuracy = 0.01)` in the region respectively. These modes are less competitive, especially compared to the car/motor mode, as a result of: 1) their lower travel impedance values at longer travel times (see Figure \ref{fig:Fig4} at travel times beyond ~30 minutes), 2) their low population values values overall, and 3) higher populations present in origins with high motorized mode commuting. These factors all contribute to the the car/motor mode being most advantaged in capturing spatially available job opportunities overall.
+From Figure \ref{fig:Fig6}, it is also summarized that there is a higher proportion of opportunities spatially available to walking and cycling populations in the Centro than in the City overall and in all areas within the M-30. Notably, within the Centro, `r modal_V_comps_4plot$perc[21] %>% percent(accuracy=0.1)` and `r modal_V_comps_4plot$perc[22] %>% percent(accuracy=0.1)` of opportunities are spatially available to bike and walk modes respectively, while their populations represent smaller proportions of `r modal_V_comps_4plot$perc[1] %>% percent(accuracy=0.1)` and `r modal_V_comps_4plot$perc[2] %>% percent(accuracy=0.1)` of the population overall. Though the proportion of spatial availability for these mode-using populations is still lower than the proportion of mode-using population located in the Centro, these modes are more competitive within the Centro than outside of the Centro. By restricting the more competitive car mode through the LEZ, the advantage in the spatial availability of opportunities afforded to the otherwise lesser competitive modes is made apparent. 
 
-```{r, SA-per-capita-m-plot, fig.cap="\\label{fig:Fig6} Spatial availability of job opportunities per capita per origin and mode $v_i^m$ in Madrid. Calculated using the home-to-work origin destination flows from the 2018 travel survey.", fig.show='hold', fig.align='center', fig.height=10}
+The spatial differences in the competitive dis/advantage of spatial availability between modes can also be visualized per origin. Figure \ref{fig:Fig7} visualizes $v_i^m$, the spatial availability $V_i^m$ divided by the mode-population. $v_i^m$ values above 1 are represented in increasing red shades, values below 1 are represented in increasingly green shades, and values equal to 1 are white. These plots illustrates the discussion of the disproportionately high over-allocation of spatial availability relative to the mode-using population in many of the origins for the car/motor mode (bottom left plot, areas denoted with green $v_i^m$ values above 1). These plots also visualize areas that disproportionately capture lower spatial availability (under 1), represented in shades of red. It can be observed that the transit-using population's spatial availability to jobs is relatively balanced (i.e., many zones are white), while the non-motorized modes $v_i^m$ values are low (under 1) overall. 
+
+```{r, SA-per-capita-m-plot, fig.cap="\\label{fig:Fig7} Spatial availability of job opportunities per mode-using capita by mode $v_i^m$ per origin in Madrid. Calculated using the home-to-work origin destination flows from the 2018 travel survey.", fig.show='hold', fig.align='center', fig.height=10}
 knitr::include_graphics("images/SA_im_vv_zn208_plot.png")
 ```
 
-Furthermore, there are spatial differences in the competitive advantage of spatial availability between modes. Figure \ref{fig:Fig6} visualizes $v_i^m$, the spatial availability divided by the mode-population. <!--$v_i^m$ values above 1 are represented in increasing red shades, values below 1 are represented in increasingly green shades, and values equal to 1 are white.--> These plots illustrates the discussion of the disproportionately high over-allocation of spatial availability relative to the mode-using population in many of the origins for the car/motor mode (bottom left plot, areas denoted with green $v_i^m$ values above 1). These plots also visualize areas that disproportionately capture lower spatial availability (under 1), represented in shades of red. It can be observed that the transit-using population's spatial availability to jobs is relatively balanced (i.e., many zones are white), while the non-motorized modes $v_i^m$ values are low (under 1). 
+Interestingly, as also represented in Figure \ref{fig:Fig6}, $v_i^m$ for car/motor within and near the LEZ Centro is near or below 1 (white/red) in Figure \ref{fig:Fig7} while all non-car modes have relatively higher $v_i^m$ values. Though the spatial availability from before the LEZ Centro implementation is unknown, Figure \ref{fig:Fig7} provides a benchmark for quantifying potential LEZ implementations in the future (given 2018 travel conditions). Figure \ref{fig:Fig7} also shows that many areas within the M-30 have high (white/green) $v_i^m$ values for car-mode, signaling that the spatial expansion of the LEZ Centro stands to increase the spatial availability of jobs for non-car mode using populations. 
 
-Interestingly, $v_i^m$ for car/motor within and near the LEZ Centro is near or below 1 (white/red): potentially as a consequence, all non-car modes have relatively higher $v_i^m$ values in these areas. Though access to travel survey data immediately before the LEZ implementation is unavailable, we know that the LEZ Centro shifted more than half of all car trips into the LEZ to another mode [@tarrinoortizAnalyzingImpactLow2022]. This restriction decreased the number of car-using population from $i$s going into the LEZ Centro (an area with a large number of jobs - Figure \ref{fig:Fig2}), thus increasing the mass effect for non-car modes and resulting in proportionally higher $v_i^m$ values for non-car modes. Though the spatial availability from before the LEZ Centro implementation is unknown, Figure \ref{fig:Fig6} provides a benchmark for quantifying potential LEZ implementations in the future (given 2018 travel conditions). Figure \ref{fig:Fig6} also shows that many areas within the M-30 have high (white/green) $v_i^m$ values for car-mode, signaling that the spatial expansion of the LEZ Centro stands to increase the spatial availability of jobs for non-car mode using populations. 
 
 <!-- NOTE: SOME COMMENTS FOR FUTURE DISCUSSION POINTS ARE OUTLINED:
 
+ANSWER TO THIS PARAGRAPH, V_i is a location-based measure. it tells us that the jobs within the centro can be more easily available to non-motorized modes than motorized modes. This is in part because of the LEZ but also because of walkability/land -use, of course. 
 These results can be explained in a different/better way.. not sure how for now but.... The number of trips going into the LEZ Centro is very small relative to all trips. This shift in car trips to non-car, I don't think, is the reason why spatial availability is high in the center for non-car modes. I think it is higher for non-car modes because it is highly connected with metro and high walkability/ped congestion that make driving more costly anyways. However, it is true that the reduction of population using car-mode DOES increase the competitiveness of other modes, just this impact is very small since the LEZ Centro is very small. 
 
 Also, I do not talk about walk and cycling mode that much. If LEZ M30 is in place, transit likely captures most of these gains? (need to demonstrate this). But how much will walk and bike modes capture? Does transit competite directly with bike/walk (need to check this out somehow). How do we demonstrate this...? Maybe we show the change in balancing factors..? Perhaps we also show what could happen if we reduce the average travel times for bike/walk (increased walkability/bike infrastructure interventions) in addition to LEZ. 
@@ -1461,20 +1633,22 @@ Also, the sample sizes vary drastically between modes, with the cycling sample s
 I conclude that restricting car modes leaves more opportunities for all other modes. I think this is because transit accessibility is in direct competition with car travel, and not in direct competition with non-motorized modes (need to demonstrate this - perhaps this can be shown with an x-y correlation between v_im valuesSee v_im_per_pop_plot.png (v_im per population) as well as the all_modes_v_im_plot plot.) -->
 
 # Discussion and conclusions
-Location-based accessibility measures like the Hansen-type $S_i^m$, Shen-type $a_i^m$, and spatial availability $V_i^m$ measures have a commonality - they are a weighted sum of opportunities assigned to each spatial unit $i$ in a region. <!-- In this way, they all can be interpreted as a score that represents how many opportunities can be potentially interacted with by the population at $i$.--> How the weight and sum of the potentially-interacted-with opportunities is considered is what defines the type of accessibility measure. Within this paper, the location-based singly- _constrained_ and _competitive_ accessibility measure, known as spatial availability $V_i$ (@soukhovIntroducingSpatialAvailability2023), is extended for the case of capturing multimodal accessibility to opportunities $V_i^m$. A synthetic example and then an empirical case of LEZ in Madrid are detailed to demonstrate this multimodal extension. 
+Location-based accessibility measures like the Hansen-type $S_i^m$, Shen-type $a_i^m$, and spatial availability $V_i^m$ measures share a commonality; they are a weighted sum of opportunities assigned to each spatial unit $i$ in a region. In this way, they all can be interpreted as a score of how many opportunities can be potentially interacted with by the population at $i$. How the weight and sum of the potentially-interacted-with opportunities is considered is what defines the type of accessibility measure.
+
+Within this paper, the location-based singly- _constrained_ and _competitive_ accessibility measure, known as spatial availability $V_i$ [@soukhovIntroducingSpatialAvailability2023], is extended for the case of capturing multimodal accessibility to opportunities $V_i^m$. A synthetic example and then an empirical case of LEZ in Madrid are detailed to demonstrate this multimodal extension. 
 
 The spatial availability measure is capable of capturing a new interpretation of multimodal competition that previous accessibility measures have not yet done. Competitive measures hypothesis that populations using modes with lower travel impedance, when competing for a finite set of opportunities, will capture more opportunities. With spatial availability, the number of opportunities that are captured (of the total opportunities in the region) by each mode can be individually calculated. From there, the difference between how many spatially available opportunities one mode captures versus another can be investigated. This is the advantage of the spatial availability measure, particularly its multimodal extension.
 
-The flexibility and need for an accessibility measure such as spatial availability is pertinent in policy scenario evaluation. As showcased in the empirical example of the LEZ in Madrid, competition for job opportunity availability varies spatially _as well as_ between modes. The car and transit modes have the highest spatial availability, with the car mode having highest availability with exception to the areas within the LEZ Centro. This finding reflects what may suspect are real conditions: since car travel has been highly restricted within the LEZ Centro, fewer car-using people potentially interact with jobs within the LEZ Centro, leaving more _spatially available_ jobs for non-car-using populations. This difference in car-using populations in locations accessing jobs within and immediately outside the LEZ Centro increases the competitiveness of the transit-using population (the second most competitive mode) as well as the non-motorized modes. 
+The flexibility and need for an accessibility measure such as spatial availability is pertinent in policy scenario evaluation. As showcased in the empirical example of the LEZ in Madrid, competition for job opportunity availability varies spatially _as well as_ between modes. The car and transit modes have the highest spatial availability, with the car-mode having highest availability with exception to the areas within the LEZ Centro. Since car travel has been highly restricted within the LEZ Centro, fewer car-using people potentially interact with jobs within the LEZ Centro, leaving more _spatially available_ jobs for non-car-using populations. This difference in car-using populations in locations accessing jobs within and immediately outside the LEZ Centro increases the competitiveness of the transit-using population (the second most competitive mode) as well as the non-motorized modes. 
 
-Spatial availability $V_i^m$ can also be divided by the mode-using population at each $i$ to yield mode-population normalized values. These values, reflected in Figure \ref{fig:Fig6}, can be used as a benchmark to investigate existing conditions and plan future LEZ implementation (i.e., target areas with exceptionally high car spatial availability such that more opportunities are available to other mode-users).
+Spatial availability $V_i^m$ can also be divided by the mode-using population at each $i$ to yield mode-population normalized values. These values, reflected in Figure \ref{fig:Fig7}, can be used as a benchmark to investigate existing conditions and plan future LEZ implementation (i.e., target areas with exceptionally high car spatial availability such that more opportunities are available to other mode-users).
 
-In summary, conventional _non-constrained_ accessibility measures are difficult for planners to operationalize for a variety of reasons including issues of computation and interpretability [@levinsonTransportAccessManual2020].  With spatial availability, the magnitude of opportunities that are available as a proportion of all the opportunities in the region is equal to $V_i$. As a result of its proportional allocation mechanism, $V_i$ can be easily extended into multimodal applications. This flexibility is pertinent to model policy scenarios in our cities that are becoming increasingly multimodal. The interpretation of $V_i$ allows for manipulation of $V_i^m$ values to investigate differences of availability between neighbourhoods, modes, and regions, generate per capita benchmarks, and/or generate average values per population-group.
+In summary, conventional _non-constrained_ accessibility measures are difficult for planners to operationalize for a variety of reasons including issues of computation and interpretability [@levinsonTransportAccessManual2020].  With spatial availability, the magnitude of opportunities that are available as a proportion of all the opportunities in the region is equal to $V_i$. As a result of its proportional allocation mechanism, $V_i$ can be naturally extended into multimodal applications. This flexibility is helpful to modelling policy scenarios in our cities that are increasingly multimodal. The interpretation of $V_i$ allows for manipulation of $V_i^m$ values to investigate differences of availability between neighbourhoods, modes, and regions, generate per capita benchmarks, and/or generate average values per population-group.
 
 From a spatial equity perspective, spatial availability measure can provide researchers, policy makers, and citizens a new-found interpretation of accessibility measures. With a plot of spatial availability values, one can begin asking, how much is enough and what level may be too much. These interpretations were difficult to be made with accessibility measures in the past.
 
 # Acknowledgements
-This research was funded by the Canada Graduate Scholarship - Doctoral Program (CGS D) provided by the Social Sciences and Humanities Research Council (SSHRC) and Project Mobilizing Justice, also supported by SSHRC.
+This research was funded by the Canada Graduate Scholarship - Doctoral Program (CGS D) provided by the Social Sciences and Humanities Research Council (SSHRC) and Project Mobilizing Justice, also supported by SSHRC. All work is fully-reproducible and available within this [GitHub repository](https://github.com/soukhova/Madrid-ZBE-LEZ).
 
 # Author contributions
 The authors confirm contribution to the paper as follows: study conception and design: AS, JTO, JSL, AP.; data collection: AS, JTO, JSL.; analysis and interpretation of results: AS, JTO, JSL, AP.; draft manuscript preparation: AS, JSL, AP. All authors reviewed the results and approved the final version of the manuscript.
@@ -1497,3 +1671,5 @@ The authors confirm contribution to the paper as follows: study conception and d
 <!-- If opportunities in a region are considered finite, than one person being able to potentially interact with more opportunities than others in the region means there are fewer opportunities available for others. Conceptualizing potential interaction with opportunities as a region-relative value of what is _available_ to each location $i$ ishelpful from the perspective of comparative interpretation. -->
 
 <!-- It can be seen that the general form of spatial availability is a sum of weighted opportunities. All location-based accessibility measures, including spatial availability, have this commonality - they are a weighted sum of opportunities assigned to each spatial unit in a region. How the weight and sum of the potential interaction opportunities is what defines the type of accessibility measure. Within this paper, location-based accessibility measures are discussed from the classification of being _constrained_ and/or _competitive_. -->
+
+# References {#references .unnumbered}
