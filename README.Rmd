@@ -11,17 +11,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Madrid zonas de bajas emisiones (low emission zones)
+# Multimodal Spatial Availability: A Singly-Constrained Measure of Competitive Accessibility by Multiple Modes
 
-The repository is home to the analysis of low emissions zones in Madrid using spatial availability measure.
+The repository is home to the analysis of multi-modal extension of spatial availability.
 
-Currently, the data contained in this repository is from the [Madrid City Council](https://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=128b5dda42c84410VgnVCM2000000c205a0aRCRD&vgnextchannel=374512b9ace9f310VgnVCM100000171f5a0aRCRD&vgnextfmt=default) and the [Community of Madrid](https://datos.comunidad.madrid/catalogo/dataset/resultados-edm2018) databases retrieved March 31st 2022. It includes the following:
-
--  "parque_vehiculos_2021", "2020", and "2019",  includes vehicle fleet characteristics of Madrid City. Of interest: the district and the environmental label associated to each vehicle. 
-
-- several excel documents from the Home Mobility Survey of the Community of Madrid. These documents include information like citizens' socioeconomic characteristics, origin and destination of the trip, transport mode, distance, time required, activities carried out at origin and destination, etc.
-
-- A figure of Madrid spatial context.
+_An increasing number of studies within the domain of transportation planning are concerned with the inequities in accessibility to opportunities. A dimension of these inequities arises from differences in access by mode type (e.g., commuting using a car as opposed to transit). However, methods implemented in current accessibility literature are lacking within the context of multimodal analysis. This paper presents an extension of spatial availability, a singly-constrained competitive accessibility measure, for the context of multimodal accessibility analysis. We first illustrate the features of spatial availability that lend itself to multimodal analysis. We then demonstrate its use on the case study of Low Emission Zones in Madrid (Spain) and highlight how this policy intervention changes the accessibility of populations using different modes. In summary, spatial availability can be used to create and interpret multimodal policy intervention scenarios unlike previous methods: this creation and interpretation can help regions envision a more sustainable and equitable access-to-opportunity landscape._
 
 
 <!-- badges: start -->
