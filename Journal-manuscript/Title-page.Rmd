@@ -1,0 +1,39 @@
+---
+title: "Multimodal spatial availability: a singly-constrained measure of competitive accessibility considering multiple modes"
+author:
+  - name: Anastasia Soukhov
+    corresponding: true
+    position: PhD Candidate
+    email: soukhoa@mcmaster.ca (AS)
+    affiliation: McMaster
+  - name: Javier Tarriño-Ortiz
+    position: PhD Graduate
+    email: javier.tarrino.ortiz@upm.es
+    affiliation: Madrid
+  - name: Julio A. Soria-Lara
+    position: Associate Professor
+    email: julio.soria-lara@upm.es
+    affiliation: Madrid
+  - name: Antonio Páez
+    position: Associate Professor
+    email: paezha@mcmaster.ca
+    affiliation: McMaster
+address:
+  - code: McMaster
+    address: Department of Earth, Environment and Society, McMaster University, Hamilton, Canada
+  - code: Madrid
+    address: Centro de Investigación del Transporte (TRANSyT), Universidad Politécnica de Madrid, Madrid, Spain
+    
+output: rticles::plos_article
+header-includes:
+  - \usepackage{booktabs} 
+  - \usepackage{sectsty} \sectionfont{\centering}
+  - \renewcommand{\contentsname}{}\vspace{-2cm} 
+  - \usepackage{pdfpages}2
+# plos.csl can be download and used locally
+csl: http://www.zotero.org/styles/plos
+---
+
+\includepdf[pages={-}]{Journal-manuscript.pdf}
+
+\newpage

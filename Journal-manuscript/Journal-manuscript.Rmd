@@ -1,27 +1,34 @@
 ---
-title: "Multimodal Spatial Availability: A Singly-Constrained Measure of Competitive Accessibility by Multiple Modes"
+title: "Multimodal spatial availability: a singly-constrained measure of competitive accessibility considering multiple modes"
+
 author:
   - name: Anastasia Soukhov
-    note: Corresponding Author
+    corresponding: true
     position: PhD Candidate
-    email: soukhoa@mcmaster.ca
-    affiliation: Department of Earth, Environment and Society, McMaster University, Canada
+    email: soukhoa@mcmaster.ca (AS)
+    affiliation: McMaster
   - name: Javier Tarriño-Ortiz
     position: PhD Graduate
     email: javier.tarrino.ortiz@upm.es
-    affiliation: Universidad Politécnica de Madrid, Spain
+    affiliation: Madrid
   - name: Julio A. Soria-Lara
     position: Associate Professor
     email: julio.soria-lara@upm.es
-    affiliation: Urban and Regional Planning, Universidad Politécnica de Madrid, Spain
+    affiliation: Madrid
   - name: Antonio Páez
     position: Associate Professor
     email: paezha@mcmaster.ca
-    affiliation: Department of Earth, Environment and Society, McMaster University, Canada
+    affiliation: McMaster
+address:
+  - code: McMaster
+    address: Department of Earth, Environment and Society, McMaster University, Hamilton, Canada
+  - code: Madrid
+    address: Centro de Investigación del Transporte (TRANSyT), Universidad Politécnica de Madrid, Madrid, Spain
+
 abstract: |
   An increasing number of studies within the domain of transportation planning are concerned with the inequities in accessibility to opportunities. A dimension of these inequities arises from differences in access by mode type (e.g., commuting using a car as opposed to transit). However, methods implemented in current accessibility literature are lacking within the context of multimodal analysis. This paper presents an extension of spatial availability, a singly-constrained competitive accessibility measure, for the context of multimodal accessibility analysis. We first illustrate the features of spatial availability that lend itself to multimodal analysis. We then demonstrate its use on the case study of Low Emission Zones in Madrid (Spain) and highlight how this policy intervention changes the accessibility of populations using different modes. In summary, spatial availability can be used to create and interpret multimodal policy intervention scenarios unlike previous methods: this creation and interpretation can help regions envision a more sustainable and equitable access-to-opportunity landscape.
   
-keywords: ["Multimodal", "Accessibility", "Equity", "Policy scenarios", "Low emission zones"]
+keywords: ["Multimodal", "Competitive", "Accessibility", "Equity", "Policy scenarios", "Low emission zones"]
 
 bibliography: mybibfile.bib
 output: rticles::plos_article
@@ -1371,9 +1378,6 @@ modal_V_comps_4plot_plot <- gridExtra::arrangeGrob(
 ggsave("images/modal_V_comps_4plot.png", modal_V_comps_4plot_plot)
 ```
 
-# Abstract
-An increasing number of studies within the domain of transport are concerned with the inequities in accessibility to opportunities. A dimension of these inequities arise from differences in access by mode type (e.g., the number of work opportunities that can be reached using a car as opposed to transit in a city). However, methods assessing multimodal accessibility in the literature fall short as aspects of competition for opportunities and the explicit methodological acknowledgement of opportunities being _finite_ are lacking. In this vein, this paper presents an extension of _spatial availability_, a singly-constrained competitive accessibility measure, for the context of multimodal accessibility analysis. We first illustrate the features of spatial availability that lends itself to multimodal analysis. We then demonstrate its use on the case study of Low Emission Zones in Madrid (Spain) and highlight how this policy intervention changes the accessibility for locations where populations use different modes. In summary, spatial availability can be used to create and interpret multimodal policy intervention scenarios unlike previous methods: this creation and interpretation can help regions envision a more sustainable and equitable access-to-opportunity landscape by better identifying differences in accessibility afforded by different modes.
-
 # Introduction
 
 <!-- outlines the use of location-based accessibility measures in the literature: equity, planning -- esp. as it relates to modal competition (brief) -->
@@ -1648,7 +1652,9 @@ In summary, conventional _non-constrained_ accessibility measures are difficult 
 From a spatial equity perspective, spatial availability measure can provide researchers, policy makers, and citizens a new-found interpretation of accessibility measures. With a plot of spatial availability values, one can begin asking, how much is enough and what level may be too much. These interpretations were difficult to be made with accessibility measures in the past.
 
 # Acknowledgements
-This research was funded by the Canada Graduate Scholarship - Doctoral Program (CGS D) provided by the Social Sciences and Humanities Research Council (SSHRC) and Project Mobilizing Justice, also supported by SSHRC. All work is fully-reproducible and available within this [GitHub repository](https://github.com/soukhova/Multimodal-spatial-availability).
+This research was funded by the Canada Graduate Scholarship - Doctoral Program (CGS D) provided by the Social Sciences and Humanities Research Council (SSHRC) and Project Mobilizing Justice, also supported by SSHRC. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript.
+
+All work is fully-reproducible and available within this [GitHub repository](https://github.com/soukhova/Multimodal-spatial-availability).
 
 # Author contributions
 The authors confirm contribution to the paper as follows: study conception and design: AS, JTO, JSL, AP.; data collection: AS, JTO, JSL.; analysis and interpretation of results: AS, JTO, JSL, AP.; draft manuscript preparation: AS, JSL, AP. All authors reviewed the results and approved the final version of the manuscript.
