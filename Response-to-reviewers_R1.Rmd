@@ -1,0 +1,72 @@
+---
+title: "Response-to-reviewers_R1"
+output: pdf_document
+date: "2023-10-18"
+---
+
+Thank you for for the time and care taken by the editorial team and reviewers in providing feedback to this manuscript. No doubt, the revised version submitted is more articulate than the first. We've provided extensive feedback to all comments from each reviewer in \textcolor{blue}{blue} and directly quoted the revised portion of the manuscript as relevant in \textcolor{blue}{\emph{italicized blue}} 
+
+## Reviewer #1: 
+
+The article extends the concept of spatial accessibility and applies it to a fairness analysis of different modes of transportation. The article uses travel data from a week in Madrid as an example to analyze spatial accessibility in the city. However, the article has the following issues:
+
+1. Lack of Innovation: The article's improvement on spatial accessibility mainly involves incorporating the ratio of travel frequencies as weight in travel costs. This improvement is relatively minor and the method used does not demonstrate superiority over traditional accessibility approaches.
+
+\textcolor{blue}{We disagree. Particuarly, in the original manuscript of the Discussion section, it is made explicit the advantages that spatial availabiltity offers when considering the competitive accessibility to opportunities by different modes. The ratio of travel frequencies are incorporated, but the result is a proportional allocation of opportunities, based on their competitive travel-cost-advantage and relative-mode-using-population, back to each spatial unit. Ultimately, the sum of all spatial availability values for each mode sum up to the total in the region. This is not true for _any_ other type of accessibility measure. It is also not plainly obvious that this can be done using spatial availability; thus this stand alone paper is needed to showcase this. }
+
+\textcolor{blue}{However, your comment demonstrates that the advantages of the method are prehaps not adequately showcased. For this reason, we revised the Introduction and Discussion to make this more clear. The following has been added..........}
+
+2. Insufficient Experimental Data: The article uses questionnaire data from a week in Madrid, but lacks basic descriptions of the questionnaire data. Additionally, the daily travel data of approximately 30,000 trips is significantly limited, and there is no description of the criteria for selecting the dates. The typicality of the experimental data is questionable.
+
+\textcolor{blue}{The experimental data is the best and most complete travel survey conducted in Madrid to date. In filtering for home-to-work travel, of the ~280,000 trips, ~30,000 remain. This is all we can do. Accessibility data isn't typically generalizable anyways, it is very context-specific. The purpose of using the experimental data is do demonstrate what we can presume to be true about LEZ. Specifically: that LEZ restrict car mobility hence you would expect to see higher accessibility for non-car modes. This is intiution, and through spatial availability this can be seen, specifically in using the intution behind spatial availability (which is the proportional allocation of opportunities based on population competition and modal competition)}
+
+3. Lack of Data-Driven Analysis: In the analysis section, a large amount of data is used to analyze people's travel behavior in different areas. The analysis of spatial accessibility only considers the differences in the modes of travel mentioned earlier. The analysis results are somewhat one-sided, and examining the indicator from multiple perspectives would provide a more objective view. It is recommended to expand the dimensions of the analysis.
+
+\textcolor{blue}{Honestly not sure what to say to this... Maybe we make it more clear that the empirical case is a snapshot of what occured (when the travel survey was taken). It reflects potential access. }
+
+4. Disorganized Format: The article's methodology section contains numerous formulas and variables, but the definitions of these variables are unclear and difficult to read. There are also numerous formatting errors, and Table 1 is disorganized and unappealing. It is recommended to revise these issues.
+
+\textcolor{blue}{Thank you! Will fix the table. And will streamline the formulas (but still want to make it clear to readers the steps involved in the processa)}
+
+## Reviewer #2: 
+
+This paper has sound mathematical foundations and allows to answer its research question in an elegant way (how to measure competition for e.g. jobs based on spatial accessibility?). I also really appreciated the fact that the paper was very didactic. Still, I have concerns about the relevance of the paper for future research.
+
+More specifically, the new measure proposed by the authors has clear limitations:
+i) it focuses on the competition for jobs and is not useful for studying access to non-competitive or semi-competitive resources such as amenities.
+
+\textcolor{blue}{ 1) jobs represents the majority of accessibility research (historically). It can also be used for amentities - with a different weighting system - this will be an application in the future. }
+
+ii) it doesn't allow to study absolute gains or losses in accessibility from public transportation infrastructure improvements or changes.
+
+\textcolor{blue}{ It can be used to do so! Unfortunately, we do not have travel data from before the LEZ implementation, but a before- and after- can certainly be done using spatial availability }
+
+iii) the authors do not allow for modal shifts: they assume that the transport mode choice of households is fixed and cannot evolve due to e.g. transport infrastructure changes.
+
+\textcolor{blue}{ Are you outlining our next paper for us?? Modal shift scenarios can be implemented }
+
+These points limit the relevance of the new accessibility measure. The authors should, at least, specify these limitations early in the paper. The introduction should start by stating the precise research question the new accessibility measure is seeking to answer as well as its limitations). They should also justify, based on the literature, that competition for jobs is a key determinant of job market outcomes, and that there is strong inertia in mode choices.
+
+Finally, the writing of the paper, and particularly of the abstract and introduction, should be improved. The abstract could state the broader relevance of the topic and summarize the results of the case study on LEZs. The introduction should start more directly by introducing the research question and its relevance and describing the new measure and its limitations.
+
+\textcolor{blue}{ Thank you for your thoughtful comments. We have improved the introduction and conclusion to reflect this }
+
+Minor comments:
+i) what are the summary statistics p10 (car: 36 min, transit: 55 min,...)? I assume they correspond to the mean.
+ii) I also have identified a few formatting issues (e.g. Fcij p10 and 4.72km2 p 8).
+
+## Reviewer #3: 
+
+This manuscript extended the authors’ previous work spatial availability measure, which is a type of location-based accessibility measure that is both constrained and competitive compared to Hansen-type measure and Shen-type accessibility measure, into a multimodal framework. The new measure, multimodal spatial availability, strengthened the constrained (or finite) nature of opportunities, and the competitive nature among multimodal accessibility resulting from this constraint through a synthetic example and an empirical example of the LEZ in the city of Madrid. In conclusion, the authors demonstrated one restriction had impacted the spatial availability of opportunities for other modes using and proposed potential future uses in policy planning scenarios.
+In general, the manuscript was logical and well-structured. The research problem was well defined. The data were available and quite supported the conclusion. The statistical analysis performed appropriately.
+
+However, there are some issues:
+
+Major issues:
+Please demonstrate whether “car/motor & transit” and “bike & walk” are comparable or whether they are in an actual competitive relationship? For example, if I work 3km from where I live, maybe I will never choose to take a transit, I will always walk or ride. But if I work 20km from where I live, walking or riding to work seems impossible for me, I have to drive or take public transportation. Car/motor and transit can be in competitive relationship and people can choose which one they prefer, but not choose between motor and walk. This issue will also have an impact on the results of the research.
+
+\textcolor{blue}{Great comment. We have made this more clear in the text with explaintion of the impedance function for the modes. The impedance functions reflect actual travel using each mode. Average travel times for car/motor and transit are longer than bike and walk. All people don't have access to all options - completely true. But the travel impedances reflect this real travel at an aggregate. And on average, it is assumes that these modes are all in direct competition -- this is a big assumptions. We've made this more clear. However, pending real data that demonstrates who uses what mode on what street / what type of person / who can actually go to what jobs, etc (micro travel data), this is all we have. So under this 'average' assumption, we can see the competitive advantage of one mode to access all opportunities. }
+
+Minor issues:
+1. As for Fig 2 and Fig 3, please indicate the meaning of the gray color blocks in illustration.
+2. Please change the color scheme of fig 2. The red color scheme makes the LEZ centro area boundary, which is also in red, not visible.
