@@ -36,7 +36,7 @@ library(sf)
 library(stplanr)
 library(tidycensus)
 library(tidyr)
-library(tmap)
+#library(tmap)
 library(zoo) # for rollapplyr
 
 # setup for disk.frame
@@ -44,7 +44,7 @@ setup_disk.frame()
 options(scipen = 999)
 options(java.parameters = "-Xmx6G")
 options(future.globals.maxSize = Inf)
-tmap_mode("view")
+#tmap_mode("view")
 ```
 
 
