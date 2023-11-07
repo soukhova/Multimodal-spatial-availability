@@ -105,7 +105,9 @@ These points limit the relevance of the new accessibility measure. The authors s
  
 Finally, the writing of the paper, and particularly of the abstract and introduction, should be improved. The abstract could state the broader relevance of the topic and summarize the results of the case study on LEZs. The introduction should start more directly by introducing the research question and its relevance and describing the new measure and its limitations.
 
-\textcolor{blue}{We have done this. Thank you again for your thoughtful comments and suggestions to improve the paper.} 
+\textcolor{blue}{We have done this. In the original version of the abstract and introduction we gave the misleading impression that we would analyze changes in the system, when in reality our intent was to demonstrate the application of the measure in an empirical example. We do plan to study changes in the system, but this requires more work than can be presented in a single paper, partly for the reasons that you identified above (modal shifts and the calculation of spatial availability for two different scenarios, as well as the analysis of the differences between them. We will do this in a future applied paper.}
+
+\textcolor{blue}{Thank you again for your thoughtful comments and suggestions to improve the paper.} 
 
 Minor comments:
 
