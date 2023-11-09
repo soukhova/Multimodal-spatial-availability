@@ -1,28 +1,29 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Multimodal Spatial Availability: A Singly-Constrained Measure of Competitive Accessibility by Multiple Modes
-
-The repository is home to the analysis of multi-modal extension of
-spatial availability.
-
-*An increasing number of studies within the domain of transportation
-planning are concerned with the inequities in accessibility to
-opportunities. A dimension of these inequities arises from differences
-in access by mode type (e.g., commuting using a car as opposed to
-transit). However, methods implemented in current accessibility
-literature are lacking within the context of multimodal analysis. This
-paper presents an extension of spatial availability, a
-singly-constrained competitive accessibility measure, for the context of
-multimodal accessibility analysis. We first illustrate the features of
-spatial availability that lend itself to multimodal analysis. We then
-demonstrate its use on the case study of Low Emission Zones in Madrid
-(Spain) and highlight how this policy intervention changes the
-accessibility of populations using different modes. In summary, spatial
-availability can be used to create and interpret multimodal policy
-intervention scenarios unlike previous methods: this creation and
-interpretation can help regions envision a more sustainable and
-equitable access-to-opportunity landscape.*
+# Multimodal spatial availability: a singly-constrained measure of accessibility considering multiple modes
 
 <!-- badges: start -->
 <!-- badges: end -->
+
+Anastasia Soukhov (McMaster University) Javier Tarriño-Ortiz
+(Universidad Politécnica de Madrid) Julio Soria-Lara (Universidad
+Politécnica de Madrid) Antonio Páez (McMaster University)
+
+Recent research has aimed to address the way opportunities are counted
+in accessibility analysis. In conventional accessibility measures,
+opportunities are often multiply counted, which leads to values of
+accessibility that are difficult to interpret. Constraining the
+calculations to match a known quantity ensures that the measurements sum
+up to a predetermined quantity (i.e., the total number of
+opportunities), and so each value can be meaningfully related to this
+total. A recent such effort is spatial availability, a
+singly-constrained accessibility measure. In this paper we extend
+spatial availability for use in the case of multiple modes or, more
+generally, heterogeneous population segments with distinct travel
+behaviors. After deriving a multimodal version of spatial availability
+We proceed to illustrate its features using a synthetic example. Next,
+we apply it to an empirical example in Madrid. We conclude the paper
+with suggestions for future research.
+
+Submitted to PLoS ONE.
