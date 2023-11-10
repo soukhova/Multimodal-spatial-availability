@@ -1,5 +1,5 @@
 ---
-title: "Multimodal spatial availability: a singly-constrained measure of competitive accessibility considering multiple modes"
+title: "Multimodal spatial availability: a singly-constrained measure of accessibility considering multiple modes"
 author:
   - name: Anastasia Soukhov
     corresponding: true
