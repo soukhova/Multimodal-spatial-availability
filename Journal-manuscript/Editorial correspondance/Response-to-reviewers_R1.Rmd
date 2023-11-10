@@ -1,8 +1,8 @@
 ---
-title: "PLoS ONE submission: Response to reviewers"
-output: pdf_document
+title: "PLOS ONE submission: Response to reviewers"
+output: pdf
 urlcolor: blue
-date: "2023-10-18"
+date: "2023-11-09"
 bibliography:
   - "`r system('kpsewhich ../../bibliography/bibliography.bib', intern=TRUE)`"
 ---
@@ -106,7 +106,7 @@ Please demonstrate whether “car/motor & transit” and “bike & walk” are c
 
 \textcolor{blue}{In this revision we tried to improve the discussion to make this point more clear. The impedance functions for all four modes are not the same. They describe the travel behaviour of commuters as informed by the 2018 travel survey. To follow your example, someone who cannot walk to work because their job is 20 km from where they live, will not compete for that job against people from their same origin who do walk. However, if the place where their work is can be reached by anyone who can walk from other origins (say, someone who lives closer to that destination), they would be in competion for the same opportunity.}
 
-\textcolor{blue}{Futhermore, average travel times for car/motor and transit are longer than bike and walk. All people don't have access to all options - completely true. But the travel impedances reflect this real travel at an aggregate based on all the trips for a mode. And on average, it is assumed that people at each origin that take a mode to a destination are in direct competition for opportunities (as opportunities are finite) -- and a part of the competition is defined by the mode-specific impedance function (the second part is the population balancing factor). This assumption, that all populations, no matter their mode, are competing for the same finite set of opportunity, is part of spatial availability. We've made an effort to make this more clear in the text.}
+\textcolor{blue}{Furthermore, average travel times for car/motor and transit are longer than bike and walk. All people don't have access to all options - completely true. But the travel impedances reflect this real travel at an aggregate based on all the trips for a mode. And on average, it is assumed that people at each origin that take a mode to a destination are in direct competition for opportunities (as opportunities are finite) -- and a part of the competition is defined by the mode-specific impedance function (the second part is the population balancing factor). This assumption, that all populations, no matter their mode, are competing for the same finite set of opportunity, is part of spatial availability. We've made an effort to make this more clear in the text.}
 
 Minor issues:
 
@@ -114,7 +114,7 @@ Minor issues:
 
 2. Please change the color scheme of fig 2. The red color scheme makes the LEZ centro area boundary, which is also in red, not visible.
 
-\textcolor{blue}{We have updated the captions of the figures to reflec the meaningof grey colour blocks and the colour scheme of all Figures. We've also updated the labels on the legends to make them more interpretable.}
+\textcolor{blue}{We have updated the captions of the figures to reflect the meaning of grey colour blocks and the colour scheme of all Figures. We've also updated the labels on the legends to make them more interpretable.}
 
 \newpage
 

@@ -81,8 +81,6 @@
 % Use adjustwidth environment to exceed column width (see example table in text)
 \usepackage{changepage}
 
-% Use Unicode characters when possible
-\usepackage[utf8x]{inputenc}
 
 % textcomp package and marvosym package for additional characters
 \usepackage{textcomp,marvosym}
@@ -271,8 +269,9 @@ use in the case of multiple modes or, more generally, heterogeneous
 population segments with distinct travel behaviors. After deriving a
 multimodal version of spatial availability, we proceed to illustrate its
 features using a synthetic example. Next, we apply it to an empirical
-example in Madrid, Spain. We conclude the paper with suggestions for
-future research.
+example of low emission zones in Madrid, Spain. We conclude the paper
+with suggestions for future research and its use in evaluating policy
+interventions.
 
 % Please keep the Author Summary between 150 and 200 words
 % Use first person. PLOS ONE authors please skip this step.
@@ -406,7 +405,7 @@ work, Tahmasbi et al. {[}21{]} show that car travel affords the highest
 car can potentially reach more retail opportunities than populations
 using other modes. However, higher \(S_i^{m}\) values for car do not
 affect the values of \(S_i^{m}\) for other modes: in effect, each mode
-is analyzed as if the others did not exist. Since the measure is not
+is analysed as if the others did not exist. Since the measure is not
 constrained, each opportunity is typically counted multiple times within
 and between modes, and as a result the sum of accessibility is not
 necessarily a meaningful quantity. The accessibility scores for the
@@ -1054,7 +1053,7 @@ likely caused by a variety of factors including: transit coverage and
 service within with city, effective car infrastructure outside of the
 M-30, and/or the impact of the LEZ Centro itself. From Figure
 \ref{fig:Fig3}, it can be seen that active travel is less common than
-motorized trips at 1\% and 15\% for cycling and walking respectively.
+motorised trips at 1\% and 15\% for cycling and walking respectively.
 Noticeably, there is a positive trend between the walking and cycling in
 zones where transit is also present. This positive trend is higher than
 for car trip populations.
@@ -1090,12 +1089,12 @@ impedance functions, we use the Maximum likelihood estimation and the
 Nelder-Mead method for direct optimization available within the R
 \{fitdistrplus\} package {[}46{]}. Based on goodness-of-fit criteria and
 associated diagnostics, the gamma and log-normal probability density
-functions are selected as best fitting curves for the motorized and
-non-motorized modes respectively. The selection of functional forms
+functions are selected as best fitting curves for the motorised and
+non-motorised modes respectively. The selection of functional forms
 aligns with empirical examples in other regions {[}15,47,48{]}. The
-shape and rate parameters for the gamma functions (motorized modes) are
+shape and rate parameters for the gamma functions (motorised modes) are
 1.8651852 and 0.051468 for car/motor and 2.7566235 and 0.0499193 for
-transit; for the log-normal functions (non-motorized modes), the mean
+transit; for the log-normal functions (non-motorised modes), the mean
 and standard deviation parameters are 3.2372212 and 0.7575986 for bike
 and 2.9918042 and 0.7575986 for walk.
 
@@ -1108,14 +1107,14 @@ travel behavior given the transportation technologies available. For
 example, trips shorter than 5 minutes do not occur frequently for any
 mode; this reflects the spatial separation between places of residence
 and places of work commonly seen in many cities. In terms of the
-non-motorized modes, there is a preference towards walking trips around
+non-motorised modes, there is a preference towards walking trips around
 15 minutes in duration, as seen from the highest value of
 \(f^{walk}(c_{ij}^{walk})\). With respect to travel by bicycle, longer
 travel times are more common; although the highest value of the
 impedance also corresponds to approximately 15 minutes, the curve has a
 longer tail and values decrease less rapidly at longer travel times than
 is the case of \(f^{walk}(c_{ij}^{walk})\). A similar trend can be
-observed for the motorized modal options where transit mode is more
+observed for the motorised modal options where transit mode is more
 spread out than car/motor mode. All in all, these functions represent
 the propensity of travel by mode by duration of trip, and are used to
 calculate the proportional allocation factors \(F_{ij}^m\) for
@@ -1189,7 +1188,7 @@ available to slower modes (i.e., walking and cycling), even taking into
 account that their share is smaller overall. These modes are at a
 disadvantage as a result of: the travel impedance for longer trips (see
 Figure \ref{fig:Fig4}; their low population values values overall; and
-larger populations in origins with high shares of travel by motorized
+larger populations in origins with high shares of travel by motorised
 modes. These factors all contribute to the the car/motor mode being most
 advantaged in capturing spatially available job opportunities overall.
 
@@ -1254,7 +1253,7 @@ availability of car for most of the city (bottom left plot, areas
 denoted with green \(v_i^m\) values above one). It can also be observed
 that spatial availability of jobs is relatively well balanced for
 transit users over most of the regions (i.e., many zones are light
-orange or light green). Spatial availability of jobs for non-motorized
+orange or light green). Spatial availability of jobs for non-motorised
 modes, in contrast, is low (under one) overall, although less so within
 LEZ Centro.
 
@@ -1328,7 +1327,7 @@ non-car-users. This difference for car travel in locations within and
 immediately around the LEZ Centro seems to increase the number of
 opportunities spatially available to transit users (transit being the
 second most competitive mode), as well as the spatial availability from
-the perspective of non-motorized modes. In effect, a policy such as Low
+the perspective of non-motorised modes. In effect, a policy such as Low
 Emission Zones help to improve the accessibility situation of active
 travel and transit in the parts of the city where it is implemented.
 
