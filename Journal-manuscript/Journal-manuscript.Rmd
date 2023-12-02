@@ -1623,11 +1623,11 @@ In geographic scope, the 2017 boundaries of the LEZ in Madrid were relatively mo
 
 For this case study, we use spatial availability to quantify access to opportunities by different modes in Madrid. Particularly, we demonstrate how $V_i^m$ can be used to derive insights into how the restriction of car mobility in areas around/within the LEZ Centro may have allowed more sustainable (but often slower or more costly modes) to become more competitive.
 
-```{r, jobs-plot, fig.cap="\\label{fig:Fig2} Distribution of jobs taken by people living and working in Madrid as reported in the 2018 travel survey. Grey TAZs has no jobs. Ranges of values in the legend are quintiles.", fig.show='hold', fig.align='center'}
+```{r, jobs-plot, fig.cap="\\label{fig:Fig2} Distribution of jobs taken by people living and working in Madrid as reported in the 2018 travel survey. Grey TAZs have no jobs. Ranges of values in the legend are quintiles. The TAZ shapefile is available from the Community of Madrid open data portal.", fig.show='hold', fig.align='center'}
 knitr::include_graphics("images/Fig2.png") 
 ```
 
-```{r, pop-plot, fig.cap="\\label{fig:Fig3} Population living and working in Madrid by mode of transportation as reported in the 2018 travel survey. Grey TAZs have no population. Ranges of values in the legend are quintiles.", fig.show='hold', fig.align='center'}
+```{r, pop-plot, fig.cap="\\label{fig:Fig3} Population living and working in Madrid by mode of transportation as reported in the 2018 travel survey and represented at the level of TAZ. Grey TAZ have no population. Ranges of values in the legend are quintiles. The TAZ shapefile is available from the Community of Madrid open data portal.", fig.show='hold', fig.align='center'}
 knitr::include_graphics("images/Fig3.png")
 ```
 
@@ -1635,7 +1635,7 @@ knitr::include_graphics("images/Fig3.png")
 
 The source of data for our empirical example is the 2018 Travel Survey of the Community of Madrid [@comunidaddemadridResultadosEDM20182020]. This is a representative survey that offers a snap-shot of travel patterns for a typical weekday in 2018. The survey collected 222,744 trips from a representative sample of 85,064 households across the traffic analysis zones (TAZ) in the Community of Madrid. For context, the population older than 3 years in the Community is 6,507,184. 
 
-In this example, we use all home-to-full-time-work trips, by all modes. The trips are expanded using population weights. Figures \ref{fig:Fig2} and \ref{fig:Fig3} show the number of workers and the distribution of full-time jobs in the City of Madrid by TAZ. The light grey boundary represents the LEZ Centro in effect in 2017. The survey was conducted after the introduction of LEZ Centro. The dark grey boundary represents the LEZ planned for the boundaries of the M-30 highway and is present in the plots as a spatial reference for areas in proximity to the LEZ Centro.
+In this example, we use all home-to-full-time-work trips, by all modes. The trips are expanded using population weights. Figures \ref{fig:Fig2} and \ref{fig:Fig3} show the number of workers and the distribution of full-time jobs in the City of Madrid by TAZ. The TAZ shapefiles are available from the Community of Madrid open data portal [@comunidaddemadridzoniEDM20182020]. The light grey boundary represents the LEZ Centro in effect in 2017. The survey was conducted after the introduction of LEZ Centro. The dark grey boundary represents the LEZ planned for the boundaries of the M-30 highway and is present in the plots as a spatial reference for areas in proximity to the LEZ Centro.
 
 The total sum of jobs $O_j$ are shown in Figure \ref{fig:Fig2} and the populations that go to a work destination by four modal categories $P^m_i$, is displayed in Figure \ref{fig:Fig3}. The modal shares in Figure \ref{fig:Fig3} are calculated based on those measured in the survey. The modal categories and the mode types within each category are reported as follows:
 
@@ -1666,7 +1666,7 @@ knitr::include_graphics("images/Fig4.png")
 
 At this point, it is worthwhile reiterating that the empirical example is a snap-shot of spatial availability by mode using data from the 2018 travel survey. Our purpose in this empirical example is to investigate the trends in availability of employment opportunities by mode, and illustrate how spatial availability can be used in discussions about the competitive advantage of various modes within Madrid Centro. The spatial availability of jobs $V_i^m$ is calculated for each of the four modes $m$ at the level of traffic analysis zones $i$ in Madrid and displayed in Figure \ref{fig:Fig5}.
 
-```{r, SA-m-plot, fig.cap="\\label{fig:Fig5} Spatial availability of jobs per origin and mode $V_i^m$ in Madrid. Grey TAZs have no population. Ranges of values in the legend are quintiles.", fig.show='hold', fig.align='center', fig.height=10}
+```{r, SA-m-plot, fig.cap="\\label{fig:Fig5} Spatial availability of jobs per origin and mode $V_i^m$ in Madrid at the level of TAZ. Grey TAZ have no population. Ranges of values in the legend are quintiles. The TAZ shapefile is available from the Community of Madrid open data portal.", fig.show='hold', fig.align='center', fig.height=10}
 knitr::include_graphics("images/Fig5.png")
 ```
 
@@ -1683,7 +1683,7 @@ It is also clear that more opportunities are spatially available to non-car user
 
 The spatial differences in the competitive dis/advantage of spatial availability between modes can also be visualized at a finer level of granularity. Figure \ref{fig:Fig7} shows $v_i^m$, the spatial availability $V_i^m$ divided by the population of users of $m$. Values of $v_i^m$ below one are shown in shades of orange, and indicate TAZs with less than one spatially available opportunity per capita for the mode. Values above one are shown in shades of green, and indicate TAZs with more than one spatially available opportunity per capita for the mode. The highest spatial availability per capita (shown in blue) is for car users in a zone northeast just beyond the M-30. These plots illustrate in unambiguous fashion, and in a quantity that is comparable over space and time, the advantage in terms of spatial availability of car for most of the city (bottom left plot, areas denoted with green $v_i^m$ values above one). It can also be observed that spatial availability of jobs is relatively well balanced for transit users over most of the regions (i.e., many zones are light orange or light green). Spatial availability of jobs for non-motorised modes, in contrast, is low (under one) overall, although less so within LEZ Centro. 
 
-```{r, SA-per-capita-m-plot, fig.cap="\\label{fig:Fig7} Distribution of spatially available jobs per capita by mode of transportatin ($v_i^m$). Grey TAZs have no population that use the mode. Ranges of values in the legend are quintiles.", fig.show='hold', fig.align='center', fig.height=10}
+```{r, SA-per-capita-m-plot, fig.cap="\\label{fig:Fig7} Distribution of spatially available jobs per capita by mode of transportatin ($v_i^m$) represented at the level of TAZ. Grey TAZ have no population that use the mode. Ranges of values in the legend are quintiles. The TAZ shapefile is available from the Community of Madrid open data portal.", fig.show='hold', fig.align='center', fig.height=10}
 knitr::include_graphics("images/Fig7.png")
 ```
 
@@ -1715,11 +1715,11 @@ The purpose of the empirical example is to illustrate the kind of insights that 
 
 Finally, our example dealt with differences in travel by mode only, but it is possible to think of the intersection between mode of travel and different types of travelers. This would expand the number of sub-populations in the analysis from, say, $m=M$ (modes) to $m = M\cdot Q$ (modes times population segments), each with their own characteristic impedance function. Evaluations of this kind will be especially relevant as LEZ are implemented in cities globally, and the question of their impact on disadvantaged populations who have become mobility-restricted increasingly come to the fore [@devrijNooneVisitsMe2022; @verbeekJustManagementUrban2022; @liottaWhatDrivesInequalities2023].
 
-# Acknowledgements
+<!-- # Acknowledgements -->
 
-This research was funded by the Canada Graduate Scholarship - Doctoral Program (CGS D) provided by the Social Sciences and Humanities Research Council (SSHRC) and Project Mobilizing Justice, also supported by SSHRC. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript.
+<!-- This research was funded by the Canada Graduate Scholarship - Doctoral Program (CGS D) provided by the Social Sciences and Humanities Research Council (SSHRC) and Project Mobilizing Justice, also supported by SSHRC. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript. -->
 
-All work is fully-reproducible and available within this [GitHub repository](https://github.com/soukhova/Multimodal-spatial-availability).
+<!-- All work is fully-reproducible and available within this [GitHub repository](https://github.com/soukhova/Multimodal-spatial-availability). -->
 
 # Author contributions
 The authors confirm contribution to the paper as follows: study conception and design: AS, JTO, JSL, AP.; data collection: AS, JTO, JSL.; analysis and interpretation of results: AS, JTO, JSL, AP.; draft manuscript preparation: AS, JSL, AP. All authors reviewed the results and approved the final version of the manuscript.

@@ -986,7 +986,7 @@ competitive.
 
 }
 
-\caption{\label{fig:Fig2} Distribution of jobs taken by people living and working in Madrid as reported in the 2018 travel survey. Grey TAZs has no jobs. Ranges of values in the legend are quintiles.}\label{fig:jobs-plot}
+\caption{\label{fig:Fig2} Distribution of jobs taken by people living and working in Madrid as reported in the 2018 travel survey. Grey TAZs have no jobs. Ranges of values in the legend are quintiles. The TAZ shapefile is available from the Community of Madrid open data portal.}\label{fig:jobs-plot}
 \end{figure}
 
 \begin{figure}
@@ -995,7 +995,7 @@ competitive.
 
 }
 
-\caption{\label{fig:Fig3} Population living and working in Madrid by mode of transportation as reported in the 2018 travel survey. Grey TAZs have no population. Ranges of values in the legend are quintiles.}\label{fig:pop-plot}
+\caption{\label{fig:Fig3} Population living and working in Madrid by mode of transportation as reported in the 2018 travel survey and represented at the level of TAZ. Grey TAZ have no population. Ranges of values in the legend are quintiles. The TAZ shapefile is available from the Community of Madrid open data portal.}\label{fig:pop-plot}
 \end{figure}
 
 \hypertarget{data}{%
@@ -1012,12 +1012,13 @@ the Community is 6,507,184.
 In this example, we use all home-to-full-time-work trips, by all modes.
 The trips are expanded using population weights. Figures \ref{fig:Fig2}
 and \ref{fig:Fig3} show the number of workers and the distribution of
-full-time jobs in the City of Madrid by TAZ. The light grey boundary
-represents the LEZ Centro in effect in 2017. The survey was conducted
-after the introduction of LEZ Centro. The dark grey boundary represents
-the LEZ planned for the boundaries of the M-30 highway and is present in
-the plots as a spatial reference for areas in proximity to the LEZ
-Centro.
+full-time jobs in the City of Madrid by TAZ. The TAZ shapefiles are
+available from the Community of Madrid open data portal {[}43{]}. The
+light grey boundary represents the LEZ Centro in effect in 2017. The
+survey was conducted after the introduction of LEZ Centro. The dark grey
+boundary represents the LEZ planned for the boundaries of the M-30
+highway and is present in the plots as a spatial reference for areas in
+proximity to the LEZ Centro.
 
 The total sum of jobs \(O_j\) are shown in Figure \ref{fig:Fig2} and the
 populations that go to a work destination by four modal categories
@@ -1084,14 +1085,14 @@ Impedance functions \(f^m(c_{ij}^m)\) are calibrated from the travel
 times in the survey via the empirical trip length distribution (TLD). An
 empirical TLD is given by the proportion of trips at various travel cost
 bins. This distribution is then used to estimate the parameters of a
-function for the travel impedance {[}as done in 43,44,45{]}. To fit the
+function for the travel impedance {[}as done in 44,45,46{]}. To fit the
 impedance functions, we use the Maximum likelihood estimation and the
 Nelder-Mead method for direct optimization available within the R
-\{fitdistrplus\} package {[}46{]}. Based on goodness-of-fit criteria and
+\{fitdistrplus\} package {[}47{]}. Based on goodness-of-fit criteria and
 associated diagnostics, the gamma and log-normal probability density
 functions are selected as best fitting curves for the motorised and
 non-motorised modes respectively. The selection of functional forms
-aligns with empirical examples in other regions {[}15,47,48{]}. The
+aligns with empirical examples in other regions {[}15,48,49{]}. The
 shape and rate parameters for the gamma functions (motorised modes) are
 1.8651852 and 0.051468 for car/motor and 2.7566235 and 0.0499193 for
 transit; for the log-normal functions (non-motorised modes), the mean
@@ -1148,7 +1149,7 @@ displayed in Figure \ref{fig:Fig5}.
 
 }
 
-\caption{\label{fig:Fig5} Spatial availability of jobs per origin and mode $V_i^m$ in Madrid. Grey TAZs have no population. Ranges of values in the legend are quintiles.}\label{fig:SA-m-plot}
+\caption{\label{fig:Fig5} Spatial availability of jobs per origin and mode $V_i^m$ in Madrid at the level of TAZ. Grey TAZ have no population. Ranges of values in the legend are quintiles. The TAZ shapefile is available from the Community of Madrid open data portal.}\label{fig:SA-m-plot}
 \end{figure}
 
 In the figure, \(V_i^m\) is a proportion of the total number of 847,574
@@ -1263,7 +1264,7 @@ LEZ Centro.
 
 }
 
-\caption{\label{fig:Fig7} Distribution of spatially available jobs per capita by mode of transportatin ($v_i^m$). Grey TAZs have no population that use the mode. Ranges of values in the legend are quintiles.}\label{fig:SA-per-capita-m-plot}
+\caption{\label{fig:Fig7} Distribution of spatially available jobs per capita by mode of transportatin ($v_i^m$) represented at the level of TAZ. Grey TAZ have no population that use the mode. Ranges of values in the legend are quintiles. The TAZ shapefile is available from the Community of Madrid open data portal.}\label{fig:SA-per-capita-m-plot}
 \end{figure}
 
 Incidentally, \(v_i^m\) values for car within and near LEZ Centro is
@@ -1290,9 +1291,9 @@ spatial availability measure \(V_i^m\) has in common with these
 accessibility indicators that it is a weighted sum of the opportunities
 in a region from the perspective of a determined origin \(i\).
 Aggregations of opportunities embody principles of gravitational/spatial
-interaction modelling that date back to at least H.C. Carey {[}49{]},
+interaction modelling that date back to at least H.C. Carey {[}50{]},
 and are part of a line of research that includes the work of Ravenstein
-{[}50{]}, Reilly {[}51{]}, Stewart {[}52--54{]}, Zipf {[}55,56{]},
+{[}51{]}, Reilly {[}52{]}, Stewart {[}53--55{]}, Zipf {[}56,57{]},
 Wilson {[}37{]}, and many others. In this way, \(S_i^m\), \(a_i^m\), and
 yes, \(V_i^m\), can be interpreted as scores of the potential for
 interaction with opportunities in space.
@@ -1359,20 +1360,7 @@ sub-populations in the analysis from, say, \(m=M\) (modes) to
 characteristic impedance function. Evaluations of this kind will be
 especially relevant as LEZ are implemented in cities globally, and the
 question of their impact on disadvantaged populations who have become
-mobility-restricted increasingly come to the fore {[}40,57,58{]}.
-
-\hypertarget{acknowledgements}{%
-\section{Acknowledgements}\label{acknowledgements}}
-
-This research was funded by the Canada Graduate Scholarship - Doctoral
-Program (CGS D) provided by the Social Sciences and Humanities Research
-Council (SSHRC) and Project Mobilizing Justice, also supported by SSHRC.
-The funders had no role in study design, data collection and analysis,
-decision to publish, or preparation of the manuscript.
-
-All work is fully-reproducible and available within this
-\href{https://github.com/soukhova/Multimodal-spatial-availability}{GitHub
-repository}.
+mobility-restricted increasingly come to the fore {[}40,58,59{]}.
 
 \hypertarget{author-contributions}{%
 \section{Author contributions}\label{author-contributions}}
@@ -1679,22 +1667,28 @@ doi:\href{https://doi.org/10.1016/j.scs.2021.103562}{10.1016/j.scs.2021.103562}}
 Abiertos. 2020 {[}cited 31 Jul 2023{]}. Available:
 \url{https://datos.comunidad.madrid/catalogo/dataset/resultados-edm2018}}
 
-\leavevmode\vadjust pre{\hypertarget{ref-lopez_2017_spatial}{}}%
+\leavevmode\vadjust pre{\hypertarget{ref-comunidaddemadridzoniEDM20182020}{}}%
 \CSLLeftMargin{43. }%
+\CSLRightInline{Comunidad de Madrid. Zonificación de transporte ZT208 de
+la EDM2018 - Datos Abiertos. 2020 {[}cited 1 Dec 2023{]}. Available:
+\url{https://datos.crtm.es/datasets/zonificacionzt208}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-lopez_2017_spatial}{}}%
+\CSLLeftMargin{44. }%
 \CSLRightInline{Lopez FA, Paez A. Spatial clustering of high-tech
 manufacturing and knowledge-intensive service firms in the greater
 toronto area. Canadian Geographer-Geographe Canadien. 2017;61: 240--252.
 doi:\href{https://doi.org/10.1111/cag.12326}{10.1111/cag.12326}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-horbachov_theoretical_2018}{}}%
-\CSLLeftMargin{44. }%
+\CSLLeftMargin{45. }%
 \CSLRightInline{Horbachov P, Svichynskyi S. Theoretical substantiation
 of trip length distribution for home-based work trips in urban transit
 systems. Journal of Transport and Land Use. 2018;11: 593--632.
 Available: \url{https://www.jstor.org/stable/26622420}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-batista_estimation_2019}{}}%
-\CSLLeftMargin{45. }%
+\CSLLeftMargin{46. }%
 \CSLRightInline{Batista SFA, Leclercq L, Geroliminis N. Estimation of
 regional trip length distributions for the calibration of the aggregated
 network traffic models. Transportation Research Part B: Methodological.
@@ -1702,21 +1696,21 @@ network traffic models. Transportation Research Part B: Methodological.
 doi:\href{https://doi.org/10.1016/j.trb.2019.02.009}{10.1016/j.trb.2019.02.009}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-fitdistrplus_2015}{}}%
-\CSLLeftMargin{46. }%
+\CSLLeftMargin{47. }%
 \CSLRightInline{Delignette-Muller ML, Dutang C. {fitdistrplus}: An {R}
 package for fitting distributions. Journal of Statistical Software.
 2015;64: 1--34. Available:
 \url{https://www.jstatsoft.org/article/view/v064i04}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-reggianiAccessibilityImpedanceForms2011}{}}%
-\CSLLeftMargin{47. }%
+\CSLLeftMargin{48. }%
 \CSLRightInline{Reggiani A, Bucci P, Russo G. Accessibility and
 impedance forms: Empirical applications to the german commuting network.
 International Regional Science Review. 2011;34: 230--252.
 doi:\href{https://doi.org/10.1177/0160017610387296}{10.1177/0160017610387296}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-soukhovTTS2016RDataSet2023}{}}%
-\CSLLeftMargin{48. }%
+\CSLLeftMargin{49. }%
 \CSLRightInline{Soukhov A, Páez A. {TTS}2016R: A data set to study
 population and employment patterns from the 2016 transportation tomorrow
 survey in the greater golden horseshoe area, ontario, canada.
@@ -1725,60 +1719,60 @@ Environment and Planning B: Urban Analytics and City Science. 2023;
 doi:\href{https://doi.org/10.1177/23998083221146781}{10.1177/23998083221146781}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-careyPriciples1858}{}}%
-\CSLLeftMargin{49. }%
+\CSLLeftMargin{50. }%
 \CSLRightInline{Carey HC. Principles of social science. Philadelphia:
 J.B. Lippincot; Co.; 1858. }
 
 \leavevmode\vadjust pre{\hypertarget{ref-ravensteinLaws1889}{}}%
-\CSLLeftMargin{50. }%
+\CSLLeftMargin{51. }%
 \CSLRightInline{Ravenstein EG. The laws of migration. Journal of the
 Royal Statistical Society. 1889;52: 241--305.
 doi:\href{https://doi.org/10.2307/2979333}{10.2307/2979333}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-reillyMethods1929}{}}%
-\CSLLeftMargin{51. }%
+\CSLLeftMargin{52. }%
 \CSLRightInline{Reilly WJ. Methods for the study of retail
 relationships. 1929. }
 
 \leavevmode\vadjust pre{\hypertarget{ref-stewartInverse1941}{}}%
-\CSLLeftMargin{52. }%
+\CSLLeftMargin{53. }%
 \CSLRightInline{Stewart JQ. An inverse distance variation for certain
 social influences. Science. 1941;93: 89--90. Available:
 \url{http://www.jstor.org/stable/1668130}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-stewartSuggested1947}{}}%
-\CSLLeftMargin{53. }%
+\CSLLeftMargin{54. }%
 \CSLRightInline{Stewart JQ. Suggested principles of ''social physics''.
 Science. 1947;106: 179--180. Available:
 \url{http://www.jstor.org/stable/1675368}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-stewartDemographic1948}{}}%
-\CSLLeftMargin{54. }%
+\CSLLeftMargin{55. }%
 \CSLRightInline{Stewart JQ. Demographic gravitation: Evidence and
 applications. Sociometry. 1948;11: 31--58.
 doi:\href{https://doi.org/10.2307/2785468}{10.2307/2785468}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-zipfHypothesis1946}{}}%
-\CSLLeftMargin{55. }%
+\CSLLeftMargin{56. }%
 \CSLRightInline{Zipf GK. The p 1 p 2/d hypothesis: The case of railway
 express. The Journal of Psychology. 1946;22: 3--8.
 doi:\href{https://doi.org/10.1080/00223980.1946.9917292}{10.1080/00223980.1946.9917292}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-zipfIntercity1946}{}}%
-\CSLLeftMargin{56. }%
+\CSLLeftMargin{57. }%
 \CSLRightInline{Zipf GK. The P1P2/d hypothesis: On the intercity
 movement of persons. American Sociological Review. 1946;11: 677--686.
 doi:\href{https://doi.org/10.2307/2087063}{10.2307/2087063}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-devrijNooneVisitsMe2022}{}}%
-\CSLLeftMargin{57. }%
+\CSLLeftMargin{58. }%
 \CSLRightInline{De Vrij E, Vanoutrive T. {``No-one visits me anymore''}:
 Low emission zones and social exclusion via sustainable transport
 policy. 2022 {[}cited 27 Jul 2023{]}. Available:
 \url{https://www.tandfonline.com/doi/epdf/10.1080/1523908X.2021.2022465?needAccess=true\&role=button}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-liottaWhatDrivesInequalities2023}{}}%
-\CSLLeftMargin{58. }%
+\CSLLeftMargin{59. }%
 \CSLRightInline{Liotta C. What drives inequalities in low emission
 zones'impacts on job accessibility? Virtual; 2023.
 doi:\href{https://doi.org/10.17605/OSF.IO/9VQU7}{10.17605/OSF.IO/9VQU7}}
