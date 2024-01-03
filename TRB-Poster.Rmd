@@ -36,7 +36,7 @@ sectitle_borderwidth: "1.5mm"
 title_textsize: "110pt"
 author_textsize: "80pt"
 affiliation_textsize: "80pt"
-body_textsize: "53px"
+body_textsize: "50px"
 link-citations: true
 bibliography: bibliography/bibliography.bib
 output: 
@@ -351,13 +351,13 @@ toy_example_plot
 ggsave("Presentation-images/toy-example.png",dpi=600)
 ```
 
-A pitfall in conventional accessibility measures are opportunities are often multiply counted, which leads to values of accessibility that are difficult to interpret.
+Accessibility is a key concept in the analysis of land use and transportation systems. It is too coming of age from the perspective of planning [see _inter alia_, @handyAccessibility2020; @levinsonTransportAccessManual2020; @elGeneidyMaking2022]. Beginning with the work of Hansen [@hansenHowAccessibilityShapes1959], accessibility measures have been widely used to evaluate the efficiency of transportation systems when combined with the distribution of opportunities in space.
 
-Our purpose: a method for measuring accessibility for multiple modes that addresses this pitfall.
+The most common form of accessibility measure is based on the gravity model, and recent research has focused on the way opportunities are counted (summed). In these calculations, the sums are not constrained, meaning the same opportunity can enter the sum for different origins. This unconstrained counting is a pitfall in conventional methods as it leads to values of accessibility that are difficult to interpret, especially when comparing results between multiple modes.
 
-We extend spatial availability [@soukhovIntroducingSpatialAvailability2023] for the case of multiple modes. Spatial availability constrains calculations to match a known quantity ensures that the measurements sum up to a predetermined quantity (i.e., the total number of opportunities), and so each value can be meaningfully related to this total. 
+In this paper we address this pitfall by extending spatial availability for multiple modes [@soukhovIntroducingSpatialAvailability2023]. Spatial availability is a singly-constrained competitive accessibility measure that constrains calculations to match a known quantity. This ensures the measurements sum up to a predetermined quantity (i.e., the total number of opportunities), and so each value can be meaningfully related to this total. 
 
-We demonstrate its use in the case of multiple modes or, more generally, heterogeneous population segments with distinct travel behaviors. We proceed to illustrate its features using a synthetic example, an empirical example of low emission zones in Madrid, Spain, and suggestions for future research in evaluating policy interventions.
+We demonstrate spatial availability's use in the case of multiple modes or, more generally, heterogeneous population segments with distinct travel behaviours. We illustrate its features using a synthetic example, an empirical example of low emission zones in Madrid, Spain, and suggest future research directions in its use to evaluate policy interventions.
 
 # Overview of multi-modal accessibility measures
 
@@ -376,38 +376,37 @@ $V_i^m = \sum_j O_j \color{blue}{F^{t,m}_{ij}} = \sum_j O_j \color{blue}{\frac{F
 Where:
 
 -   $m = 1, 2,\cdots, M$ is a set of $M$ modes (or sub-populations) of interest.
+-   $i$ is a set of origin locations ($i = 1,\cdots,N$) 
+-   $j$ is a set of destination locations ($j = 1,\cdots,J$).
 -   $c_{ij}^m$ is a measure of the cost of moving between $i$ and $j$ for each $m$.
 -   $f^m(\cdot)$ is an impedance function of $c^m_{ij}$ for each $m$, it can take the form of any monotonically decreasing function reflective of travel behaviour.
--   $i$ is a set of origin locations ($i = 1,\cdots,N$).
--   $j$ is a set of destination locations ($j = 1,\cdots,J$).
 -   $O_j$ is the number of opportunities at location $j$; $O = \sum_{j=1}^J O_j$ is the total supply of opportunities in the study region.
 * $F^{tm}_{ij}$ is the total balancing factor for each $m$ at each $i$; it consists of two factors. 
   + First, the factor for allocation by population for each $m$ at each $i$ is $F^{pm}_{i} = \frac{P_{i}^m}{\sum_{m}\sum_{i} P_{i}^m}$ and 
   + Then the factor for allocation by cost of travel for each $m$ at $i$ is $F_{ij}^{cm} = \frac{f^m(c_{ij}^m)}{\sum_{m} \sum_{i} f^m(c_{ij}^m)}$.
 
-### Spatial availability's proportional allocation mechanism
+**Spatial availability's proportional allocation mechanism**
 
 - $V^m_{i}$ is always singly-constrained: $\sum_{i} V_{i} = \sum_{m}\sum_{i} V_{i}^m = \sum_{j} O_j$
 
-- So, one can calculate spatial availability....
-  - **per $i$**: ( $V_{i} = \sum_{m} V^m_{i}$ )
-  - **per mode**: ( $v^{m} = \sum_{m} \sum_{i} V^m_{i}$ )
-  - **per capita in $i$**: ( $v_{i} = \sum_{m} \frac{V_i^m}{P_{i^m}}$ )
-  - Etc.
+- So, one can calculate spatial availability per ...
+  - **$i$**: ( $V_{i} = \sum_{m} V^m_{i}$ )
+  - **mode**: ( $v^{m} = \sum_{m} \sum_{i} V^m_{i}$ )
+  - **capita in $i$**: ( $v_{i} = \sum_{m} \frac{V_i^m}{P_{i^m}}$ )
   - Etc.
 
 # Synthetic example of 3 zones and 2 mode-using populations
 
-The calculated Hansen (**S**), Shen-type (**a**) and Spatial Availability (**V**) assuming an impedance function of $f(c_{ij})^{\text{x}} = f(c_{ij})^{\text{z}} =exp(-0.1 \cdot c_{ij}^m)$ is also shown in the table. 
+The calculated Hansen (**S**), Shen-type (**a**) and Spatial Availability (**V**) assuming an impedance function of $f(c_{ij})^{\text{x}} = f(c_{ij})^{\text{z}} =exp(-0.1 \cdot c_{ij}^m)$ is shown in the table. 
 
 ![](Presentation-images/toy-example.png){#id .class width=100%}
 When competition is not considered, **S** values for the Suburban A and Urban B are the same. Does this equivalency make sense for the differently sized A and B? Further, if constraints are not incorporated (i.e., **S** and **a**), values are hard to interpret. The regional sums of **S** and **a** are meaningless.
 
-In considering both competition and constraints, **V** is not the same for A and B: Suburban A has more _available_ jobs than mode-using population, the Urban B and the satellite C have fewer _available_ jobs, and the sum of **V** is the total number of jobs in the region. We can interpret that the faster z population captures a higher proportion of availability than population in A, B, and C, unlike x. **Clarity in interpretation is the advantage of using spatial availability.**
+In considering both competition and constraints, **V** is not the same for A and B: Suburban A has more _available_ jobs than mode-using population, the Urban B and the satellite C have fewer _available_ jobs, and the sum of **V** is the total number of jobs in the region. We can interpret that the faster z population captures a higher proportion of availability than population in A, B, and C, unlike x. **The advantage of using spatial availability is the clarity in interpretation.**
 
 # Empirical example: quantifying multimodal access in Madrid
 
-The low emission zone (LEZ) in the Centro of the City of Madrid was established in 2017 to pursue national climate change goals. LEZs implement a form of _geographic discrimination_ as they change how people can reach opportunities by making it more costly for some forms of travel, typically cars, to circulate in predetermined zones. LEZ change the accessibility landscape of a city from the perspective of multiple modes. 
+The low emission zone (LEZ) in the Centro of the City of Madrid was established in 2017 to pursue climate change mitigation goals. LEZs implement a form of _geographic discrimination_ as they change how people can reach opportunities by making it more costly for some forms of travel, typically cars, to circulate in predetermined zones. LEZ change the accessibility landscape of a city from the perspective of multiple modes. 
 
 We ask: **what is the spatial distribution of availability that can be accessed by different mode-using population, especially for the car-using populations within and outside of the Centro LEZ?**
 
@@ -424,19 +423,19 @@ We ask: **what is the spatial distribution of availability that can be accessed 
 
 ![](Presentation-images/Fig6.png){#id .class width=100%}
 
-Note how the differences between these proportions change: car captures more availability than its population proportion overall (black) but this is not the case within the Centro (light grey). As such, non-car modes fair much better at capturing spatial availability within the M-30 (dark grey) and especially the Centro (light grey). 
+Note the differences between proportions between mode depending on the spatial neighbourhood examined: car captures more availability than its population proportion overall (black) but this is not the case within the Centro (light grey). As such, non-car modes are better at capturing spatial availability within the M-30 (dark grey) and especially the Centro (light grey). 
 
 ![](Presentation-images/Fig7.png){#id .class width=95%}
 
-Do we want a city where the spatial availability of opportunities is equal for all mode users? $V_i^m$ can be divided by the mode-using population at each $i$ to yield mode-population scaled values and used as a planning benchmark. Zones that are orange should be targets for interventions; and car-using populations can be further targeted. 
+Do we want a city where the spatial availability of opportunities is equal for all mode users? $V_i^m$ can be divided by the mode-using population at each $i$ to yield mode-population scaled values and used as a planning benchmark. Zones that are orange could be targets for interventions; and car-using populations can be further dissuaded. 
 
 # Conclusions and future work
 
 Opportunities are finite: spatial availability uses this idea as a constraint to consider competition for opportunities by the population. This consideration, through the proportional allocation factors, adds a new-found interpretation of accessibility values. 
 
-With spatial availability, the magnitude of opportunities that are available as a proportion of all the opportunities in the region is equal to $V_i$. Heterogeneous population characteristics, like difference in travel times due to mode used, can be easily incorporated, as done in this multimodal extension. The flexibility of spatial availability can be helpful in identifying zones in need of intervention and highlights the spatial competitive advantage of certain modes.
+With spatial availability, the magnitude of opportunities that are available as a proportion of all the opportunities in the region is equal to $V_i$. Heterogeneous population characteristics, like difference in travel times due to mode used, can be easily incorporated, as done in this multimodal extension. The flexibility of spatial availability can be helpful in identifying zones and modes in need of intervention and highlights the spatial competitive advantage of certain modes.
 
-Future works looks to model policy scenarios around normative equity standards, and consideration of population and opportunities characteristics like income, travel mode used, and quality of opportunity.
+Future works will look to model policy scenarios considering normative equity standards, and consideration of population and opportunities characteristics like income, travel mode used, and quality of opportunity.
 
 # References
 
