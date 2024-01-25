@@ -284,53 +284,66 @@ interventions.
 \section{Introduction}\label{introduction}}
 
 Accessibility is a key concept in the analysis of land use and
-transportation systems {[}e.g., 1,2,3{]}, and too is coming of age from
-the perspective of planning {[}see \emph{inter alia}, 4,5--8{]}.
+transportation systems {[}e.g., 1,2,3{]} and is coming of age from the
+perspective of planning research {[}see \emph{inter alia}, 4,5--8{]}.
 Beginning with the work of Hansen {[}1{]}, accessibility measures have
 been widely used to evaluate the efficiency of transportation systems
-when combined with the distribution of opportunities in space {[}9{]}.
-As such, it is a holistic measure of spatial systems that measures the
-ease of reaching destinations {[}10,11{]}.
+when combined with the distribution of populations and opportunities in
+space {[}9{]}. In this way, accessibility is a holistic measure of
+spatial systems' ease of reaching population-relevant destinations
+{[}10,11{]}.
 
-In practice, the most common form of accessibility measure is based on
-the gravity model. These measures are sums of weighted opportunities
-around a focal point (i.e., a potential origin), based on how expensive
-it is to reach them. Recent research in accessibility analysis has paid
-attention to the way opportunities are counted in the pertinent
-calculations. Conventionally, the sums are not constrained, which means
-that the same opportunity can enter the sum for different origins.
-Counting the same opportunity multiple times treats it as if it was
-inexhaustible. But opportunities in general are not inexhaustible, and
-in fact some of them are by definition exclusive: for example, once a
-job is taken up by someone in the population, the same job is no longer
-available for any other person to take. More generally, opportunities
-are subject to congestion: for example, multiple people can obtain
-services from the same family doctor, but the more people who do, the
-more congested the service will be.
+The most common form of accessibility measure is based the gravity model
+{[}e.g. 1{]}: these measures sum ``weighted'' opportunities around a
+focal point (i.e., a potential origin), based on how expensive it is to
+reach them. Recent research in accessibility analysis has explored the
+implications of methods by which opportunities are summed, especially in
+the context of competitive accessibility {[}15{]}. In a typical
+Hansen-type accessibility measure, the sums around origins are not
+constrained. This means that the same opportunity can enter the sum for
+different origins; Counting the same opportunity multiple times treats
+the opportunity as if it was inexhaustible (or non-rival {[}16{]}).
+However, this conceptualisation may not reflect reality as
+opportunities, in general, are not inexhaustible. Some opportunities are
+by definition exclusive: a typical example is employment, once a job is
+taken up by someone in the population, the same job is no longer
+available for any other person to take {[}14,17{]}. More generally, it
+could be conceptualised that all opportunities are subject to some
+amount of congestion or capacity-constraint: multiple people use a
+specific opportunity at a given time and the more people who do, the
+more congested the opportunity. Congestion can be seen on a continuum,
+and debate on how congestion within accessibility should be considered
+is ongoing {[}14,17,18{]}. Nonetheless, competition has been widely
+considered for traditionally exclusive opportunities types such as
+employment and healthcare opportunities {[}14,17,19--21,21--24{]} and
+more recently educational facilities {[}18,25{]}, and less exclusive
+amenities-types such as greenspace and recreation {[}25,26{]}, and
+shopping {[}18,27{]}.
 
-The issue of congestion in accessibility measures was the motivation for
-the development of floating catchment area approaches {[}12,13{]}. While
-these approaches purport to account for congestion, Paez et al. {[}14{]}
-demonstrate that in general they do not solve the issue of multiple
-counting of opportunities, thus leading to biases in the calculation of
-total demand and supply, sometimes inflating them, other times deflating
-them. In response to this, recent research has paid closer attention to
-the way opportunities are counted in accessibility analysis. Paez et al.
-{[}14{]}, for example, tackle floating catchment area methods and
-introduce a normalization of the impedance matrix to allocate the
-population and then the level of service proportionally. More recently,
-Soukhov et al. {[}15{]} introduced a singly-constrained measure of
-accessibility, called spatial availability, that employs a similar, but
-more sophisticated proportional allocation mechanism. The work of these
-authors show that floating catchment area methods can be seen as
-singly-constrained accessibility measures, and improve on existing
-approaches by guaranteeing that each opportunity is counted only once -
-in other words, treating opportunities as \emph{finite}. The
-proportional allocation of spatial availability constrains the
-calculations to match a known quantity, therefore ensuring that the
-measurements sum up to a predetermined quantity (i.e., the total number
-of opportunities), and so each value can be meaningfully related to this
-total.
+The consideration of congestion in accessibility measures was the
+motivation for the development of approaches that consider competition
+{[}21,23,24{]} and are popularly applied as floating catchment area
+methods {[}e.g. 28{]}. While these approaches purport to account for
+congestion, Paez et al. {[}12{]} demonstrates that they do not solve the
+issue of multiple counting of opportunities in general, thus leading to
+biases in the calculation of total demand and supply. They sometimes
+inflate counts and other times deflate them. In response to this, recent
+research has paid closer attention to the way opportunities are counted
+in accessibility analysis. Paez et al. {[}12{]}, for example, focuses on
+floating catchment area methods and introduces a normalization of the
+impedance matrix to allocate the population and then the level of
+service proportionally. More recently, Soukhov et al. {[}15{]}
+introduced a singly-constrained measure of accessibility, called spatial
+availability, that employs a similar but more sophisticated proportional
+allocation mechanism. The work of these authors show that floating
+catchment area methods can be seen as singly-constrained accessibility
+measures and improve on existing approaches by guaranteeing that each
+opportunity is counted only once. In other words, spatial availability
+treats the opportunities as \emph{finite}. The proportional allocation
+mechanism of spatial availability constrains the calculations to match a
+known quantity, therefore ensuring that the measurements sum up to a
+predetermined quantity (i.e., the total number of opportunities), and so
+each value can be meaningfully related to this total.
 
 A limitation of spatial availability as introduced by Soukhov et al.
 {[}15{]} is that it was developed for the case of a homogeneous
@@ -344,32 +357,32 @@ implies that slower travelers will often face increased competition for
 local opportunities from travelers who can reach said opportunities from
 farther afield.
 
-The objective of this paper is to address this limitation of spatial
-availability. Our primary motivation is to extend spatial availability
-for the case of multimodal accessibility, but it is worthwhile noting
-that this is in fact just one case of heterogeneous populations (i.e.,
-travel by different modes). The method itself can easily accommodate
-other forms of heterogeneity, for example variations in travel behavior
-between older and younger adults {[}e.g., 16{]}, the propensity of older
-adults to use different modes of transportation {[}e.g., 17{]}, the
-usually shorter trip lengths of children compared to grown-ups {[}e.g.,
-18{]}, or the more limited travel ranges of single parents {[}e.g.,
-19{]}.
+This paper's primary motivation is to extend spatial availability for
+the case of multimodal accessibility (i.e., travel by different modes).
+It is worth noting though that the consideration for travel costs by
+different modes is in fact just one case of heterogeneous populations.
+The method itself can easily accommodate other forms of heterogeneity,
+for example: variations in travel behavior between older and younger
+adults {[}e.g., 29{]}, the propensity of older adults to use different
+modes of transportation {[}e.g., 30{]}, the usually shorter trip lengths
+of children compared to adults {[}e.g., 31{]}, or the more limited
+travel ranges of single parents {[}e.g., 32{]}.
 
-The paper rest of this paper is organized as follows. In Section 2 we
-provide a brief review of multimodal accessibility. In the following
-Section 3 we demonstrate the derivation of the new spatial availability
-expression for multiple modes. In Section 4 we illustrate relevant
-issues through a synthetic example. This is followed in Section 5 by an
-empirical example using data from the city of Madrid after the
-implementation of its Low Emission Zones (LEZ). Data for this example
-comes from the city's 2018 travel survey. The example shows the
-differences in spatial availability within and outside the LEZ for
-travelers using different modes, namely car, transit, cycling and
-walking. In Section 6, we provide concluding remarks on the strengths of
-the use of spatial availability as a multimodal accessibility measure,
-and discuss potential future uses in policy planning scenarios as well
-as directions for future research.
+The rest of this paper is organized as follows. In Section 2 we provide
+a brief review of multimodal accessibility. In the following Section 3
+we demonstrate the derivation of the new spatial availability expression
+for multiple modes. In Section 4 we illustrate relevant issues through a
+synthetic example. This is followed in Section 5 by an empirical example
+using home-to-work data from the city of Madrid, Spain after the
+implementation of its Low Emission Zones (LEZ). Data for this example is
+sourced from the city's 2018 travel survey. The empirical example
+demonstrates the differences in multimodal spatial availability
+highlighting differences within and outside the LEZ for travelers using
+different modes, namely car, transit, cycling and walking. In Section 6,
+we provide concluding remarks on the strengths of the use of spatial
+availability as a multimodal accessibility measure, and discuss
+potential future uses in policy planning scenarios as well as directions
+for future research.
 
 \hypertarget{a-brief-review-of-multimodal-accessibility}{%
 \section{A brief review of multimodal
@@ -379,28 +392,28 @@ Location-based accessibility indicators are quantitative measures of
 \emph{potential} interaction with opportunities for locations within a
 given region: they are summary measures of the relationship between
 land-use and transport systems. Arguably, the most commonly used are
-measures based on the gravity model {[}20{]}, of which cumulative
-opportunity measures and weighted cumulative opportunity measures are
-particular forms {[}5{]}. These measures assign a weight to
-opportunities based on how easy it is to reach them. Given an origin
-(\(i\)) and a destination (\(j\)), an impedance function
-\(f^{m}(c^m_{ij})\) converts the cost of travel (e.g., time, money,
-generalized cost) into a score that represents the propensity for
-interaction. These measures originate from that proposed by Hansen
-{[}1{]}, which can take the following form in the multimodal case:
-\(S_i^m = \sum_j O_j f^m(c_{ij}^m)\) where \(m\) is a set of modes which
-have mode-specific travel costs (\(c_{ij}^m\)) and/or travel impedance
-functions (\(f^m(\cdot)\)).
+measures based on the gravity model {[}33{]}; this includes cumulative
+opportunity measures which are a special case of the gravity model
+{[}5,10{]}. These gravity model based measures weight opportunities
+depending on how easy it is to reach them. Given an origin (\(i\)) and a
+destination (\(j\)), an impedance function \(f^{m}(c^m_{ij})\) converts
+the cost of travel (e.g., time, money, generalized cost) into a score
+that represents the propensity for potential interaction. These measures
+originate from the work proposed by Hansen {[}1{]}, which can take the
+following form in the multimodal case:
+\(S_i^m = \sum_j O_j f^m(c_{ij}^m)\). In this form, \(m\) is a set of
+modes that have mode-specific travel costs (\(c_{ij}^m\)) and/or travel
+impedance functions (\(f^m(\cdot)\)).
 
 Hansen-type accessibility is not constrained, which is to say it does
 not consider the opportunities as finite. To cite an example, Tahmasbi
-et al. {[}21{]} use Hansen-type accessibility to assess the potential
+et al. {[}34{]} use Hansen-type accessibility to assess the potential
 interaction with retail locations by three modes: walking, public
 transit, and car (i.e., \(m = w, p, c\)). \(S_i^m\) is the sum of retail
 locations \(j\) that can potentially be reached under the travel
 impedance as calculated for each \(i\) and \(m\). In other words, for
 each origin \(i\) three accessibility scores are calculated. In this
-work, Tahmasbi et al. {[}21{]} show that car travel affords the highest
+work, Tahmasbi et al. {[}34{]} show that car travel affords the highest
 \(S_i^{m}\) values in the majority of \(i\), i.e., travelers who use a
 car can potentially reach more retail opportunities than populations
 using other modes. However, higher \(S_i^{m}\) values for car do not
@@ -410,7 +423,7 @@ constrained, each opportunity is typically counted multiple times within
 and between modes, and as a result the sum of accessibility is not
 necessarily a meaningful quantity. The accessibility scores for the
 modes are often values that are difficult to interpret beyond making
-statements about relative size. For example, Lunke {[}22{]}, researching
+statements about relative size. For example, Lunke {[}35{]}, researching
 the region of Oslo, reports accessibility scores for car in the order of
 tens of thousands of employment opportunities. The corresponding scores
 for transit are lower, but still often in the thousands or tens of
@@ -420,14 +433,14 @@ opportunities than car). But despite the discussion about ``sufficient
 accessibility'', it is unclear what the unconstrained scores mean: is
 having access to but 10,000 jobs by transit insufficient? After all,
 10,000 employment opportunities are still plenty of opportunities. These
-ratios can be found elsewhere in the literature {[}e.g., 23, and
-9,16,19, and 8{]}, and they are useful as relative assessment of when
+ratios can be found elsewhere in the literature {[}e.g., 36, and
+9,29,32, and 8{]}, and they are useful as relative assessment of when
 some members of the public are better or worse off than others, but they
-do not say much about how bad is ``worse off''.
+are silent on how bad is ``worse off''.
 
-Besides ratios of accessibility, another way to improve interpretability
-of scores sometimes seen in the literature is to standardize them to lie
-in the range {[}0-1{]}. This adjustment is only helpful insofar as it
+Besides ratios of accessibility, another way seen in the literature to
+improve interpretability of scores is to standardise them within a
+{[}0-1{]} range. This adjustment is only helpful insofar as it
 facilitates relative comparisons, but interpretation of the scores
 remains challenging because the values are specific to a region and
 convey no meaning about the magnitude of the scores. In this approach,
@@ -440,14 +453,14 @@ these scores be used to track differences over time? Or between regions?
 These questions lack straightforward answers since certain values will
 always be relatively `low' or `high', but do not track to a quantity
 that can be intuitively understood. Presentation or discussion of
-Hansen-type accessibility that has been standardized in this way is not
-uncommon in the literature {[}e.g., 24,25{]}.
+Hansen-type accessibility that has been standardised in this way is not
+uncommon in the literature {[}e.g., 37,38{]}.
 
 Once we understand opportunities to be finite, it is possible for an
 accessibility measure to take on a crisper meaning. As considered in the
 long tradition of accessibility research, capacity of opportunities is
 limited and thus is subject to competition by population
-{[}12,15,26--30{]}. There are only so many school-seats, hospital
+{[}14,15,17--25,39--42{]}. There are only so many school-seats, hospital
 capacity, employment opportunities, etc., in a region and if one person
 reaches an opportunity, it is taken: the supply of an opportunity and
 the demand for that opportunity are two components of accessibility.
@@ -460,8 +473,8 @@ Amenities are a good example of this. For instance, standards for
 providing green spaces are often stated in the form of \emph{exclusive
 access}, in units of amenity per capita. A case in point is a the
 Ile-de-France region, a jurisdiction that suggested in a 2013 planning
-document that at the municipal level at least \(10m^2\) of public green
-space should be supplied \emph{per inhabitant} {[}31{]}. Green spaces
+document that at the municipal level at least 10 \(m^2\) of public green
+space should be supplied \emph{per inhabitant} {[}43{]}. Green spaces
 are not evenly distributed, which means that who has access to them
 hinges on where they are and how easy is to reach them. This formulation
 of provision of amenities is not unusual. For example, Natural England,
@@ -469,29 +482,29 @@ an organization that recommends an Accessible Natural Greenspace
 Standard such that the minimum supply of space is one ha of statutory
 Local Nature Reserves per thousand population\footnote{see
   https://redfrogforum.org/wp-content/uploads/2019/11/67-Nature-Nearby\%E2\%80\%99-Accessible-Natural-Greenspace-Guidance.pdf}.
-Similarly, the World Health Organization {[}cited in 32{]} recommends
-that cities provide a minimum of 9\(m^2\) of green area per inhabitant.
+Similarly, the World Health Organization {[}cited in 44{]} recommends
+that cities provide a minimum of 9 \(m^2\) of green area per inhabitant.
 For our purposes, standards of this type translate into ``how much of
 this resource is available to one individual that has not been claimed
 by anyone else?''. Green spaces often have large capacities, but they
 still have a capacity, and it is not the same for a person to have
-access to \(5m^2\) of \emph{uncongested} green space as \(15m^2\). This
-difference is in fact a matter of justice {[}31,33{]}. Constraining
+access to 5 \(m^2\) of \emph{uncongested} green space as 15 \(m^2\).
+This difference is in fact a matter of justice {[}43,45{]}. Constraining
 accessibility is in this way a useful way to evaluate the congested
 availability of any type of opportunity. As development of sound
 standards is emphasized in the planning literature, in particular in
-regards to fairness in transportation {[}see 34{]}, spatial availability
+regards to fairness in transportation {[}see 46{]}, spatial availability
 analysis is a useful way to develop and assess standards.
 
 The relevance of the considerations above is put in sharper relief when
 we think about the use of multiple modes (or heterogeneous populations).
-If we return to Oslo for a moment {[}22{]}, we notice that the places
+If we return to Oslo for a moment {[}35{]}, we notice that the places
 that have high accessibility by transit are also the places that have
 \emph{very high} accessibility by car (in their Figure 2). Those two
 populations are going for the same opportunities, and those travelling
-by transit have fewer to choose from to begin with. More generally,
-people in a zone who are advantaged with relatively low cost of travel
-will have the ability to potentially reach more opportunities than other
+by transit have fewer to choose from the start. More generally, people
+in a zone who are advantaged with relatively low cost of travel will
+have the ability to potentially reach more opportunities than other
 people. Due to this advantage, through the perspective of finite
 opportunities, there are fewer opportunities left for everyone else,
 especially for those who use modes that are slower or otherwise more
@@ -499,9 +512,9 @@ expensive.
 
 As noted in the Introduction, competitive accessibility was the
 rationale for developing floating catchment area methods (FCA),
-popularized by Luo et al. {[}13{]} who reformulated the work of Shen
-{[}12{]} into two steps (although similar, and earlier, developments are
-found in {[}30,35{]}). Shen-type accessibility is formulated as:
+popularized by Luo et al. {[}28{]} who reformulated the work of Shen
+{[}24{]} into two steps (although similar, and earlier, developments are
+found in {[}21,23{]}). Shen-type accessibility is formulated as:
 \(a_i^m = \sum_j \frac{O_jf^m(c_{ij}^m)}{\sum_m D_j^m}\) where \(D_j^m\)
 is the potential demand for opportunities equal to travel impedance
 weighted population \(\sum_i P_i^m f^m(c_{ij}^m)\) and the remaining
@@ -511,11 +524,11 @@ impedance-weighted supply of opportunities for \(m\)-mode in \(i\) over
 the travel impedance-weighted demand for opportunities. In this way, it
 considers competition. That said, the measure remains unconstrained,
 meaning both population \emph{and} opportunities are multiply counted
-{[}see 14{]}. In other words, interpretation of the Shen-type
-accessibility scores between modes is fraught as it is for Hansen-type
+{[}see 12{]}. In other words, interpretation of the Shen-type
+accessibility scores between modes is fraught, as it is for Hansen-type
 measures.
 
-To illustrate, {[}36{]} calculate \(a_i^m\) to jobs for different
+To illustrate, {[}47{]} calculates \(a_i^m\) to jobs for different
 income-group populations in Shenzhen, China using
 \(m = \text{public transit}\) and \(m=\text{car}\). Their results
 indicate that zones with low-income populations have lower \(a_i^m\)
@@ -532,13 +545,12 @@ what is the impact of competition on the difference in \(a_i^m\) values?
 How does the impact vary spatially? And what is the interpretation of
 this difference?
 
-Spatial availability improves on previously discussed accessibility
-approaches using the Hansen-type measure and the Shen-type measure by
-constraining the sum of opportunities, that is, by treating
-opportunities as finite. This is done by means of proportional
-allocation factors that follow well established principles of spatial
-interaction and the gravity model {[}see 37{]}. In Soukhov et al.
-{[}15{]} these factors consider: the mass effect (e.g., the size of
+Spatial availability improves on the discussed Hansen-type and Shen-type
+accessibility approaches by constraining the sum of opportunities, that
+is, by treating opportunities as finite. This is done by means of
+proportional allocation factors that follow well established principles
+of spatial interaction and the gravity model {[}see 48{]}. In Soukhov et
+al. {[}15{]} these factors consider: the mass effect (e.g., the size of
 populations at different origins); and the cost of travel from different
 zones (e.g., some sub-populations face relatively higher or lower
 costs). The following section introduces the multimodal form of spatial
@@ -575,23 +587,17 @@ V_i = \sum_{j=1}^J O_jF^t_{ij}
   opportunities are dealt with as finite resources.
 \end{itemize}
 
-Compared to Hansen-type accessibility:
-
-\begin{equation}
-\label{eq:hansen-accessibility}
-A_i = \sum_{j=1}^J O_jf(c_{ij})
-\end{equation}
-
-\noindent we see that spatial availability is, like the Hansen-type
-measure, a weighted sum of the opportunities. What makes spatial
-availability stand apart from other approaches is how the weight used in
-the sum, balancing factor \(F^t_{ij}\), implements a proportional
-allocation mechanisms to ensure that the sum of \(V_i\) is constrained
-to match the total number of opportunities in the region. As such,
-spatial availability is singly-constrained and naturally implements
-competition or congestion. \(F^t_{ij}\) consists of two parts. The first
-part is a population-based proportional allocation factor to model the
-mass effect of the gravity model: \[
+Compared to Hansen-type accessibility
+\(S_i = \sum_{j=1}^J O_jf(c_{ij})\), we see that spatial availability
+is, like the Hansen-type measure, a weighted sum of the opportunities.
+What makes spatial availability stand apart from other approaches is how
+the weight used in the sum (balancing factor \(F^t_{ij}\)) implements a
+proportional allocation mechanisms to ensure that the sum of \(V_i\) is
+constrained to match the total number of opportunities in the region. As
+such, spatial availability is singly-constrained and natively considers
+competition. \(F^t_{ij}\) consists of two parts. The first part is a
+population-based proportional allocation factor to model the mass effect
+of the gravity model: \[
 F^p_{i} = \frac{P_i}{\sum_i P_i}
 \]
 
@@ -616,19 +622,19 @@ Each zonal value is a proportion of the opportunities in the region
 
 The focus of this paper is to extend \(V_i\) for the measurement of
 multimodal applications (or more generally heterogeneous populations).
-To do so, the balancing factors need to be reformulated so that 1) the
-mass effect now accounts not only for the size of the population at
-\(i\), but also the size of sub-populations within \(i\); and 2) the
-cost of travel is not only for different zones, but by sub-populations
-within each zone (e.g., the cost of travel from \(i\) by car, transit,
-walking, etc.) When we introduce modes (or sub-populations) \(m\), the
-proportional allocation factors need to satisfy the condition that
-\(F^{pm}_{i}\) and \(F^{cm}_{ij}\) can be summed across each \(m\) at
-each \(i\) and then across all \(i\) to equal to 1. They are also
-similarly combined multiplicatively to obtain their joint effect,
-represented as the combined balancing factor \(F^{tm}_{ij}\) similar to
-that detailed in Equation (\ref{eq:multimodal-balancing-factors}). This
-factor is given by:
+To do so, the balancing factors are reformulated so that 1) the mass
+effect now accounts not only for the size of the population at \(i\),
+but also the size of sub-populations within \(i\); and 2) the cost of
+travel is not only for different zones, but by sub-populations within
+each zone (e.g., the cost of travel from \(i\) by car, transit, walking,
+etc.) relative to all zones. When we introduce modes (or
+sub-populations) \(m\), the proportional allocation factors need to
+satisfy the condition that \(F^{pm}_{i}\) and \(F^{cm}_{ij}\) can be
+summed across each \(m\) at each \(i\) and then across all \(i\) to
+equal to 1. They are also similarly combined multiplicatively to obtain
+their joint effect, represented as the combined balancing factor
+\(F^{tm}_{ij}\) similar to that detailed in Equation
+(\ref{eq:multimodal-balancing-factors}). This factor is given by:
 
 \begin{equation}
 \label{eq:multimodal-balancing-factors}
@@ -673,8 +679,10 @@ V^m_{i} = \sum_{j=1}^J O_j\ F^{tm}_{ij}
   \(\sum_j O_j = \sum_i V_i = \sum_{m} \sum_{i} V^m_{i}\)).
 \end{itemize}
 
-Next we use a synthetic example to contrast multimodal accessibility and
-spatial availability.
+Next we use a synthetic example to contrast multimodal spatial
+availability with multimodal versions of Hansen-type accessibility
+(unconstrained) and Shen-type (unconstrained and competitive)
+accessibility.
 
 \hypertarget{an-illustrative-synthetic-example}{%
 \section{An illustrative synthetic
@@ -691,7 +699,7 @@ center at \(1\), close to the Urban's equally large employment center
 \(2\), and has a population that is smaller than the Urban \(B\) and
 larger than the Satellite \(C\). \(B\) has the largest \(x\)-using
 population, followed by then \(A\), then \(C\). This synthetic example
-is inspired by the single-mode example used in {[}12{]} and reconfigured
+is inspired by the single-mode example used in {[}24{]} and reconfigured
 in {[}15{]}.
 
 \begin{figure}
@@ -710,7 +718,7 @@ populations (less competition), and uses the fastest mode \(z\) (greater
 range) can potentially reach the largest number of opportunities. This
 appears to be the sub-population at \(A\) using mode \(z\).
 Sub-populations located in opposite conditions (i.e., more distant from
-jobs, close to large populations, and using slow mode \(x\)) are at a
+jobs, close to large populations, and using slower mode \(x\)) are at a
 relative disadvantage. The competition for opportunities between
 different mode-using populations matters as it reflects how well the
 land-use and transport system serves (or does not serve) certain
@@ -804,7 +812,7 @@ The values calculated for \(S_i^m\) (Hansen-type accessibility),
 \(a_i^m\) (Shen-type accessibility), and \(V_i^m\) (spatial
 availability) for each \(i\) and \(m\) are shown in the middle three
 columns and are aggregated for each \(i\) in the final two columns in
-Table 1 . As in the example in Shen {[}12{]}, we use a negative
+Table 1 . As in the example in Shen {[}24{]}, we use a negative
 exponential impedance function
 \(f^m(c_{ij}^m) = \exp(-\beta\cdot c_{ij})\) with \(\beta=0.1\) for both
 \(x\) and \(z\) modes for all accessibility measures calculations.
@@ -828,7 +836,7 @@ opportunities that may be reached within the region according to the
 travel impedance (i.e., the travel behavior and the characteristics of
 the modes) and does not usefully translate into any sort of benchmark.
 To connect this example to the aforementioned literature, \(S_i^m\) is
-calculated in the work of Tahmasbi et al. {[}21{]}; they contrast
+calculated in the work of Tahmasbi et al. {[}34{]}; they contrast
 differences in \(S_i^m\) values between modes in a relative and
 comparative sense, but make no further interpretation of the \(S_i^m\)
 values. More densely populated metropolitan regions will tend to have
@@ -859,8 +867,8 @@ what? How many more job opportunities can users of \(z\) reach compared
 to user of \(x\)? When \(a_i^m\) is aggregated to \(a_i\) as shown in
 the sixth column, the values face similar interpretability issues. The
 Shen-type measure is implemented in aforementioned work of Tao et al.
-{[}36{]} to calculate modal \(a_i^m\) values and the aggregated \(a_i\)
-is implemented in the work of Carpentier et al. {[}38{]}. However,
+{[}47{]} to calculate modal \(a_i^m\) values and the aggregated \(a_i\)
+is implemented in the work of Carpentier et al. {[}49{]}. However,
 similar to Hansen-type accessibility, these works discuss relative and
 spatially comparative differences in values, but veer from interpreting
 the values of \(a_i^m\) or \(a_i\) themselves. In fairness,
@@ -893,10 +901,10 @@ for 73\% of the region's total spatial availability - while the
 remaining 27\% is allocated to users of mode \(x\) who are 38\%of the
 total population. Notably, the population who uses \(x\) have 11\% fewer
 spatially available opportunities than its share in the population. This
-realization leads us to ask normative questions such as, how unequal
-should availability of opportunities be by mode? What intervention could
-help to redistribute spatial availability to sub-populations
-commensurate with their proportion of the total?
+realization could lead us to ask normative questions: how unequal should
+availability of opportunities be by mode? What intervention could help
+to redistribute spatial availability to sub-populations commensurate
+with their proportion of the total?
 
 Since spatial availability is constrained and has an interpretable
 meaning as a proportion of the total opportunities in the region, the
@@ -932,7 +940,7 @@ If, let us say, the planning goal was to have one spatially available
 job per mode-using population, a policy intervention could be devised,
 to reduce the values of \(v_i^z\) (making it slower or more expensive)
 and increase he values of \(v_i^x\) (making it faster or les expensive).
-The purpose of this simple demonstration is to show how spatial
+The purpose of this synthetic demonstration is to show how spatial
 availability can be used to quantify the competitive (dis)advantage in a
 multimodal application. In what follows, we demonstrate the use of
 multimodal spatial availability through an empirical example.
@@ -944,21 +952,21 @@ multimodal spatial availability through an empirical example.
 \subsection{Context}\label{context}}
 
 The context for the empirical example is Madrid, Spain. This city
-implemented a Low Emission Zone (LEZ) in 2017 to: pursue goals set out
-in the national climate change agenda, cut nitrogen dioxide levels, and
-to prioritize people's movement in the city. LEZs elsewhere have
-similarly been implemented as interventions to reduce GHG emissions,
-improve air quality, and support sustainable mobility {[}39,40{]}.
-Though the rules of exclusion vary by city, LEZs aim to deter/reduce
-traffic in designated zones under threat of penalty (e.g., fines,
-seizure of vehicle). In other words, LEZs implement a form of
-\emph{geographic discrimination} as they change how people can reach
-opportunities by making it more costly for some forms of travel,
-typically cars, to circulate in predetermined zones. When considering
-opportunities as finite in a region, this discrimination reduces the
-competition of one mode and opens up opportunities for other modes to
-better thrive. At their core, LEZs operate by changing the accessibility
-landscape of a city from the perspective of multiple modes.
+implemented a Low Emission Zone (LEZ) in 2017 to pursue goals set out in
+the national climate change agenda, cut nitrogen dioxide levels, and to
+prioritize people's movement in the city. LEZs elsewhere have similarly
+been implemented as interventions to reduce GHG emissions, improve air
+quality, and support sustainable mobility {[}50,51{]}. Though the rules
+of exclusion vary by city, LEZs aim to deter/reduce traffic in
+designated zones under threat of penalty (e.g., fines, seizure of
+vehicle). In other words, LEZs implement a form of \emph{geographic
+discrimination} as they change how people can reach opportunities by
+making it more costly for some forms of travel, typically cars, to
+circulate in predetermined zones. When considering opportunities as
+finite in a region, this discrimination reduces the competition of one
+mode and opens up opportunities for other modes to better thrive. At
+their core, LEZs operate by changing the accessibility landscape of a
+city from the perspective of multiple modes.
 
 In geographic scope, the 2017 boundaries of the LEZ in Madrid were
 relatively modest, covering only approximately 4.72
@@ -971,14 +979,13 @@ environmental labels A or B (older makes and models of fossil fuel
 internal combustion engine vehicles), were disallowed from entering the
 zone unless they are used by residents or meet other exemptions. This
 restriction impacted approximately half of all car trips that used to
-travel into what is now the LEZ Centro {[}41{]}.
+travel into what is now the LEZ Centro {[}52{]}.
 
-For this case study, we use spatial availability to quantify access to
-opportunities by different modes in Madrid. Particularly, we demonstrate
-how \(V_i^m\) can be used to derive insights into how the restriction of
-car mobility in areas around/within the LEZ Centro may have allowed more
-sustainable (but often slower or more costly modes) to become more
-competitive.
+For this case study, we quantify spatial availability to opportunities
+by different modes in Madrid. Particularly, we demonstrate how \(V_i^m\)
+can be used to derive insights into how the restriction of car mobility
+in areas around/within the LEZ Centro may have allowed more sustainable
+(but often slower or more costly modes) to become more competitive.
 
 \begin{figure}
 
@@ -1001,31 +1008,30 @@ competitive.
 \hypertarget{data}{%
 \subsection{Data}\label{data}}
 
-The source of data for our empirical example is the 2018 Travel Survey
-of the Community of Madrid {[}42{]}. This is a representative survey
-that offers a snap-shot of travel patterns for a typical weekday in
-2018. The survey collected 222,744 trips from a representative sample of
-85,064 households across the traffic analysis zones (TAZ) in the
-Community of Madrid. For context, the population older than 3 years in
-the Community is 6,507,184.
+The source of origin-destination data for our empirical example is the
+2018 Travel Survey of the Community of Madrid {[}53{]}. This is a
+representative survey that offers a snap-shot of travel patterns for a
+typical weekday in 2018. The survey collected 222,744 trips from a
+representative sample of 85,064 households across the traffic analysis
+zones (TAZ) in the Community of Madrid. For context, the population
+older than 3 years in the Community is 6,507,184.
 
-In this example, we use all home-to-full-time-work trips, by all modes.
-The trips are expanded using population weights. Figures \ref{fig:Fig2}
-and \ref{fig:Fig3} show the number of workers and the distribution of
-full-time jobs in the City of Madrid by TAZ. The TAZ shapefiles are
-available from the Community of Madrid open data portal {[}43{]}. The
-light grey boundary represents the LEZ Centro in effect in 2017. The
-survey was conducted after the introduction of LEZ Centro. The dark grey
-boundary represents the LEZ planned for the boundaries of the M-30
-highway and is present in the plots as a spatial reference for areas in
-proximity to the LEZ Centro.
+In this example, we use all direct home-to-full-time-work trips, by all
+modes. The trips are expanded using population weights. Figures
+\ref{fig:Fig2} and \ref{fig:Fig3} show the number of workers and the
+distribution of full-time jobs in the City of Madrid by TAZ. The TAZ
+shapefiles are available from the Community of Madrid open data portal
+{[}54{]}. The pink boundary represents the LEZ Centro in effect in 2017
+and reflected in the 2018 travel survey. The purple boundary represents
+the LEZ planned for the boundaries of the M-30 highway and is present in
+the plots as a spatial reference for areas in proximity to the LEZ
+Centro.
 
 The total sum of jobs \(O_j\) are shown in Figure \ref{fig:Fig2} and the
 populations that go to a work destination by four modal categories
 \(P^m_i\), is displayed in Figure \ref{fig:Fig3}. The modal shares in
-Figure \ref{fig:Fig3} are calculated based on those measured in the
-survey. The modal categories and the mode types within each category are
-reported as follows:
+Figure \ref{fig:Fig3} are calculated based on the primary mode specified
+in the survey and summarized into four categories as follows:
 
 \begin{itemize}
 \tightlist
@@ -1085,14 +1091,14 @@ Impedance functions \(f^m(c_{ij}^m)\) are calibrated from the travel
 times in the survey via the empirical trip length distribution (TLD). An
 empirical TLD is given by the proportion of trips at various travel cost
 bins. This distribution is then used to estimate the parameters of a
-function for the travel impedance {[}as done in 44,45,46{]}. To fit the
+function for the travel impedance {[}as done in 55,56,57{]}. To fit the
 impedance functions, we use the Maximum likelihood estimation and the
 Nelder-Mead method for direct optimization available within the R
-\{fitdistrplus\} package {[}47{]}. Based on goodness-of-fit criteria and
+\{fitdistrplus\} package {[}58{]}. Based on goodness-of-fit criteria and
 associated diagnostics, the gamma and log-normal probability density
 functions are selected as best fitting curves for the motorised and
 non-motorised modes respectively. The selection of functional forms
-aligns with empirical examples in other regions {[}15,48,49{]}. The
+aligns with empirical examples in other regions {[}15,59,60{]}. The
 shape and rate parameters for the gamma functions (motorised modes) are
 1.8651852 and 0.051468 for car/motor and 2.7566235 and 0.0499193 for
 transit; for the log-normal functions (non-motorised modes), the mean
@@ -1133,15 +1139,16 @@ calculate the proportional allocation factors \(F_{ij}^m\) for
 \hypertarget{results}{%
 \subsection{Results}\label{results}}
 
-At this point, it is worthwhile reiterating that the empirical example
-is a snap-shot of spatial availability by mode using data from the 2018
-travel survey. Our purpose in this empirical example is to investigate
-the trends in availability of employment opportunities by mode, and
-illustrate how spatial availability can be used in discussions about the
-competitive advantage of various modes within Madrid Centro. The spatial
-availability of jobs \(V_i^m\) is calculated for each of the four modes
-\(m\) at the level of traffic analysis zones \(i\) in Madrid and
-displayed in Figure \ref{fig:Fig5}.
+It is worthwhile reiterating that the empirical example is a snapshot of
+spatial availability by mode using modal home-work origin-destination
+data from the 2018 travel survey. It reflects the travel behaviour after
+LEZ implementation, i.e.~very few motorists commute into the LEZ centro.
+Our purpose in this empirical example is to investigate the trends in
+spatial availability of employment opportunities by mode, and illustrate
+how spatial availability can be used to discuss modal competitive
+advantage. We also discuss how multimodal spatial availability landscape
+displayed in the Figure \ref{fig:Fig5} may have been impacted by the
+LEZ.
 
 \begin{figure}
 
@@ -1152,25 +1159,34 @@ displayed in Figure \ref{fig:Fig5}.
 \caption{\label{fig:Fig5} Spatial availability of jobs per origin and mode $V_i^m$ in Madrid at the level of TAZ. Grey TAZ have no population. Ranges of values in the legend are quintiles. The TAZ shapefile is available from the Community of Madrid open data portal.}\label{fig:SA-m-plot}
 \end{figure}
 
-In the figure, \(V_i^m\) is a proportion of the total number of 847,574
-jobs in the region. Since \(V_i^m\) is calculated based on the
-population of workers and the distribution of jobs, the values can be
-understood as the number of full-time jobs that are spatially available
-to full-time workers at that \(i\) traveling by mode \(m\), relative to
-all the jobs in the city. There are noticeable differences in the
-magnitude of \(V_i^m\) between modes as seen in Figure \ref{fig:Fig5}.
-The majority of \(V_i^m\) (which is to say of spatially available jobs)
-are allocated to workers travelling by car and transit. In a way, this
-is to be expected since users of these modes represent 84.1\% of the
-total population. However, the ability to travel at greater speeds also
-impacts these results. Furthermore, differences in \(V_i^m\) values
-within modes also exist in space: car users outside of the M-30 region
-appear to enjoy greater spatial availability, while some zones inside
-the M-30 to have greater spatial availability for transit. Overall, the
-magnitude of \(V_i^m\) values for cyclists and pedestrians are lower
-than for car and transit but the highest values of \(V_i^{bike}\) and
-\(V_i^{walk}\) tend to be found in zones within the M-30 and origins
-with higher spatial availability by transit.
+In Figure \ref{fig:Fig5}, the spatial availability of jobs \(V_i^m\) is
+calculated for each of the four modes \(m\) at the level of traffic
+analysis zones \(i\) in Madrid. \(V_i^m\) is a proportion of the total
+number of 847,574 jobs in the region. Since \(V_i^m\) is calculated
+based on the population of workers and the distribution of jobs, the
+values can be understood as the number of full-time jobs that are
+spatially available to full-time workers at that \(i\) traveling by mode
+\(m\), relative to all the jobs in the city. This implementation of
+spatial availability assumes that all employment opportunities are of
+interest to the entire population but are proportional allocated based
+on relative travel cost (informed by observed modal origin-destination
+travel behaviour) and the relative amount of the mode-using population
+residing in the zones.
+
+There are noticeable differences in the magnitude of \(V_i^m\) between
+modes in Figure \ref{fig:Fig5}. The majority of \(V_i^m\) (which is to
+say of spatially available jobs) are allocated to workers travelling by
+car and transit. In a way, this is to be expected since users of these
+modes represent 84.1\% of the total population. However, the ability to
+travel at greater speeds also impacts these results. Furthermore,
+differences in \(V_i^m\) values within modes also exist in space: car
+users outside of the M-30 region appear to enjoy greater spatial
+availability, while some zones inside the M-30 have greater spatial
+availability for transit. Overall, the magnitude of \(V_i^m\) values for
+cyclists and pedestrians are lower than for car and transit but the
+highest values of \(V_i^{bike}\) and \(V_i^{walk}\) tend to be found in
+zones within the M-30 and origins with higher spatial availability by
+transit.
 
 The differences between the shares of modes and their shares of
 spatially available opportunities highlights the competitive advantage
@@ -1202,43 +1218,44 @@ advantaged in capturing spatially available job opportunities overall.
 \caption{\label{fig:Fig6} Proportion of population by mode and spatial availability of jobs by mode aggregated for three areas. From left to right, the city of Madrid (All), the area within the M-30 highway (M-30), the area within the Centro region (Centro).}\label{fig:modal-V-comps-plot}
 \end{figure}
 
-The big picture demonstrates how car is the most advantageous mode,
-however it is interesting to notice that this advantage appears to be
-blunted by the LEZ. Unlike the results for the whole city and even
-within the M-30 ring, the proportion of car users in Centro is larger
-than the proportion of opportunities spatially available to them. The
-restriction on cars in effect reduces competition by this mode, and
-leads to a relative increment of the mass effect of the modes allowed
-within the LEZ, which also contains a large number of jobs (see Figure
-\ref{fig:Fig2}). As summarized in the two right-most columns in Figure
-\ref{fig:Fig6}, the proportion of jobs spatially available to car in
-Centro is (13.8\% or 5,373 opportunities). For reference, this is less
-than the proportion of the car users in Centro (16.1\%), evidently less
-then the proportion of car users in the city, and is the opposite of the
-overall trend (left-most columns) and within the M-30 (middle columns).
+The big picture demonstrates how, from the 2018 travel survey, car is
+the most advantageous mode. However, it is interesting to notice that
+this advantage appears to be blunted by the LEZ. Unlike the results for
+the whole city and even within the M-30 ring, the proportion of car
+users in Centro is larger than the proportion of opportunities spatially
+available to them. The restriction on cars in effect reduces competition
+by this mode, and leads to a relative increment of the mass effect of
+the modes allowed within the LEZ, which also contains a large number of
+jobs (see Figure \ref{fig:Fig2}). As summarized in the two right-most
+columns in Figure \ref{fig:Fig6}, the proportion of jobs spatially
+available to car in Centro is (13.8\% or 5,373 opportunities). For
+reference, this is less than the proportion of the car users in Centro
+(16.1\%), evidently less then the proportion of car users in the city,
+and is the opposite of the overall trend (left-most columns) and within
+the M-30 (middle columns).
 
 It is also clear that more opportunities are spatially available to
 non-car users within Centro. In the case of active travel, the
 proportions of cyclists and walkers within LEZ Centro still exceeds the
-proportions of jobs spatially available to them --- however, the
-disparity is drastically reduced compared to the rest of the city. As
-seen in Figure \ref{fig:Fig6}, there is a higher proportion of
-opportunities that are spatially available to pedestrians and cyclists
-in Centro than in the City overall and in areas within the M-30.
-Notably, within Centro, 1.7\% and 16.1\% of opportunities are spatially
-available to bike and walk modes respectively, while their populations
-represent 1.2\% and 14.7\% of the population. By restricting the ability
-of cars to enter Centro, the LEZ seems to contribute to leveling the
-playing field for slower modes, in particular cycling and walking, but
-also transit. As seen in the Figure \ref{fig:Fig6}, transit users are
-generally close to parity across the region, with nearly as many
-spatially available jobs as transit users. Still, this mode has the
-greatest advantage in LEZ Centro with 68.5\% of spatially available jobs
-in Centro for 51.4\% of transit users in Centro. This result makes
-intuitive sense: after car, it is the mode with the greatest range, and
-unlike car it is unrestricted in the LEZ Centro.
+proportions of jobs spatially available to them. Notably, this disparity
+is drastically reduced compared to the rest of the city. As seen in
+Figure \ref{fig:Fig6}, there is a higher proportion of opportunities
+that are spatially available to pedestrians and cyclists in Centro than
+in the City overall and in areas within the M-30. Within Centro, 1.7\%
+and 16.1\% of opportunities are spatially available to bike and walk
+modes respectively, while their populations represent 1.2\% and 14.7\%
+of the population. By restricting the ability of cars to enter Centro,
+the LEZ seems to contribute to leveling the playing field for slower
+modes, in particular cycling and walking, but also transit. As seen in
+the Figure \ref{fig:Fig6}, transit users are generally close to parity
+across the region, with nearly as many spatially available jobs as
+transit users. Still, this mode has the greatest advantage in LEZ Centro
+with 68.5\% of spatially available jobs in Centro for 51.4\% of transit
+users in Centro. This result makes intuitive sense: after car, it is the
+mode with the greatest range, and unlike car it is unrestricted in the
+LEZ Centro.
 
-The spatial differences in the competitive dis/advantage of spatial
+The spatial differences in the competitive (dis)advantage of spatial
 availability between modes can also be visualized at a finer level of
 granularity. Figure \ref{fig:Fig7} shows \(v_i^m\), the spatial
 availability \(V_i^m\) divided by the population of users of \(m\).
@@ -1291,10 +1308,10 @@ spatial availability measure \(V_i^m\) has in common with these
 accessibility indicators that it is a weighted sum of the opportunities
 in a region from the perspective of a determined origin \(i\).
 Aggregations of opportunities embody principles of gravitational/spatial
-interaction modelling that date back to at least H.C. Carey {[}50{]},
+interaction modelling that date back to at least H.C. Carey {[}61{]},
 and are part of a line of research that includes the work of Ravenstein
-{[}51{]}, Reilly {[}52{]}, Stewart {[}53--55{]}, Zipf {[}56,57{]},
-Wilson {[}37{]}, and many others. In this way, \(S_i^m\), \(a_i^m\), and
+{[}62{]}, Reilly {[}63{]}, Stewart {[}64--66{]}, Zipf {[}67,68{]},
+Wilson {[}48{]}, and many others. In this way, \(S_i^m\), \(a_i^m\), and
 yes, \(V_i^m\), can be interpreted as scores of the potential for
 interaction with opportunities in space.
 
@@ -1303,9 +1320,9 @@ and aggregate opportunities. Spatial availability's contribution to the
 literature is to incorporate a proportional allocation mechanism that
 essentially constrains the sums to match the number of opportunities in
 the region; in this way it is a singly-constrained accessibility measure
-that naturally accommodates congestion and competition. The effort with
+that natively accommodates congestion and competition. The effort with
 spatial availability is in line with previous research on proportional
-allocation by Paez et al. {[}14{]}. As initially introduced by Soukhov
+allocation by Paez et al. {[}12{]}. As initially introduced by Soukhov
 et al. {[}15{]}, spatial availability was designed for a homogeneous
 population traveling by a single mode of transportation. In this paper,
 we extended spatial availability for the case of heterogeneous
@@ -1313,7 +1330,7 @@ populations. We discussed this in terms of multiple modes of
 transportation, but the framework can accommodate equally well
 variations in travel behavior by population segments.
 
-An empirical example using data from Madrid helped to illustrate the
+An empirical example using data from Madrid helps to illustrate the
 potential of multimodal spatial availability analysis, including its
 ability to account for competition for opportunities within and between
 modes. Particularly relevant is the fact that spatial availability
@@ -1323,14 +1340,15 @@ benchmarks, such as opportunities per population, in ways that other
 accessibility measures cannot or tend to obfuscate. This comparability
 is preserved between regions and over time. The example suggests that
 once that opportunities are treated as being finite, restrictions to
-travel by car leave more spatially available opportunities for
-non-car-users. This difference for car travel in locations within and
-immediately around the LEZ Centro seems to increase the number of
-opportunities spatially available to transit users (transit being the
-second most competitive mode), as well as the spatial availability from
-the perspective of non-motorised modes. In effect, a policy such as Low
-Emission Zones help to improve the accessibility situation of active
-travel and transit in the parts of the city where it is implemented.
+travel by car (due to the LEZ) leave more spatially available
+opportunities for non-car users. This difference for car travel in
+locations within and immediately around the LEZ Centro seems to increase
+the number of opportunities spatially available to transit users
+(transit being the second most competitive mode), as well as the spatial
+availability from the perspective of non-motorised modes. In effect, a
+policy such as LEZ seems to help improve the spatial availability
+situation of active travel and transit in the parts of the city where it
+is implemented.
 
 The purpose of the empirical example is to illustrate the kind of
 insights that can be derived from the application of multimodal spatial
@@ -1339,20 +1357,21 @@ research. Accessibility indicators are not designed to work as modal
 split models, and yet, in the case of policies that alter the relative
 cost of various forms of transportation, one can reasonably expect to
 see some shifts between modes. In our empirical example we used data
-collected \emph{after} the introduction of LEZ Centro. However, given a
-modal split model to project model shares, accessibility indicators,
-including spatial availability, can be used to investigate changes to
-the accessibility landscape. Ditto for destination choice. Our empirical
-example presented but a snapshot of this, and in future research it will
-be interesting to investigate changes \emph{between} policy
-interventions. The expansion of Madrid's LEZ to the ring contained by
-the M-30 orbital presents an excellent opportunity to do so. Given the
-intuitive and straightforward interpretation of spatial availability
-scores as fractions of opportunities from the total, relative and
-absolute changes in the accessibility landscape can be assessed, thus
-helping to evaluate the implications of policy interventions.
+collected after the introduction of LEZ Centro. However, given a modal
+split model to predict model shares, accessibility indicators, including
+spatial availability, can be used to investigate changes to the
+accessibility landscape. A similar logic can be applied for destination
+choice. Our empirical example presented a snapshot of this, and in
+future research it may be interesting to investigate changes in spatial
+availability \emph{between} policy interventions. The expansion of
+Madrid's LEZ to the ring contained by the M-30 presents an excellent
+opportunity to do so. Given the intuitive interpretation of spatial
+availability scores as fractions of opportunities from the total,
+relative and absolute changes in the spatial availability landscape can
+be assessed, thus helping to evaluate the implications of policy
+interventions.
 
-Finally, our example dealt with differences in travel by mode only, but
+Our empirical example dealt with differences in travel by mode only, but
 it is possible to think of the intersection between mode of travel and
 different types of travelers. This would expand the number of
 sub-populations in the analysis from, say, \(m=M\) (modes) to
@@ -1360,7 +1379,28 @@ sub-populations in the analysis from, say, \(m=M\) (modes) to
 characteristic impedance function. Evaluations of this kind will be
 especially relevant as LEZ are implemented in cities globally, and the
 question of their impact on disadvantaged populations who have become
-mobility-restricted increasingly come to the fore {[}40,58,59{]}.
+mobility-restricted increasingly come to the fore {[}51,69,70{]}.
+
+It is worth reiterating that while the focus of this work was on a
+multimodal extension of spatial availability, the consideration of
+multiple modes is just one case of heterogeneous populations (i.e.,
+travel by different modes). The method itself can easily accommodate
+other forms of population or opportunity heterogeneity, for example:
+variations in rich and poor, young and old, types of opportunities. Like
+accessibility measures before it, the potential application of spatial
+availability measure are as numerous as potential study contexts.
+
+To close, spatial availability is a singly-constrained accessibility
+measure that considers competition, a way of accounting for opportunity
+congestion. Spatial availability considers competition by allocating
+opportunities (the subject of the single-constraint) to zones based on
+zonal proportions. If the demand, supply and travel to opportunities is
+spatially uniform, then competition is uniform and spatial availability
+will reflect this. It has been suggested that opportunity congestion can
+be seen on a continuum, but how it is to be considered within
+accessibility research is an ongoing subject of exploration
+{[}14,17,18{]}. This is the context in which we present spatial
+availability and the multimodal extension.
 
 \hypertarget{author-contributions}{%
 \section{Author contributions}\label{author-contributions}}
@@ -1454,26 +1494,26 @@ Geographical Analysis. 1998;30: 191--216. Available:
 C:/Papers/Geographical Analysis/Geographical Analysis (1998) 30 (3)
 191-216.pdf}}
 
-\leavevmode\vadjust pre{\hypertarget{ref-shenLocationCharacteristicsInnercity1998}{}}%
-\CSLLeftMargin{12. }%
-\CSLRightInline{Shen Q. Location characteristics of inner-city
-neighborhoods and employment accessibility of low-wage workers. Environ
-Plann B. 1998;25: 345--365.
-doi:\href{https://doi.org/10.1068/b250345}{10.1068/b250345}}
-
-\leavevmode\vadjust pre{\hypertarget{ref-luoMeasuresSpatialAccessibility2003}{}}%
-\CSLLeftMargin{13. }%
-\CSLRightInline{Luo W, Wang F. Measures of spatial accessibility to
-health care in a {GIS} environment: Synthesis and a case study in the
-chicago region. Environ Plann B Plann Des. 2003;30: 865--884.
-doi:\href{https://doi.org/10.1068/b29120}{10.1068/b29120}}
-
 \leavevmode\vadjust pre{\hypertarget{ref-paezDemand2019}{}}%
-\CSLLeftMargin{14. }%
+\CSLLeftMargin{12. }%
 \CSLRightInline{Paez A, Higgins CD, Vivona SF. Demand and level of
 service inflation in floating catchment area (FCA) methods. PloS one.
 2019;14: e0218773.
 doi:\href{https://doi.org/10.1371/journal.pone.0218773}{10.1371/journal.pone.0218773}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-wang2SFCAI2SFCAIntegration2021}{}}%
+\CSLLeftMargin{13. }%
+\CSLRightInline{Wang F. From 2SFCA to i2SFCA: Integration, derivation
+and validation. International Journal of Geographical Information
+Science. 2021;35: 628--638.
+doi:\href{https://doi.org/10.1080/13658816.2020.1811868}{10.1080/13658816.2020.1811868}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-merlinDoesCompetitionMatter2017}{}}%
+\CSLLeftMargin{14. }%
+\CSLRightInline{Merlin LA, Hu L. Does competition matter in measures of
+job accessibility? Explaining employment in los angeles. Journal of
+Transport Geography. 2017;64: 77--88.
+doi:\href{https://doi.org/10.1016/j.jtrangeo.2017.08.009}{10.1016/j.jtrangeo.2017.08.009}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-soukhovIntroducingSpatialAvailability2023}{}}%
 \CSLLeftMargin{15. }%
@@ -1483,8 +1523,103 @@ accessibility \textbar{} {PLOS ONE}. PLOS ONE. 2023; 1--30.
 doi:\href{https://\%20doi.org/10.1371/journal.pone.0278468}{https://
 doi.org/10.1371/journal.pone.0278468}}
 
-\leavevmode\vadjust pre{\hypertarget{ref-paezHealth2010}{}}%
+\leavevmode\vadjust pre{\hypertarget{ref-linUsingTransportationProblem2023}{}}%
 \CSLLeftMargin{16. }%
+\CSLRightInline{Lin J, Cromley G. Using the transportation problem to
+build a congestion/threshold constrained spatial accessibility model.
+Journal of Transport Geography. 2023;112: 103691.
+doi:\href{https://doi.org/10.1016/j.jtrangeo.2023.103691}{10.1016/j.jtrangeo.2023.103691}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-vanweeAccessibilityMeasuresCompetition2001}{}}%
+\CSLLeftMargin{17. }%
+\CSLRightInline{Van Wee B, Hagoort M, Annema JA. Accessibility measures
+with competition. Journal of Transport Geography. 2001;9: 199--208.
+doi:\href{https://doi.org/10.1016/S0966-6923(01)00010-2}{10.1016/S0966-6923(01)00010-2}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-kelobonyeMeasuringAccessibilitySpatial2020a}{}}%
+\CSLLeftMargin{18. }%
+\CSLRightInline{Kelobonye K, Zhou H, McCarney G, Xia J(Cecilia).
+Measuring the accessibility and spatial equity of urban services under
+competition using the cumulative opportunities measure. Journal of
+Transport Geography. 2020;85: 102706.
+doi:\href{https://doi.org/10.1016/j.jtrangeo.2020.102706}{10.1016/j.jtrangeo.2020.102706}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-cuiSpatialAccessPublic2020}{}}%
+\CSLLeftMargin{19. }%
+\CSLRightInline{Cui B, Boisjoly G, Wasfi R, Orpana H, Manaugh K, Buliung
+R, et al. Spatial access by public transport and likelihood of
+healthcare consultations at hospitals. {TRANSPORTATION} {RESEARCH}
+{RECORD}. 2020;2674: 188--198.
+doi:\href{https://doi.org/10.1177/0361198120952793}{10.1177/0361198120952793}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-maoMeasuringSpatialAccessibility2013}{}}%
+\CSLLeftMargin{20. }%
+\CSLRightInline{Mao L, Nekorchuk D. Measuring spatial accessibility to
+healthcare for populations with multiple transportation modes. Health \&
+Place. 2013;24: 115--122.
+doi:\href{https://doi.org/10.1016/j.healthplace.2013.08.008}{10.1016/j.healthplace.2013.08.008}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-josephMeasuringPotentialPhysical1982}{}}%
+\CSLLeftMargin{21. }%
+\CSLRightInline{Joseph AE, Bantock PR. Measuring potential physical
+accessibility to general practitioners in rural areas: A method and case
+study. Social Science \& Medicine. 1982;16: 85--90.
+doi:\href{https://doi.org/10.1016/0277-9536(82)90428-2}{10.1016/0277-9536(82)90428-2}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-higgsModellingSpatialAccess2017}{}}%
+\CSLLeftMargin{22. }%
+\CSLRightInline{Higgs G, Zahnow R, Corcoran J, Langford M, Fry R.
+Modelling spatial access to general practitioner surgeries: Does public
+transport availability matter? {JOURNAL} {OF} {TRANSPORT} \& {HEALTH}.
+2017;6: 143--154.
+doi:\href{https://doi.org/10.1016/j.jth.2017.05.361}{10.1016/j.jth.2017.05.361}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-weibullAxiomaticApproachMeasurement1976}{}}%
+\CSLLeftMargin{23. }%
+\CSLRightInline{Weibull JW. An axiomatic approach to the measurement of
+accessibility. Regional Science and Urban Economics. 1976;6: 357--379.
+doi:\href{https://doi.org/10.1016/0166-0462(76)90031-4}{10.1016/0166-0462(76)90031-4}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-shenLocationCharacteristicsInnercity1998}{}}%
+\CSLLeftMargin{24. }%
+\CSLRightInline{Shen Q. Location characteristics of inner-city
+neighborhoods and employment accessibility of low-wage workers. Environ
+Plann B. 1998;25: 345--365.
+doi:\href{https://doi.org/10.1068/b250345}{10.1068/b250345}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-liMeasuringMultiactivitiesAccessibility2024a}{}}%
+\CSLLeftMargin{25. }%
+\CSLRightInline{Li C, Wang J. Measuring multi-activities accessibility
+and equity with accessibility-oriented development strategies.
+Transportation Research Part D: Transport and Environment. 2024;126:
+104035.
+doi:\href{https://doi.org/10.1016/j.trd.2023.104035}{10.1016/j.trd.2023.104035}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-wuWillOpeningCommunity2020}{}}%
+\CSLLeftMargin{26. }%
+\CSLRightInline{Wu J, Chen H, Wang H, He Q, Zhou K. Will the opening
+community policy improve the equity of green accessibility and in what
+ways? --- response based on a 2-step floating catchment area method and
+genetic algorithm. Journal of Cleaner Production. 2020;263: 121454.
+doi:\href{https://doi.org/10.1016/j.jclepro.2020.121454}{10.1016/j.jclepro.2020.121454}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-chenEnhancingTwoStepFloating2019}{}}%
+\CSLLeftMargin{27. }%
+\CSLRightInline{Chen X. Enhancing the two-step floating catchment area
+model for community food access mapping: Case of the supplemental
+nutrition assistance program. The Professional Geographer. 2019;71:
+668--680.
+doi:\href{https://doi.org/10.1080/00330124.2019.1578978}{10.1080/00330124.2019.1578978}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-luoMeasuresSpatialAccessibility2003}{}}%
+\CSLLeftMargin{28. }%
+\CSLRightInline{Luo W, Wang F. Measures of spatial accessibility to
+health care in a {GIS} environment: Synthesis and a case study in the
+chicago region. Environ Plann B Plann Des. 2003;30: 865--884.
+doi:\href{https://doi.org/10.1068/b29120}{10.1068/b29120}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-paezHealth2010}{}}%
+\CSLLeftMargin{29. }%
 \CSLRightInline{Páez A, Mercado R, Farber S, Morency C, Roorda M.
 Accessibility to health care facilities in montreal island: An
 application of relative accessibility indicators from the perspective of
@@ -1492,34 +1627,34 @@ senior and non-senior residents. International Journal of Health
 Geographics. 2010;9: 1--9. }
 
 \leavevmode\vadjust pre{\hypertarget{ref-moniruzzamanMode2013}{}}%
-\CSLLeftMargin{17. }%
+\CSLLeftMargin{30. }%
 \CSLRightInline{Moniruzzaman M, Páez A, Nurul Habib KM, Morency C. Mode
 use and trip length of seniors in montreal. Journal of Transport
 Geography. 2013;30: 89--99.
 doi:\url{http://dx.doi.org/10.1016/j.jtrangeo.2013.03.007}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-reyesWalking2014}{}}%
-\CSLLeftMargin{18. }%
+\CSLLeftMargin{31. }%
 \CSLRightInline{Reyes M, Paez A, Morency C. Walking accessibility to
 urban parks by children: A case study of montreal. Landscape and Urban
 Planning. 2014;125: 38--47.
 doi:\href{https://doi.org/10.1016/j.landurbplan.2014.02.002}{10.1016/j.landurbplan.2014.02.002}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-paezJobs2013}{}}%
-\CSLLeftMargin{19. }%
+\CSLLeftMargin{32. }%
 \CSLRightInline{Páez A, Farber S, Mercado R, Roorda M, Morency C. Jobs
 and the single parent: An analysis of accessibility to employment in
 toronto. Urban Geography. 2013;34: 815--842.
 doi:\href{https://doi.org/10.1080/02723638.2013.778600}{10.1080/02723638.2013.778600}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-wuUnifyingAccess2020}{}}%
-\CSLLeftMargin{20. }%
+\CSLLeftMargin{33. }%
 \CSLRightInline{Wu H, Levinson D. Unifying access. Transportation
 Research Part D: Transport and Environment. 2020;83: 102355.
 doi:\href{https://doi.org/10.1016/j.trd.2020.102355}{10.1016/j.trd.2020.102355}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-tahmasbiMultimodalAccessibilitybasedEquity2019}{}}%
-\CSLLeftMargin{21. }%
+\CSLLeftMargin{34. }%
 \CSLRightInline{Tahmasbi B, Mansourianfar MH, Haghshenas H, Kim I.
 Multimodal accessibility-based equity assessment of urban public
 facilities distribution. Sustainable Cities and Society. 2019;49:
@@ -1527,14 +1662,14 @@ facilities distribution. Sustainable Cities and Society. 2019;49:
 doi:\href{https://doi.org/10.1016/j.scs.2019.101633}{10.1016/j.scs.2019.101633}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-lunkeModalAccessibilityDisparities2022}{}}%
-\CSLLeftMargin{22. }%
+\CSLLeftMargin{35. }%
 \CSLRightInline{Lunke EB. Modal accessibility disparities and transport
 poverty in the oslo region. Transportation Research Part D: Transport
 and Environment. 2022;103: 103171.
 doi:\href{https://doi.org/10.1016/j.trd.2022.103171}{10.1016/j.trd.2022.103171}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-paezRelative2010}{}}%
-\CSLLeftMargin{23. }%
+\CSLLeftMargin{36. }%
 \CSLRightInline{Paez A, Mercado RG, Farber S, Morency C, Roorda M.
 Relative accessibility deprivation indicators for urban settings:
 Definitions and application to food deserts in montreal. Urban Studies.
@@ -1542,153 +1677,140 @@ Definitions and application to food deserts in montreal. Urban Studies.
 doi:\href{https://doi.org/10.1177/0042098009353626}{10.1177/0042098009353626}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-campbell2019accessibility}{}}%
-\CSLLeftMargin{24. }%
+\CSLLeftMargin{37. }%
 \CSLRightInline{Campbell KB, Rising JA, Klopp JM, Mbilo JM.
 Accessibility across transport modes and residential developments in
 nairobi. Journal of Transport Geography. 2019;74: 77--90. }
 
 \leavevmode\vadjust pre{\hypertarget{ref-maharjanSpatialEquityModal2022}{}}%
-\CSLLeftMargin{25. }%
+\CSLLeftMargin{38. }%
 \CSLRightInline{Maharjan S, Tilahun N, Ermagun A. Spatial equity of
 modal access gap to multiple destination types across chicago. Journal
 of Transport Geography. 2022;104: 103437.
 doi:\href{https://doi.org/10.1016/j.jtrangeo.2022.103437}{10.1016/j.jtrangeo.2022.103437}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-grengsJobAccessibilityModal2010}{}}%
-\CSLLeftMargin{26. }%
+\CSLLeftMargin{39. }%
 \CSLRightInline{Grengs J. Job accessibility and the modal mismatch in
 detroit. Journal of Transport Geography. 2010;18: 42--54.
 doi:\href{https://doi.org/10.1016/j.jtrangeo.2009.01.012}{10.1016/j.jtrangeo.2009.01.012}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-kawabataJobAccessibilityIndicator2006}{}}%
-\CSLLeftMargin{27. }%
+\CSLLeftMargin{40. }%
 \CSLRightInline{Kawabata M, Shen Q. Job accessibility as an indicator of
 auto-oriented urban structure: A comparison of boston and los angeles
 with tokyo. Environ Plann B Plann Des. 2006;33: 115--130.
 doi:\href{https://doi.org/10.1068/b31144}{10.1068/b31144}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-kwokUseModalAccessibility2004}{}}%
-\CSLLeftMargin{28. }%
+\CSLLeftMargin{41. }%
 \CSLRightInline{Kwok RCW, Yeh AGO. The use of modal accessibility gap as
 an indicator for sustainable transport development. Environ Plan A.
 2004;36: 921--936.
 doi:\href{https://doi.org/10.1068/a3673}{10.1068/a3673}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-morrisAccessibilityIndicatorsTransport1979}{}}%
-\CSLLeftMargin{29. }%
+\CSLLeftMargin{42. }%
 \CSLRightInline{Morris JM, Dumble PL, Wigan MR. Accessibility indicators
 for transport planning. Transportation Research Part A: General.
 1979;13: 91--109.
 doi:\href{https://doi.org/10.1016/0191-2607(79)90012-8}{10.1016/0191-2607(79)90012-8}}
 
-\leavevmode\vadjust pre{\hypertarget{ref-weibullAxiomaticApproachMeasurement1976}{}}%
-\CSLLeftMargin{30. }%
-\CSLRightInline{Weibull JW. An axiomatic approach to the measurement of
-accessibility. Regional Science and Urban Economics. 1976;6: 357--379.
-doi:\href{https://doi.org/10.1016/0166-0462(76)90031-4}{10.1016/0166-0462(76)90031-4}}
-
 \leavevmode\vadjust pre{\hypertarget{ref-liottaPlanning2020}{}}%
-\CSLLeftMargin{31. }%
+\CSLLeftMargin{43. }%
 \CSLRightInline{Liotta C, Kervinio Y, Levrel H, Tardieu L. Planning for
 environmental justice - reducing well-being inequalities through urban
 greening. Environmental Science \& Policy. 2020;112: 47--60.
 doi:\url{https://doi.org/10.1016/j.envsci.2020.03.017}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-OECDFrameworks2013}{}}%
-\CSLLeftMargin{32. }%
+\CSLLeftMargin{44. }%
 \CSLRightInline{OECD. Frameworks and sector policies for urban
 development in chile. OECD urban policy reviews, chile 2013. 2013.
 doi:\url{http://dx.doi.org/10.1787/9789264191808-en}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-laraSpace2015}{}}%
-\CSLLeftMargin{33. }%
+\CSLLeftMargin{45. }%
 \CSLRightInline{Lara-Valencia F, García-Pérez H. Space for equity:
 Socioeconomic variations in the provision of public parks in hermosillo,
 mexico. Local Environment. 2015;20: 350--368.
 doi:\href{https://doi.org/10.1080/13549839.2013.857647}{10.1080/13549839.2013.857647}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-martensFair2021}{}}%
-\CSLLeftMargin{34. }%
+\CSLLeftMargin{46. }%
 \CSLRightInline{Martens K, Golub A. A fair distribution of
 accessibility: Interpreting civil rights regulations for regional
 transportation plans. Journal of Planning Education and Research.
 2021;41: 425--444.
 doi:\href{https://doi.org/10.1177/0739456x18791014}{10.1177/0739456x18791014}}
 
-\leavevmode\vadjust pre{\hypertarget{ref-josephMeasuringPotentialPhysical1982}{}}%
-\CSLLeftMargin{35. }%
-\CSLRightInline{Joseph AE, Bantock PR. Measuring potential physical
-accessibility to general practitioners in rural areas: A method and case
-study. Social Science \& Medicine. 1982;16: 85--90.
-doi:\href{https://doi.org/10.1016/0277-9536(82)90428-2}{10.1016/0277-9536(82)90428-2}}
-
 \leavevmode\vadjust pre{\hypertarget{ref-taoInvestigatingImpactsPublic2020a}{}}%
-\CSLLeftMargin{36. }%
+\CSLLeftMargin{47. }%
 \CSLRightInline{Tao Z, Zhou J, Lin X, Chao H, Li G. Investigating the
 impacts of public transport on job accessibility in {Shenzhen}, {China}:
 A multi-modal approach. Land Use Policy. 2020;99: 105025.
 doi:\href{https://doi.org/10.1016/j.landusepol.2020.105025}{10.1016/j.landusepol.2020.105025}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-wilsonFamilty1971}{}}%
-\CSLLeftMargin{37. }%
+\CSLLeftMargin{48. }%
 \CSLRightInline{Wilson AG. A family of spatial interaction models, and
 associated developments. Environment and Planning A. 1971;3: 1--32. }
 
 \leavevmode\vadjust pre{\hypertarget{ref-carpentieriMultimodalAccessibilityPrimary2020}{}}%
-\CSLLeftMargin{38. }%
+\CSLLeftMargin{49. }%
 \CSLRightInline{Carpentieri G, Guida C, Masoumi HE. Multimodal
 {Accessibility} to {Primary Health Services} for the {Elderly}: {A Case
 Study} of {Naples}, {Italy}. Sustainability. 2020;12: 781.
 doi:\href{https://doi.org/10.3390/su12030781}{10.3390/su12030781}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-margaryanLowEmissionZones2021}{}}%
-\CSLLeftMargin{39. }%
+\CSLLeftMargin{50. }%
 \CSLRightInline{Margaryan S. Low emission zones and population health.
 Journal of Health Economics. 2021;76: 102402.
 doi:\href{https://doi.org/10.1016/j.jhealeco.2020.102402}{10.1016/j.jhealeco.2020.102402}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-verbeekJustManagementUrban2022}{}}%
-\CSLLeftMargin{40. }%
+\CSLLeftMargin{51. }%
 \CSLRightInline{Verbeek T, Hincks S. The {``just''} management of urban
 air pollution? A geospatial analysis of low emission zones in brussels
 and london. Applied Geography. 2022;140: 102642.
 doi:\href{https://doi.org/10.1016/j.apgeog.2022.102642}{10.1016/j.apgeog.2022.102642}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-tarrinoortizAnalyzingImpactLow2022}{}}%
-\CSLLeftMargin{41. }%
+\CSLLeftMargin{52. }%
 \CSLRightInline{Tarriño-Ortiz J, Gómez J, Soria-Lara JA, Vassallo JM.
 Analyzing the impact of low emission zones on modal shift. Sustainable
 Cities and Society. 2022;77: 103562.
 doi:\href{https://doi.org/10.1016/j.scs.2021.103562}{10.1016/j.scs.2021.103562}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-comunidaddemadridResultadosEDM20182020}{}}%
-\CSLLeftMargin{42. }%
+\CSLLeftMargin{53. }%
 \CSLRightInline{Comunidad de Madrid. Resultados de la {EDM} 2018 - Datos
 Abiertos. 2020 {[}cited 31 Jul 2023{]}. Available:
 \url{https://datos.comunidad.madrid/catalogo/dataset/resultados-edm2018}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-comunidaddemadridzoniEDM20182020}{}}%
-\CSLLeftMargin{43. }%
+\CSLLeftMargin{54. }%
 \CSLRightInline{Comunidad de Madrid. Zonificación de transporte ZT208 de
 la EDM2018 - Datos Abiertos. 2020 {[}cited 1 Dec 2023{]}. Available:
 \url{https://datos.crtm.es/datasets/zonificacionzt208}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-lopez_2017_spatial}{}}%
-\CSLLeftMargin{44. }%
+\CSLLeftMargin{55. }%
 \CSLRightInline{Lopez FA, Paez A. Spatial clustering of high-tech
 manufacturing and knowledge-intensive service firms in the greater
 toronto area. Canadian Geographer-Geographe Canadien. 2017;61: 240--252.
 doi:\href{https://doi.org/10.1111/cag.12326}{10.1111/cag.12326}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-horbachov_theoretical_2018}{}}%
-\CSLLeftMargin{45. }%
+\CSLLeftMargin{56. }%
 \CSLRightInline{Horbachov P, Svichynskyi S. Theoretical substantiation
 of trip length distribution for home-based work trips in urban transit
 systems. Journal of Transport and Land Use. 2018;11: 593--632.
 Available: \url{https://www.jstor.org/stable/26622420}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-batista_estimation_2019}{}}%
-\CSLLeftMargin{46. }%
+\CSLLeftMargin{57. }%
 \CSLRightInline{Batista SFA, Leclercq L, Geroliminis N. Estimation of
 regional trip length distributions for the calibration of the aggregated
 network traffic models. Transportation Research Part B: Methodological.
@@ -1696,21 +1818,21 @@ network traffic models. Transportation Research Part B: Methodological.
 doi:\href{https://doi.org/10.1016/j.trb.2019.02.009}{10.1016/j.trb.2019.02.009}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-fitdistrplus_2015}{}}%
-\CSLLeftMargin{47. }%
+\CSLLeftMargin{58. }%
 \CSLRightInline{Delignette-Muller ML, Dutang C. {fitdistrplus}: An {R}
 package for fitting distributions. Journal of Statistical Software.
 2015;64: 1--34. Available:
 \url{https://www.jstatsoft.org/article/view/v064i04}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-reggianiAccessibilityImpedanceForms2011}{}}%
-\CSLLeftMargin{48. }%
+\CSLLeftMargin{59. }%
 \CSLRightInline{Reggiani A, Bucci P, Russo G. Accessibility and
 impedance forms: Empirical applications to the german commuting network.
 International Regional Science Review. 2011;34: 230--252.
 doi:\href{https://doi.org/10.1177/0160017610387296}{10.1177/0160017610387296}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-soukhovTTS2016RDataSet2023}{}}%
-\CSLLeftMargin{49. }%
+\CSLLeftMargin{60. }%
 \CSLRightInline{Soukhov A, Páez A. {TTS}2016R: A data set to study
 population and employment patterns from the 2016 transportation tomorrow
 survey in the greater golden horseshoe area, ontario, canada.
@@ -1719,60 +1841,60 @@ Environment and Planning B: Urban Analytics and City Science. 2023;
 doi:\href{https://doi.org/10.1177/23998083221146781}{10.1177/23998083221146781}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-careyPriciples1858}{}}%
-\CSLLeftMargin{50. }%
+\CSLLeftMargin{61. }%
 \CSLRightInline{Carey HC. Principles of social science. Philadelphia:
 J.B. Lippincot; Co.; 1858. }
 
 \leavevmode\vadjust pre{\hypertarget{ref-ravensteinLaws1889}{}}%
-\CSLLeftMargin{51. }%
+\CSLLeftMargin{62. }%
 \CSLRightInline{Ravenstein EG. The laws of migration. Journal of the
 Royal Statistical Society. 1889;52: 241--305.
 doi:\href{https://doi.org/10.2307/2979333}{10.2307/2979333}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-reillyMethods1929}{}}%
-\CSLLeftMargin{52. }%
+\CSLLeftMargin{63. }%
 \CSLRightInline{Reilly WJ. Methods for the study of retail
 relationships. 1929. }
 
 \leavevmode\vadjust pre{\hypertarget{ref-stewartInverse1941}{}}%
-\CSLLeftMargin{53. }%
+\CSLLeftMargin{64. }%
 \CSLRightInline{Stewart JQ. An inverse distance variation for certain
 social influences. Science. 1941;93: 89--90. Available:
 \url{http://www.jstor.org/stable/1668130}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-stewartSuggested1947}{}}%
-\CSLLeftMargin{54. }%
+\CSLLeftMargin{65. }%
 \CSLRightInline{Stewart JQ. Suggested principles of ''social physics''.
 Science. 1947;106: 179--180. Available:
 \url{http://www.jstor.org/stable/1675368}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-stewartDemographic1948}{}}%
-\CSLLeftMargin{55. }%
+\CSLLeftMargin{66. }%
 \CSLRightInline{Stewart JQ. Demographic gravitation: Evidence and
 applications. Sociometry. 1948;11: 31--58.
 doi:\href{https://doi.org/10.2307/2785468}{10.2307/2785468}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-zipfHypothesis1946}{}}%
-\CSLLeftMargin{56. }%
+\CSLLeftMargin{67. }%
 \CSLRightInline{Zipf GK. The p 1 p 2/d hypothesis: The case of railway
 express. The Journal of Psychology. 1946;22: 3--8.
 doi:\href{https://doi.org/10.1080/00223980.1946.9917292}{10.1080/00223980.1946.9917292}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-zipfIntercity1946}{}}%
-\CSLLeftMargin{57. }%
+\CSLLeftMargin{68. }%
 \CSLRightInline{Zipf GK. The P1P2/d hypothesis: On the intercity
 movement of persons. American Sociological Review. 1946;11: 677--686.
 doi:\href{https://doi.org/10.2307/2087063}{10.2307/2087063}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-devrijNooneVisitsMe2022}{}}%
-\CSLLeftMargin{58. }%
+\CSLLeftMargin{69. }%
 \CSLRightInline{De Vrij E, Vanoutrive T. {``No-one visits me anymore''}:
 Low emission zones and social exclusion via sustainable transport
 policy. 2022 {[}cited 27 Jul 2023{]}. Available:
 \url{https://www.tandfonline.com/doi/epdf/10.1080/1523908X.2021.2022465?needAccess=true\&role=button}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-liottaWhatDrivesInequalities2023}{}}%
-\CSLLeftMargin{59. }%
+\CSLLeftMargin{70. }%
 \CSLRightInline{Liotta C. What drives inequalities in low emission
 zones'impacts on job accessibility? Virtual; 2023.
 doi:\href{https://doi.org/10.17605/OSF.IO/9VQU7}{10.17605/OSF.IO/9VQU7}}
