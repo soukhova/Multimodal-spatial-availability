@@ -1,13 +1,13 @@
 ---
 title: "Multimodal spatial availability: a singly-constrained measure of accessibility considering multiple modes"
-poster_height: "121cm"
-poster_width: "242cm"
+poster_height: "36in"
+poster_width: "54in"
 font_family: 'Rasa'
 primary_colour: "#7A003C"
 secondary_colour: "#d3d3d3"
 accent_colour: "#FDBF57"
 titlebox_bordercol: "#5E6A71"
-titlebox_borderwidth: "0.5cm"
+titlebox_borderwidth: "0.2cm"
 author:
   - name: Anastasia Soukhov
     affil: 1
@@ -31,12 +31,12 @@ affiliation:
 column_numbers: 4
 logoright_name: Presentation-images/acknowledgements-combo.png
 logoleft_name: Presentation-images/soukhova-LinkTree.png
-sectitle_textsize: "60pt"
-sectitle_borderwidth: "1.5mm"
-title_textsize: "110pt"
-author_textsize: "80pt"
-affiliation_textsize: "80pt"
-body_textsize: "50px"
+sectitle_textsize: "40pt"
+sectitle_borderwidth: "0.4mm"
+title_textsize: "80pt"
+author_textsize: "50pt"
+affiliation_textsize: "40pt"
+body_textsize: "35px"
 link-citations: true
 bibliography: bibliography/bibliography.bib
 output: 
@@ -44,7 +44,7 @@ output:
     self_contained: true
 knit: pagedown::chrome_print  #this knits the created html file into a .pdf. comment out if .pdf isn't needed
 ---
-# Abstract
+# Overview
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -351,15 +351,15 @@ toy_example_plot
 ggsave("Presentation-images/toy-example.png",dpi=600)
 ```
 
-Accessibility is a key concept in the analysis of land use and transportation systems. It is too coming of age from the perspective of planning [see _inter alia_, @handyAccessibility2020; @levinsonTransportAccessManual2020; @elGeneidyMaking2022]. Beginning with the work of Hansen [@hansenHowAccessibilityShapes1959], accessibility measures have been widely used to evaluate the efficiency of transportation systems when combined with the distribution of opportunities in space.
+Accessibility is a key concept in the analysis of land use and transportation systems. It is too coming of age from the perspective of planning [see _inter alia_, @handyAccessibility2020; @elGeneidyMaking2022]. Beginning with the work of Hansen [@hansenHowAccessibilityShapes1959], accessibility measures have been widely used to evaluate the efficiency of transportation systems when combined with the distribution of opportunities in space.
 
-The most common form of accessibility measure is based on the gravity model, and recent research has focused on the way opportunities are counted (summed). In these calculations, the sums are not constrained, meaning the same opportunity can enter the sum for different origins. This unconstrained counting is a pitfall in conventional methods as it leads to values of accessibility that are difficult to interpret, especially when comparing results between multiple modes.
+The most common form of accessibility measure is based on the gravity model, and recent research has focused on the way opportunities are counted (summed). Notably, the sums are not constrained meaning the same opportunity can enter the sum for different origins. This unconstrained counting results in accessibility values that are difficult to interpret, especially when comparing results between multiple modes.
 
 In this paper we address this pitfall by extending spatial availability for multiple modes [@soukhovIntroducingSpatialAvailability2023]. Spatial availability is a singly-constrained competitive accessibility measure that constrains calculations to match a known quantity. This ensures the measurements sum up to a predetermined quantity (i.e., the total number of opportunities), and so each value can be meaningfully related to this total. 
 
-We demonstrate spatial availability's use in the case of multiple modes or, more generally, heterogeneous population segments with distinct travel behaviours. We illustrate its features using a synthetic example, an empirical example of low emission zones in Madrid, Spain, and suggest future research directions in its use to evaluate policy interventions.
+We demonstrate spatial availability's use in the case of multiple modes (i.e., heterogeneous population segments with distinct travel behaviours). We illustrate its features using a synthetic example, an empirical example of low emission zones in Madrid, Spain, and suggest future research directions in its use to evaluate policy interventions.
 
-# Overview of multi-modal accessibility measures
+# General form of multimodal accessibility measures
 
 <u>Hansen-type accessibility</u> [@hansenHowAccessibilityShapes1959] - _Non competitive_ and _unconstrained_:
 
@@ -393,26 +393,24 @@ Where:
   - **$i$**: ( $V_{i} = \sum_{m} V^m_{i}$ )
   - **mode**: ( $v^{m} = \sum_{m} \sum_{i} V^m_{i}$ )
   - **capita in $i$**: ( $v_{i} = \sum_{m} \frac{V_i^m}{P_{i^m}}$ )
-  - Etc.
 
 # Synthetic example of 3 zones and 2 mode-using populations
 
-The calculated Hansen (**S**), Shen-type (**a**) and Spatial Availability (**V**) assuming an impedance function of $f(c_{ij})^{\text{x}} = f(c_{ij})^{\text{z}} =exp(-0.1 \cdot c_{ij}^m)$ is shown in the table. 
+![_Figure 1: Calculated Hansen $S$, Shen-type $a$ and Spatial Availability $V$ assuming an impedance function of $f(c_{ij})^{\text{x}} = f(c_{ij})^{\text{z}} =exp(-0.1 \cdot c_{ij}^m)$ for the multimodal synthetic population._](Presentation-images/toy-example.png){#id .class width=100%}
 
-![](Presentation-images/toy-example.png){#id .class width=100%}
 When competition is not considered, **S** values for the Suburban A and Urban B are the same. Does this equivalency make sense for the differently sized A and B? Further, if constraints are not incorporated (i.e., **S** and **a**), values are hard to interpret. The regional sums of **S** and **a** are meaningless.
 
 In considering both competition and constraints, **V** is not the same for A and B: Suburban A has more _available_ jobs than mode-using population, the Urban B and the satellite C have fewer _available_ jobs, and the sum of **V** is the total number of jobs in the region. We can interpret that the faster z population captures a higher proportion of availability than population in A, B, and C, unlike x. **The advantage of using spatial availability is the clarity in interpretation.**
 
-# Empirical example: quantifying multimodal access in Madrid
+# Empirical example: multimodal access in Madrid
 
 The low emission zone (LEZ) in the Centro of the City of Madrid was established in 2017 to pursue climate change mitigation goals. LEZs implement a form of _geographic discrimination_ as they change how people can reach opportunities by making it more costly for some forms of travel, typically cars, to circulate in predetermined zones. LEZ change the accessibility landscape of a city from the perspective of multiple modes. 
 
 We ask: **what is the spatial distribution of availability that can be accessed by different mode-using population, especially for the car-using populations within and outside of the Centro LEZ?**
 
-![](Presentation-images/Fig2.png){#id .class width=100%}
+![_Figure 2: Spatial distribution of jobs taken by people living and working in Madrid as reported in the 2018 travel survey (left) and trip length distribution (right). Grey TAZs have no jobs. Ranges of values in the legend are quintiles. The TAZ shapefile is available from the Community of Madrid open data portal._](Presentation-images/Fig2.png){#id .class width=100%}
 
-![](Presentation-images/Fig5.png){#id .class width=95%}
+![_Figure 3: Spatial availability of jobs per origin and mode $V_i^m$._](Presentation-images/Fig5.png){#id .class width=98%}
 
 - Each $V_i^m$ is a proportion of the 847,574 jobs in the City of Madrid (OD full-time work flows from the 2018 Community of Madrid travel survey [@comunidaddemadridResultadosEDM20182020]). They represent the number jobs spatially available to $m$-using workers at that $i$, relative to all the jobs in the city. 
 - Note the differences in magnitudes between modes: the majority of availability is allocated to car- and transit- populations. This is to be expected as these modes represent 84.1% of the total population and reflect greater travel speeds.
@@ -421,11 +419,11 @@ We ask: **what is the spatial distribution of availability that can be accessed 
 
 # Interpreting multimodal spatial availability
 
-![](Presentation-images/Fig6.png){#id .class width=100%}
+![_Figure 4: Proportion of population by mode and spatial availability of jobs by mode ($V_i^m$) aggregated for the city of Madrid (All), the area within the M-30 highway, and within the Centro._](Presentation-images/Fig6.png){#id .class width=100%}
 
 Note the differences between proportions between mode depending on the spatial neighbourhood examined: car captures more availability than its population proportion overall (black) but this is not the case within the Centro (light grey). As such, non-car modes are better at capturing spatial availability within the M-30 (dark grey) and especially the Centro (light grey). 
 
-![](Presentation-images/Fig7.png){#id .class width=95%}
+![_Figure 5: Distribution of spatially available jobs per capita by mode of transportatin ($v_i^m$)._](Presentation-images/Fig7.png){#id .class width=98%}
 
 Do we want a city where the spatial availability of opportunities is equal for all mode users? $V_i^m$ can be divided by the mode-using population at each $i$ to yield mode-population scaled values and used as a planning benchmark. Zones that are orange could be targets for interventions; and car-using populations can be further dissuaded. 
 
