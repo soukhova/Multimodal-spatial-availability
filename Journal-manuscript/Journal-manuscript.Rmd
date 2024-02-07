@@ -28,7 +28,7 @@ address:
 abstract: |
   Place-based accessibility measures communicate the potential interaction with opportunities at a zone that populations can access. Recent research has explored the implications of how opportunities are counted by different accessibility methods. In conventional measures, opportunities are multiply counted if more than one zone offers access to the same opportunity. This multi-count of opportunities leads to values of accessibility that are difficult to interpret. A possible solution to enhance the meaning-making of accessibility results is by constraining the calculations to match a known quantity. This ensures all zonal values sum up to a predetermined quantity (i.e., the total number of opportunities). In this way, each value can be meaningfully related to this total. A recent effort that implements this solution is spatial availability, a singly-constrained accessibility measure. In this paper, we extend spatial availability for use in the case of multiple modes or more generally, heterogeneous population segments with distinct travel behaviors. After deriving a multimodal version of spatial availability, we proceed to illustrate its features using a synthetic example. We then apply it to an empirical example of low emission zones in Madrid, Spain. We conclude with suggestions for future research and its use in evaluating policy interventions.
 
-keywords: ["Spatial availability", "Multimodal", "Singly-constrained", "Accessibility", "Competitive", "Madrid", "Reproducible research"]
+keywords: ["Spatial availability", "Multimodal", "Singly-constrained", "Accessibility", "Competition", "Madrid", "Reproducible research"]
 
 bibliography:
   - "`r system('kpsewhich ../bibliography/bibliography.bib', intern=TRUE)`"
@@ -39,7 +39,7 @@ csl: plos-one.csl
 ```{r knitr-setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE,
-  cache = TRUE,
+  cache = FALSE,
   warning = FALSE,
   message = FALSE,
   comment = '', 
@@ -485,7 +485,7 @@ transit_HW_alltt <- OD_v_HW  %>%
   filter(MODO_PRIORITARIO <= 9) %>% #(1. Renfe Cercanías ', 2. Autobus interurbano, 3. Autobus urbano otro municipio, 4. Metro, 5. Metro ligero/tranvía, 6. Autobus urbano Madrid EMT, 7. Resto renfe, 8. Autobus discrecional, 9. Autobus de largo recorrido)
   transmute(TIEMPO_VIAJES, 
             ELE_G_POND_ESC2,
-            mode = "transit",
+            mode = "Transit",
             VORIZT1259,
             VDESZT1259)
 
@@ -493,7 +493,7 @@ car_motor_HW_alltt <- OD_v_HW  %>%
   filter(MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10) %>% #includes both motorcycles and cars (specifically: 10. Taxi, 11. Coche conductor particular, 12. Coche conductor empresa, 13. Coche conductor alquiler sin conductor, 14. Coche pasajero particular, 15. Coche pasajero empresa, 16. Coche pasajero alquiler con conductor, 17. Moto/ciclomotor particular, 18. Moto/ciclomotor publica, 19. Moto/ciclomotor empresa)
   transmute(TIEMPO_VIAJES, 
             ELE_G_POND_ESC2,
-            mode = "car/motor",
+            mode = "Car/motor",
             VORIZT1259,
             VDESZT1259)
 
@@ -501,14 +501,14 @@ bike_HW_alltt <- OD_v_HW  %>%
   filter(MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20) %>% #includes cycling and 'otros', specificially: 20. Bicicleta particular, 21. Bicicleta publica, 22. Bicicleta empresa, 23. Otros)
   transmute(TIEMPO_VIAJES, 
             ELE_G_POND_ESC2,
-            mode = "bike",
+            mode = "Bike",
             VORIZT1259,
             VDESZT1259)
 
 walk_HW_alltt <- OD_v_HW  %>% filter(MODO_PRIORITARIO == 24) %>% #"24. Andando/pie"
   transmute(TIEMPO_VIAJES,
             ELE_G_POND_ESC2,
-            mode = "walk",
+            mode = "Walk",
             VORIZT1259,
             VDESZT1259)
 ```
@@ -695,25 +695,25 @@ x_transit <- x %>%
   mutate(f = dgamma(t,
                     HW_transit_gamma$estimate[1],
                     HW_transit_gamma$estimate[2]),
-         mode = "transit")
+         mode = "Transit")
 
 x_car_motor <- x %>%
   mutate(f = dgamma(t,
                     shape = HW_car_motor_gamma$estimate[1],
                     rate = HW_car_motor_gamma$estimate[2]),
-         mode = "car/motor")
+         mode = "Car/motor")
 
 x_bike <- x %>%
   mutate(f = dlnorm(t,
                     HW_bike_lnorm$estimate[1],
                     HW_bike_lnorm$estimate[2]),
-         mode = "bike")
+         mode = "Bike")
 
 x_walk <- x %>%
   mutate(f = dlnorm(t,
                     HW_walk_lnorm$estimate[1],
                     HW_walk_lnorm$estimate[2]),
-         mode = "walk")
+         mode = "Walk")
 ```
 
 ```{r}
@@ -723,7 +723,7 @@ tld_empirical <- rbind(transit_HW_alltt,
       bike_HW_alltt,
       walk_HW_alltt) %>%
   mutate(mode = factor(mode,
-                       levels = c("bike", "walk", "car/motor", "transit")),
+                       levels = c("Bike", "Walk", "Car/motor", "Transit")),
          distribution = "empirical") 
 
 tld_theoretical <- rbind(x_transit,
@@ -731,7 +731,7 @@ tld_theoretical <- rbind(x_transit,
       x_bike,
       x_walk) %>%
   mutate(mode = factor(mode,
-                       levels = c("bike", "walk", "car/motor", "transit")))
+                       levels = c("Bike", "Walk", "Car/motor", "Transit")))
 ```
 
 ```{r, eval=FALSE, warning=FALSE}
@@ -760,7 +760,7 @@ rbind(transit_HW_alltt,
       bike_HW_alltt,
       walk_HW_alltt) %>%
   mutate(mode = factor(mode,
-                       levels = c("bike", "walk", "car/motor", "transit"))) %>%
+                       levels = c("Bike", "Walk", "Car/motor", "Transit"))) %>%
   ggplot(aes(x = TIEMPO_VIAJES, after_stat(density),
              weights = ELE_G_POND_ESC2
              )) + 
@@ -773,12 +773,12 @@ rbind(transit_HW_alltt,
 
 # Instead of creating various columns like above, create a single column with the mode
 OD_v_HW <- OD_v_HW  %>% 
-  mutate(mode = case_when(MODO_PRIORITARIO <= 9 ~ "transit",
-                          MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10 ~ "car/motor",
-                          MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20 ~ "bike",
-                          MODO_PRIORITARIO == 24 ~ "walk"),
+  mutate(mode = case_when(MODO_PRIORITARIO <= 9 ~ "Transit",
+                          MODO_PRIORITARIO <= 19 & MODO_PRIORITARIO >= 10 ~ "Car/motor",
+                          MODO_PRIORITARIO <= 23 & MODO_PRIORITARIO >= 20 ~ "Bike",
+                          MODO_PRIORITARIO == 24 ~ "Walk"),
          mode = factor(mode,
-                       levels = c("bike", "walk", "car/motor", "transit")))
+                       levels = c("Bike", "Walk", "Car/motor", "Transit")))
 
 # The workers are classified by mode and origin. Ex. from Origin 1 five people use bike mode to get to destinations. This is P_i for each m
 workers_zn208 <- OD_v_HW %>%
@@ -852,16 +852,16 @@ OD_3 <- OD_3 %>%
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 #Estimate f value using these averaged travel times:
 OD_3 <- OD_3 %>%
-  mutate(f = case_when(mode == "transit" ~ dgamma(tt,
+  mutate(f = case_when(mode == "Transit" ~ dgamma(tt,
                                                   HW_transit_gamma$estimate["shape"], 
                                                   HW_transit_gamma$estimate["rate"]),
-                       mode == "car/motor" ~ dgamma(tt,
+                       mode == "Car/motor" ~ dgamma(tt,
                                                     HW_car_motor_gamma$estimate["shape"],
                                                     HW_car_motor_gamma$estimate["rate"]),
-                       mode == "bike" ~ dlnorm(tt,
+                       mode == "Bike" ~ dlnorm(tt,
                                                HW_bike_lnorm$estimate["meanlog"],
                                                HW_bike_lnorm$estimate["sdlog"]),
-                       mode == "walk" ~ dlnorm(tt, 
+                       mode == "Walk" ~ dlnorm(tt, 
                                                HW_walk_lnorm$estimate["meanlog"], 
                                                HW_walk_lnorm$estimate["sdlog"])),
          jobs_f = jobs*f) #for Hansen-type accessibility (unconstrained)
@@ -1027,7 +1027,6 @@ pop_i_m_plot <- ggplot() +
   geom_sf(data = SA_im_zn208,
           aes(fill = population_m),
           color = NA) +
-  
   scale_fill_viridis_c(option = "mako", #legend scale bar
                        na.value = "grey50",
                        direction = -1,
@@ -1043,7 +1042,8 @@ pop_i_m_plot <- ggplot() +
   scale_color_manual(values = c("pink", "purple", "black"),
                        name = element_blank())+
   annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
-                   height = unit(0.15, "cm")) +
+                   height = unit(0.10, "cm")) +
+  annotation_north_arrow(location = "tr", which_north = "true",  height = unit(0.75, "cm"), width = unit(0.75, "cm"), pad_y = unit(0, "cm"), style = north_arrow_fancy_orienteering(text_size=7)) +
   theme_void() +
   theme(legend.key.width = unit(0.2, 'cm')) +
   guides(fill = guide_legend(order = 1), colour = guide_legend(order = 2))+
@@ -1074,7 +1074,8 @@ jobs_i_plot <- ggplot() +
                        name = element_blank())+
   guides(fill = guide_legend(order = 1), colour = guide_legend(order = 2))+
   annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
-                   height = unit(0.15, "cm")) +
+                   height = unit(0.2, "cm")) +
+  annotation_north_arrow(location = "tr", which_north = "true",  height = unit(1, "cm"), width = unit(1, "cm"), pad_y = unit(0.4, "cm"), pad_x = unit(1, "cm"), style = north_arrow_fancy_orienteering(text_size=7)) +
   theme_void() +
 
   theme(legend.key.width = unit(0.2, 'cm'))
@@ -1117,7 +1118,8 @@ SA_im_V_zn208_plot <- ggplot() +
                        name = element_blank())+
   guides(fill = guide_legend(order = 1), colour = guide_legend(order = 2))+
   annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
-                   height = unit(0.15, "cm")) +
+                   height = unit(0.10, "cm")) +
+  annotation_north_arrow(location = "tr", which_north = "true",  height = unit(0.75, "cm"), width = unit(0.75, "cm"), pad_y = unit(0, "cm"), style = north_arrow_fancy_orienteering(text_size=7)) +
   theme_void() +
   theme(legend.key.width = unit(0.2, 'cm')) +
   facet_wrap(~mode, nrow = 2)
@@ -1189,7 +1191,8 @@ SA_im_v_zn208_plot <- ggplot() +
                        name = element_blank())+
   guides(fill = guide_legend(order = 1), colour = guide_legend(order = 2))+
   annotation_scale(bar_cols = c("dimgrey", "white"), # scale bar for both the main plot and inset
-                   height = unit(0.15, "cm")) +
+                   height = unit(0.10, "cm")) +
+  annotation_north_arrow(location = "tr", which_north = "true",  height = unit(0.75, "cm"), width = unit(0.75, "cm"), pad_y = unit(0, "cm"), style = north_arrow_fancy_orienteering(text_size=7)) +
   theme_void() +
   theme(legend.key.width = unit(0.2, 'cm')) +
   facet_wrap(~mode, nrow = 2)
@@ -1204,13 +1207,13 @@ ggsave("images/Fig7.png",
 
 ```{r, eval=FALSE}
 # here we example the relationship between v_im between modes -- I can't tell anything conclusive.
-car <- SA_im_zn208 %>% filter(mode=="car/motor") %>% st_drop_geometry() %>% select(VORI_CD_ZT208,v_im) %>% 
+car <- SA_im_zn208 %>% filter(mode=="Car/motor") %>% st_drop_geometry() %>% select(VORI_CD_ZT208,v_im) %>% 
   rename("v_im_car" = "v_im")
-bike <- SA_im_zn208 %>% filter(mode=="bike") %>% st_drop_geometry() %>% select(VORI_CD_ZT208,v_im) %>% 
+bike <- SA_im_zn208 %>% filter(mode=="Bike") %>% st_drop_geometry() %>% select(VORI_CD_ZT208,v_im) %>% 
   rename("v_im_bike" = "v_im")
-transit <- SA_im_zn208 %>% filter(mode=="transit") %>% st_drop_geometry() %>% select(VORI_CD_ZT208,v_im) %>% 
+transit <- SA_im_zn208 %>% filter(mode=="Transit") %>% st_drop_geometry() %>% select(VORI_CD_ZT208,v_im) %>% 
   rename("v_im_transit" = "v_im") 
-walk <- SA_im_zn208 %>% filter(mode=="walk")%>% st_drop_geometry() %>% select(VORI_CD_ZT208,v_im) %>% 
+walk <- SA_im_zn208 %>% filter(mode=="Walk")%>% st_drop_geometry() %>% select(VORI_CD_ZT208,v_im) %>% 
   rename("v_im_walk" = "v_im")
 
 
@@ -1519,7 +1522,7 @@ From the perspective of access to a _finite_ amount of opportunities in the regi
 
 ```{r tab1}
 flextable::set_caption(table_toy_format_flex, 
-            caption = "Accessibility values at each origin (i) per mode (m) (columns three to five) and aggregated per i (columns six and seven) for the synthetic example.")
+            caption = "Accessibility values (S, a, V) at each origin (i) for the synthetic example. Displayed per mode (m) (columns three to five) and aggregated per i (columns six and seven).")
 ```
 
 The values calculated for $S_i^m$ (Hansen-type accessibility), $a_i^m$ (Shen-type accessibility), and $V_i^m$ (spatial availability) for each $i$ and $m$ are shown in the middle three columns and are aggregated for each $i$ in the final two columns in Table 1 <!-- \ref{tab:tab1}-->. As in the example in Shen (1998) [@shenLocationCharacteristicsInnercity1998], we use a negative exponential impedance function $f^m(c_{ij}^m) = \exp(-\beta\cdot c_{ij})$ with $\beta=0.1$ for both $x$ and $z$ modes for all accessibility measures calculations. Notice that in this example we use the same impedance function but the travel times are different for the two modes. More generally, it is possible to use different impedance functions for the modes, as the empirical example in the following section demonstrates.
@@ -1560,10 +1563,10 @@ If, let us say, the planning goal was to have one spatially available job per mo
 pop_props <- SA_im_zn208 %>% st_drop_geometry() %>% group_by(mode) %>% summarize(population_m = sum(population_m))
 ```
 ```{r}
-tld_empirical_car <- tld_empirical %>% filter(mode == "car/motor") 
-tld_empirical_transit <- tld_empirical %>% filter(mode == "transit") 
-tld_empirical_bike <- tld_empirical %>% filter(mode == "bike") 
-tld_empirical_walk <- tld_empirical %>% filter(mode == "walk") 
+tld_empirical_car <- tld_empirical %>% filter(mode == "Car/motor") 
+tld_empirical_transit <- tld_empirical %>% filter(mode == "Transit") 
+tld_empirical_bike <- tld_empirical %>% filter(mode == "Bike") 
+tld_empirical_walk <- tld_empirical %>% filter(mode == "Walk") 
 
 car_qs <- weighted_quantile(x=tld_empirical_car$TIEMPO_VIAJES, w=tld_empirical_car$ELE_G_POND_ESC2)
 transit_qs <- weighted_quantile(x=tld_empirical_transit$TIEMPO_VIAJES, w=tld_empirical_transit$ELE_G_POND_ESC2)
@@ -1576,13 +1579,13 @@ walk_qs <- weighted_quantile(x=tld_empirical_walk$TIEMPO_VIAJES, w=tld_empirical
 
 corr_m_pops <- data.frame(VORI_CD_ZT208 = SA_im_zn208$VORI_CD_ZT208 %>% unique())
 
-corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "bike") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_bike" = "population_m")
+corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "Bike") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_bike" = "population_m")
 
-corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "transit") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_transit" = "population_m")
+corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "Transit") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_transit" = "population_m")
 
-corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "walk") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_walk" = "population_m")
+corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "Walk") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_walk" = "population_m")
 
-corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "car/motor") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_car" = "population_m")
+corr_m_pops <- merge(corr_m_pops, SA_im_zn208 %>% st_drop_geometry() %>% filter(mode == "Car/motor") %>% select(c(VORI_CD_ZT208, population_m)), by="VORI_CD_ZT208", all = TRUE) %>% rename("population_m_car" = "population_m")
 
 #shapiro.test(corr_m_pops$population_m_car) #all pop_ms have p values under 0.05, indicating that they are not statistically different from the null which is that they are something other than normally distirbuted. thus wecannot run the correlation.
 #shapiro.test(corr_m_pops$population_m_transit) 
@@ -1693,16 +1696,13 @@ There are some intriguing opportunities for future research. Accessibility indic
 
 Our empirical example dealt with differences in travel by mode only, but it is possible to think of the intersection between mode of travel and different types of travelers. This would expand the number of sub-populations in the analysis from, say, $m=M$ (modes) to $m = M\cdot Q$ (modes times population segments), each with their own characteristic impedance function. Evaluations of this kind will be especially relevant as LEZ are implemented in cities globally, and the question of their impact on disadvantaged populations who have become mobility-restricted increasingly come to the fore [@devrijNooneVisitsMe2022; @verbeekJustManagementUrban2022; @liottaWhatDrivesInequalities2023].
 
-To close, in this work spatial availability considers competition by allocating opportunities (the subject of the single-constraint) to modal populations in zones based on zonal proportions. Opportunity congestion can be seen on a continuum, but how it is to be considered within accessibility research is an ongoing subject of exploration [@vanweeAccessibilityMeasuresCompetition2001; @merlinDoesCompetitionMatter2017; @kelobonyeMeasuringAccessibilitySpatial2020a]. It is in this context we present spatial availability and its multimodal extension. While our focus was on a multiple modes, this consideration is just one case of heterogeneous populations (i.e., travel by different modes). The multimodal method itself can easily accommodate other forms of population or opportunity heterogeneity, for example: variations in rich and poor, young and old, types of opportunities. Like preceding accessibility measures, the potential applications of spatial availability are as numerous as the potential study contexts.
+To close, in this work spatial availability considers competition by allocating opportunities (the subject of the single-constraint) to modal populations in zones based on zonal proportions. Opportunity congestion can be seen on a continuum, but how it is to be considered within accessibility research is an ongoing subject of exploration [@vanweeAccessibilityMeasuresCompetition2001; @merlinDoesCompetitionMatter2017; @kelobonyeMeasuringAccessibilitySpatial2020a]. It is in this context we present spatial availability and its multimodal extension. While our focus was on a multiple modes, this consideration is just one case of heterogeneous populations (i.e., travel by different modes). The multimodal method itself can easily accommodate other forms of population or opportunity heterogeneity, for example: variations in rich and poor, young and old, types of opportunities. Similar to preceding accessibility measures, the applications of spatial availability are as numerous as potential study contexts. To encourage open and reproducible science, the manuscript and all associated analysis is available within the lead author's [GitHub repository](https://github.com/soukhova/Multimodal-spatial-availability).
 
 <!-- # Acknowledgements -->
 
 <!-- This research was funded by the Canada Graduate Scholarship - Doctoral Program (CGS D) provided by the Social Sciences and Humanities Research Council (SSHRC) and Project Mobilizing Justice, also supported by SSHRC. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript. -->
 
 <!-- All work is fully-reproducible and available within this [GitHub repository](https://github.com/soukhova/Multimodal-spatial-availability). -->
-
-# Author contributions
-The authors confirm contribution to the paper as follows: study conception and design: AS, JTO, JSL, AP.; data collection: AS, JTO, JSL.; analysis and interpretation of results: AS, JTO, JSL, AP.; draft manuscript preparation: AS, JSL, AP. All authors reviewed the results and approved the final version of the manuscript.
 
 <!-- rejected text is left here -->
 <!-- As reviewed in the work of [@levinsonTransportAccessManual2020], cumulative opportunity measures and weighted cumulative opportunity measures are commonly used location-based accessibility measures; they use distance-decay functions (otherwise known as an impedance functions) to weight the opportunities that can be potentially accessed from origin to destination based on some sort of travel cost (e.g., travel time, fare, travel distance). A score is calculated for each location in the region; the score represents the number of opportunities that can be potentially interacted after being discounted by travel impedance.  -->
